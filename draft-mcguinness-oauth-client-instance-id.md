@@ -58,8 +58,9 @@ Attestation-Based Client Authentication. It adds an issuer-qualified
 client instance identifier, continuity and privacy rules, and optional
 instance context in tokens and introspection responses. The profile
 supports correlation across attestations and verified key changes.
-Authentication and proof methods follow the base specification; access
-tokens carrying instance context are sender-constrained.
+Authentication and proof methods follow the base specification;
+attributing a token presentation to the identified instance requires a
+binding between the presenter and that instance.
 
 --- middle
 
@@ -129,9 +130,10 @@ keys. Several instances can share one `client_id`.
 
 This profile is for administratively configured deployments, including
 workloads and managed desktop or mobile applications. It is not a
-general-purpose device or wallet identifier. It adds sender constraint
-for access tokens carrying Instance Context ({{context-binding}}) but
-defines no enrollment, key-rotation, or status-distribution protocol.
+general-purpose device or wallet identifier. It requires a presenter
+binding only where Instance Context is used to attribute a token
+presentation ({{context-binding}}) and defines no enrollment,
+key-rotation, or status-distribution protocol.
 
 ATTEST supplies the authentication and proof methods. Direct
 resource-server presentation follows {{ATTEST, Section 1.1}},
@@ -242,8 +244,8 @@ Conformance is role-specific:
   proof method.
 * Receivers implement trust, validation, and applicable
   grant-continuity rules.
-* Token issuers conveying context implement mapping, binding, and
-  preservation.
+* Token issuers conveying context implement mapping, preservation, and
+  any binding that attribution requires.
 * Context Consumers implement context validation and applicable proof
   checks.
 
@@ -345,8 +347,8 @@ Migration between attester issuers requires a procedure establishing
 trust in both authorities and continuity evidence. Authorization
 relationships belong to the consuming authorization profile.
 
-Key selection follows ATTEST, with sender constraint required by
-{{context-binding}}. When a separate token-binding key is permitted,
+Key selection follows ATTEST; presenter binding for attributed context
+follows {{context-binding}}. When a separate token-binding key is used,
 context identifies the instance associated with the Client Instance Key.
 Key continuity does not authorize transfer of existing tokens or grants
 to a replacement key; refresh-token rebinding follows
@@ -575,14 +577,22 @@ context in a JWT access token and an introspection response.
 
 ## Access Token Binding {#context-binding}
 
-An AS MUST sender-constrain access tokens carrying `client_instance`,
-including when context is conveyed only through introspection, using
-Demonstrating Proof of Possession (DPoP) {{RFC9449}}, mutual TLS
-{{RFC8705}}, or another mechanism defined by the consuming profile. A
-resource server consuming such a token MUST validate its binding and
-required proof, and reject an unconstrained token under
-{{context-errors}}. Proof errors follow the selected binding
-mechanism.
+Instance Context grants no authority and, by itself, describes only
+the instance that participated in obtaining the token. When a Context
+Consumer uses context to attribute the current token presentation to
+the identified instance, the applicable consuming profile MUST require
+a mechanism that establishes the association between the token
+presenter and that instance, and the consumer MUST validate that
+mechanism before attributing. For tokens issued directly from a
+validated Client Attestation, sender constraint of the access token
+using Demonstrating Proof of Possession (DPoP) {{RFC9449}}, mutual TLS
+{{RFC8705}}, or another mechanism defined by the consuming profile,
+with a key the issuer associated with the authenticated instance at
+issuance, establishes that association; this applies equally when
+context is conveyed only through introspection. A bearer token
+carrying context supports no presenter attribution, and a consumer
+requiring attribution rejects it under {{context-errors}}. Proof errors
+follow the selected binding mechanism.
 
 The binding authenticates the authorized token presenter. It does not
 establish that the presenter is the instance named in context derived
@@ -657,8 +667,9 @@ When the consumer's trusted configuration establishes that the token
 issuer conveys context only from direct Client Attestation validation,
 this document is the applicable consuming profile: context identifies
 the authenticated presenting instance under {{context-claims}}, and
-validating the token's binding under {{context-binding}} establishes
-that association.
+validating the token's sender constraint under {{context-binding}}
+establishes that association. Without such a binding, context remains
+evidence of participation only.
 
 For introspection, trusted endpoint configuration identifies the
 expected token issuer. A response-level `iss`, if present, MUST match
