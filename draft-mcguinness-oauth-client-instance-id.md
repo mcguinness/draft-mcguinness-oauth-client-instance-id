@@ -420,9 +420,13 @@ within a continuing enrollment; storing those values is sufficient.
 
 ## Continuity and Lifecycle {#continuity}
 
-Continuity is an unbroken, attester-recorded chain of verified key
-custody within one enrollment at the configured granularity. Before
-retaining an identifier, the attester MUST verify and record:
+Continuity is authenticated evidence sufficient for the attester to
+determine that a claimant represents the same enrolled Client Instance
+at the configured granularity. An attester-recorded chain of verified
+key custody within one enrollment is the primary mechanism; platform
+or hardware-rooted identity evidence can supplement it or, where the
+deployment's evidence policy permits, supply it. Before retaining an
+identifier, the attester MUST verify and record:
 
 1. An active enrollment binding the instance, Logical Client, Receiver
    scope, granularity, and previously verified keys.
