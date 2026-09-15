@@ -178,10 +178,12 @@ Attester Issuer:
 : The value of `iss` in the Client Attestation, identifying the
   Client Attester.
 
-Instance Authority:
-: The namespace authority identified by `iss` in a `client_instance`
-  object. It is the token issuer that assigned the context, including
-  an upstream token issuer when context is preserved.
+Instance Context Authority:
+: The authority identified by `iss` in a `client_instance` object. It
+  assigned `id` in its own namespace and is the token issuer that first
+  mapped the context: the enclosing token issuer, unless the context
+  was preserved from an upstream token. The Client Attester remains the
+  authority for the underlying instance identity.
 
 Enrollment:
 : An attester-maintained record binding one instance, at the configured
@@ -523,8 +525,8 @@ response {{RFC7662}}. Its JSON object has two REQUIRED members:
 
 | Member | Type | Meaning |
 |---|---|---|
-| `iss` | Nonempty string | Token issuer that assigned the context |
-| `id` | Nonempty StringOrURI | Instance identifier in that issuer's namespace |
+| `iss` | Nonempty string | Instance Context Authority that assigned `id` |
+| `id` | Nonempty StringOrURI | Representation of the instance in that authority's namespace |
 
 For direct issuance from a validated Client Attestation, context MUST
 identify the authenticated presenting instance. On refresh, that identity
@@ -829,8 +831,8 @@ separate.
 For an opaque access token, an authenticated introspection response
 conveys the same context. The resource has configured this endpoint as
 authoritative for `https://as.example`. The response-level `iss` names
-the token issuer; the nested `iss` names the Instance Authority. They
-coincide in this mapped example.
+the token issuer; the nested `iss` names the Instance Context
+Authority. They coincide in this mapped example.
 
 ~~~ http-message
 HTTP/1.1 200 OK
