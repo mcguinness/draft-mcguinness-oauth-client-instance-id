@@ -284,8 +284,13 @@ The attester MUST assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers. The client MUST request and use the
 attestation for that configured scope and use distinct Client Instance
-Keys across scopes. A shared client or trust domain does not authorize
-sharing identifiers.
+Keys across scopes. Identifiers and keys are scoped together because a
+shared key links attestations regardless of their identifiers. A
+deployment in which correlation across Receivers is intended, such as
+an enterprise workload, configures one scope spanning those Receivers;
+one identifier and one Client Instance Key then suffice. A shared
+client or trust domain does not by itself authorize sharing
+identifiers.
 
 The Receiver scope is an enrollment or issuance input, not an OAuth
 parameter or an attestation audience. A Receiver cannot verify that
