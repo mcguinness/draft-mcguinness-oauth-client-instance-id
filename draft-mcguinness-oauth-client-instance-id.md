@@ -499,27 +499,24 @@ from a Client Attestation, or the upstream `(iss, id)` being remapped.
 of Context Consumers, to which the mapping is scoped under
 {{context-claims}}.
 
-An issuer's obligation for a mapping ends only when the issuer retires
-it. An issuer MAY retire a mapping when no still-valid token or
-continuing grant, including allowed clock skew, requires its continuity
-and local policy no longer permits issuance of Instance Context for that
-source identity and consumer scope. Until then, the issuer MUST retain
-or securely reproduce the same mapping, including across periods of
-inactivity. Expiration of attestations, access tokens, or refresh tokens
-alone does not retire a mapping.
+A mapping MUST be stable for the lifetime of its source identity: an
+issuer MUST NOT represent one source identity and consumer scope by
+more than one mapped identifier. Because identifiers are never
+reassigned ({{attester-requirements}}), a new enrollment presents a new
+source identity and receives a new mapping without further rule. An
+issuer that no longer holds or can reproduce a mapping MUST omit
+`client_instance` for that source identity and consumer scope rather
+than assign a replacement; a Context Consumer requiring context then
+rejects under {{context-errors}}. An issuer SHOULD retain a mapping
+while any token or grant it issued for that source identity remains
+valid.
 
-If issuance later resumes for a retired source identity and consumer
-scope, the issuer MUST restore or reproduce the previous mapped
-identifier; it MUST NOT assign a replacement identifier. An issuer that
-cannot do so MUST omit `client_instance` for that source identity and
-consumer scope; a Context Consumer requiring context then rejects under
-{{context-errors}}. Issuers using random mappings therefore need to
-retain recoverable records if they intend to support resumption.
-
-Random generation satisfies non-reassignment probabilistically without
-an indefinite retired-identifier list; derivation depends on never
-reusing enrollment inputs. After a mapping is retired and the attester's
-continuity and status obligations end, this profile requires no further
+Derived mappings satisfy stability without stored state; issuers using
+random mappings need records for as long as they intend to include
+context for that source identity. Random generation satisfies
+non-reassignment probabilistically without an indefinite
+retired-identifier list; derivation depends on never reusing enrollment
+inputs. Beyond these obligations, this profile requires no further
 retention. Audit retention is local policy.
 
 # Conveying Instance Context {#instance-context}
