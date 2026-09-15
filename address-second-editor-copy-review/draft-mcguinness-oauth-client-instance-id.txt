@@ -687,17 +687,18 @@ Table of Contents
    issuers or consumer scopes represent one instance by different
    values.  Its JSON object has two REQUIRED members:
 
-       +========+=================+================================+
-       | Member | Type            | Meaning                        |
-       +========+=================+================================+
-       | iss    | Nonempty string | Instance Context Authority     |
-       |        |                 | that assigned id               |
-       +--------+-----------------+--------------------------------+
-       | id     | Nonempty string | Representation of the instance |
-       |        |                 | in that authority's namespace  |
-       +--------+-----------------+--------------------------------+
+    +========+==========================+============================+
+    | Member | Type                     | Meaning                    |
+    +========+==========================+============================+
+    | iss    | Nonempty string          | Instance Context Authority |
+    |        |                          | that assigned id           |
+    +--------+--------------------------+----------------------------+
+    | id     | Nonempty string, at most | Representation of the      |
+    |        | 256 octets of UTF-8      | instance in that           |
+    |        |                          | authority's namespace      |
+    +--------+--------------------------+----------------------------+
 
-                                  Table 3
+                                 Table 3
 
    For direct issuance from a validated Client Attestation, context MUST
    identify the authenticated presenting instance.  On refresh, that
@@ -715,8 +716,9 @@ Table of Contents
    *  keep distinct instances separate unless continuity is established;
 
    *  generate opaque, unpredictable, non-reassignable identifiers under
-      Section 6.1 and retain them across attestation renewal and
-      verified key changes;
+      Section 6.1, subject to the same length bound as
+      client_instance_id (Section 4), and retain them across attestation
+      renewal and verified key changes;
 
    *  scope identifiers to each Context Consumer, allowing sharing only
       within an explicitly configured set; and
@@ -745,9 +747,17 @@ Table of Contents
    consuming profile, with a key the issuer associated with the
    authenticated instance at issuance, establishes that association;
    this applies equally when context is conveyed only through
-   introspection.  A bearer token carrying context supports no presenter
-   attribution, and a consumer requiring attribution rejects it under
-   Section 7.5.  Proof errors follow the selected binding mechanism.
+   introspection.  A token without sender constraint carrying context
+   supports no presenter attribution, and a consumer requiring
+   attribution rejects it under Section 7.5.  The HTTP Bearer
+   authentication scheme does not indicate that a token is unbound;
+   certificate-bound tokens under [RFC8705] use it as well.
+
+   All validation requirements of the applicable token-binding mechanism
+   continue to apply, regardless of whether Instance Context is used for
+   presenter attribution; in particular, a resource server MUST reject a
+   bound token presented without its required proof ([RFC9449],
+   Section 7.2).  Proof errors follow the selected binding mechanism.
 
    The binding authenticates the authorized token presenter.  It does
    not establish that the presenter is the instance named in context
@@ -809,7 +819,9 @@ Table of Contents
        response.
 
    2.  Validate the context members, comparing exact, case-sensitive
-       strings without URI normalization; ignore unrecognized members.
+       strings without URI normalization, accepting id values up to the
+       length bound in Section 7.1 and rejecting longer ones; ignore
+       unrecognized members.
 
    3.  Accept its authority only when it is the token issuer or an
        upstream token issuer explicitly trusted for that issuer and

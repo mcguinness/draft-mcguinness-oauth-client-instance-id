@@ -2036,7 +2036,7 @@ Its JSON object has two <span class="bcp14">REQUIRED</span> members:<a href="#se
               <td class="text-left" rowspan="1" colspan="1">
                 <code>id</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">Nonempty string</td>
+              <td class="text-left" rowspan="1" colspan="1">Nonempty string, at most 256 octets of UTF-8</td>
               <td class="text-left" rowspan="1" colspan="1">Representation of the instance in that authority's namespace</td>
             </tr>
           </tbody>
@@ -2058,8 +2058,9 @@ input. For each mapping, it <span class="bcp14">MUST</span>:<a href="#section-7.
 </li>
           <li class="normal" id="section-7.1-5.2">
             <p id="section-7.1-5.2.1">generate opaque, unpredictable, non-reassignable identifiers under
-<a href="#attester-requirements" class="auto internal xref">Section 6.1</a> and retain them across attestation renewal
-and verified key changes;<a href="#section-7.1-5.2.1" class="pilcrow">¶</a></p>
+<a href="#attester-requirements" class="auto internal xref">Section 6.1</a>, subject to the same length bound as
+<code>client_instance_id</code> (<a href="#claims" class="auto internal xref">Section 4</a>), and retain them across attestation
+renewal and verified key changes;<a href="#section-7.1-5.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.1-5.3">
             <p id="section-7.1-5.3.1">scope identifiers to each Context Consumer, allowing sharing only
@@ -2093,17 +2094,24 @@ using Demonstrating Proof of Possession (DPoP) <span>[<a href="#RFC9449" class="
 <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism defined by the consuming profile,
 with a key the issuer associated with the authenticated instance at
 issuance, establishes that association; this applies equally when
-context is conveyed only through introspection. A bearer token
-carrying context supports no presenter attribution, and a consumer
-requiring attribution rejects it under <a href="#context-errors" class="auto internal xref">Section 7.5</a>. Proof errors
-follow the selected binding mechanism.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.2-2">The binding authenticates the authorized token presenter. It does not
+context is conveyed only through introspection. A token without sender
+constraint carrying context supports no presenter attribution, and a
+consumer requiring attribution rejects it under <a href="#context-errors" class="auto internal xref">Section 7.5</a>.
+The HTTP <code>Bearer</code> authentication scheme does not indicate that a token
+is unbound; certificate-bound tokens under <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> use it as well.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">All validation requirements of the applicable token-binding mechanism
+continue to apply, regardless of whether Instance Context is used for
+presenter attribution; in particular, a resource server <span class="bcp14">MUST</span> reject a
+bound token presented without its required proof
+(<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>], <a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a></span>). Proof errors follow the selected binding
+mechanism.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">The binding authenticates the authorized token presenter. It does not
 establish that the presenter is the instance named in context derived
 from an upstream token, whether preserved or remapped. Key selection
 follows ATTEST; any presenter or key change during exchange requires
 authorization under the consuming exchange profile. Unlinkability
 between Context Consumers additionally requires distinct binding keys
-under <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+under <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-exchange">
@@ -2165,7 +2173,9 @@ it represents unchanged. Presenter authentication follows
 </li>
           <li id="section-7.4-2.2">
             <p id="section-7.4-2.2.1">Validate the context members, comparing exact, case-sensitive strings
-without URI normalization; ignore unrecognized members.<a href="#section-7.4-2.2.1" class="pilcrow">¶</a></p>
+without URI normalization, accepting <code>id</code> values up to the length
+bound in <a href="#context-claims" class="auto internal xref">Section 7.1</a> and rejecting longer ones; ignore
+unrecognized members.<a href="#section-7.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.4-2.3">
             <p id="section-7.4-2.3.1">Accept its authority only when it is the token issuer or an upstream
