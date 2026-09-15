@@ -103,6 +103,12 @@ The attester verifies continuity under {{lifetime}}. ATTEST alone is
 sufficient when correlation need only last for the current key or can
 remain internal to one system.
 
+This profile establishes instance identity and its continuity. It does
+not define what authority, if any, follows from that identity.
+Instance evidence grants no authority; authorization profiles MAY use
+validated instance identity or Instance Context as an input to policy,
+subject to the limits in {{processing}}.
+
 ## Identity and Scope
 
 | Identity | Purpose |
@@ -309,7 +315,8 @@ The Receiver MUST:
 2. Validate the claims in {{claims}} and attester authority under
    {{configuration}}.
 3. Associate `(iss, client_instance_id)` with the Logical Client and
-   validated Client Instance Key, then apply instance policy.
+   validated Client Instance Key, then apply local instance acceptance
+   policy ({{errors}}).
 
 The Receiver MUST NOT:
 
