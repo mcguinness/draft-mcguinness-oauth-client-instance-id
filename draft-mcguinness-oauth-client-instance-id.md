@@ -187,8 +187,8 @@ Enrollment:
   separate from a user account, device registration, or Logical Client.
 
 Identifier values in this profile are opaque. Implementations MUST
-compare `iss`, `client_instance_id`, and the members of
-`client_instance` as exact, case-sensitive strings without URI
+compare `iss`, `client_instance_id`, `client_instance.iss`, and
+`client_instance.id` as exact, case-sensitive strings without URI
 normalization, and MUST NOT derive permissions, granularity, or key
 locations by parsing them.
 
@@ -215,7 +215,8 @@ That profile governs acceptance at AS endpoints only; a resource server
 validating attestations directly uses configured associations. A
 credential's `iss`, proof of possession, or client-published metadata
 ({{RFC7591}}, {{CIMD}}) alone does not establish attester authority.
-Trust management and key resolution follow {{ATTEST, Section 10.8}}.
+Key resolution follows {{ATTEST, Section 10.8}}. Local trust
+withdrawal MUST take effect on subsequent authentication.
 
 ## Conformance
 
@@ -344,8 +345,10 @@ MUST enforce two independent invariants:
 Instance continuity does not imply key-binding continuity, nor the
 reverse. A conflict with the recorded identity MUST produce
 `invalid_grant` {{RFC6749}} without disclosing the expected identity.
-Binding of authorization codes and other protocol artifacts follows
-{{ATTEST, Section 10.4}}.
+If authorization-time policy bound a code or other artifact to an
+instance, the AS MUST enforce that binding at redemption, in either
+authentication mode of {{configuration}}; establishing such bindings
+follows {{ATTEST, Section 10.4}}.
 
 ## Errors {#errors}
 
@@ -427,10 +430,14 @@ The attester MUST stop issuance for suspended or retired enrollments.
 A Receiver suspending an instance SHOULD revoke its grants or report
 their tokens inactive through introspection {{RFC7662}}; attesters and
 Receivers SHOULD agree on short attestation lifetimes where timely
-enforcement matters. Without a status channel, existing attestations
-remain acceptable until expiration plus clock skew, issued tokens
-remain valid for their own lifetimes, and local revocation does not
-notify resource servers validating tokens offline. Security Event
+enforcement matters. When an AS revokes a grant for instance
+suspension, retirement, or attester trust withdrawal, it MUST
+invalidate all access and refresh tokens associated with that grant
+and prevent further refresh issuance. Without a status channel,
+existing attestations remain acceptable until expiration plus clock
+skew, issued tokens remain valid for their own lifetimes, and local
+revocation does not notify resource servers validating tokens offline.
+Security Event
 Tokens {{RFC8417}} delivered under {{RFC8935}} can support a separate
 status integration, which this profile does not define.
 
