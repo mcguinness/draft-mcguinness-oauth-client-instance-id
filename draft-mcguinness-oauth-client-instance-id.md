@@ -161,9 +161,13 @@ Instance Identifier:
 
 Instance Context:
 : The `client_instance` object in a token or introspection response.
-  It identifies the instance associated with the token through a
-  validated attestation and proof, or validated upstream context. It
-  grants no authority and does not prove current possession.
+  It is an issuer-assigned, pairwise representation of a validated
+  Client Instance: its `id` is assigned by the Instance Context
+  Authority for a consumer scope and need not equal the
+  `client_instance_id` in the Client Attestation. It identifies the
+  instance associated with the token through a validated attestation
+  and proof, or validated upstream context. It grants no authority and
+  does not prove current possession.
 
 Receiver:
 : A party that validates a Client Attestation under this profile,
@@ -521,7 +525,11 @@ retention. Audit retention is local policy.
 ## Format and Mapping {#context-claims}
 
 An issuer MAY include `client_instance` in a token or introspection
-response {{RFC7662}}. Its JSON object has two REQUIRED members:
+response {{RFC7662}}. It is an issuer-assigned representation of a
+validated Client Instance; its `id` need not equal the
+`client_instance_id` in the Client Attestation, and different issuers
+or consumer scopes can represent one instance by different values.
+Its JSON object has two REQUIRED members:
 
 | Member | Type | Meaning |
 |---|---|---|
