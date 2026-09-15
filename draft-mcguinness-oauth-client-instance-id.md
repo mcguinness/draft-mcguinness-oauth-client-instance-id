@@ -158,18 +158,30 @@ Logical Client:
 
 Instance Identifier:
 : An opaque identifier assigned by a Client Attester to one
-  Client Instance at the configured granularity. The instance identity
-  is the pair `(iss, client_instance_id)`.
+  Client Instance at the configured granularity, carried as
+  `client_instance_id`.
+
+Source Instance Identity:
+: The pair `(iss, client_instance_id)` established by a validated
+  Client Attestation: the Attester Issuer and its Instance Identifier.
+  It is the identity this profile keeps stable across verified key
+  changes and the input from which Instance Context is mapped.
+
+Instance Context Identifier:
+: The pair `(iss, id)` in a `client_instance` object: an Instance
+  Context Authority and its representation of one Source Instance
+  Identity for a consumer scope. Like a pairwise subject identifier, it
+  is the authority's own correlator for the instance, not a second
+  instance identity.
 
 Instance Context:
 : The `client_instance` object in a token or introspection response.
-  It is an issuer-assigned, pairwise representation of a validated
-  Client Instance: its `id` is assigned by the Instance Context
-  Authority for a consumer scope and need not equal the
-  `client_instance_id` in the Client Attestation. It identifies the
-  instance associated with the token through a validated attestation
-  and proof, or validated upstream context. It grants no authority and
-  does not prove current possession.
+  It carries an Instance Context Identifier, an issuer-assigned,
+  pairwise representation of a Source Instance Identity whose `id`
+  need not equal the `client_instance_id` in the Client Attestation.
+  It identifies the instance associated with the token through a
+  validated attestation and proof, or validated upstream context. It
+  grants no authority and does not prove current possession.
 
 Receiver:
 : A party that validates a Client Attestation under this profile,
@@ -189,7 +201,7 @@ Instance Context Authority:
   is the token issuer that assigned the current `id` in its own
   namespace: the enclosing token issuer, unless the context was
   preserved from an upstream token. The Client Attester remains the
-  authority for the underlying instance identity.
+  authority for the underlying Source Instance Identity.
 
 Enrollment:
 : An attester-maintained record binding one instance, at the configured
@@ -272,8 +284,8 @@ The claims `exp` and `cnf` remain required; `iat` remains optional.
 : REQUIRED. Nonempty JSON string whose UTF-8 encoding, after JSON
   string decoding, is no longer than 256 octets, identifying the
   instance within the attester's namespace. The value is opaque; a URI
-  form carries no URI semantics.
-  The instance identity is `(iss, client_instance_id)`.
+  form carries no URI semantics. The pair `(iss, client_instance_id)`
+  is the Source Instance Identity.
 
 Assignment, Receiver scoping, and generation follow
 {{attester-requirements}}.
@@ -336,7 +348,7 @@ The Receiver MUST:
 1. Validate the attestation and proof under the configured ATTEST method.
 2. Validate the claims in {{claims}} and attester authority under
    {{configuration}}.
-3. Associate `(iss, client_instance_id)` with the Logical Client and
+3. Associate the Source Instance Identity with the Logical Client and
    validated Client Instance Key, then apply local instance acceptance
    policy ({{errors}}).
 
@@ -368,21 +380,22 @@ the Client Instance Key. This profile does not introduce instance-bound
 grants; it gives that binding an identity that survives verified key
 changes and detects a copied key presented with a different identity.
 For a grant established using a Client Attestation validated under this
-profile, the AS MUST record `(iss, client_instance_id)` when issuing a
-refresh token, in addition to ATTEST's client and key bindings, and on
-refresh MUST enforce two independent invariants:
+profile, the AS MUST record the Source Instance Identity when issuing
+a refresh token, in addition to ATTEST's client and key bindings, and
+on refresh MUST enforce two independent invariants:
 
-* the identity pair in the current validated attestation MUST match
-  the recorded instance identity; and
+* the Source Instance Identity in the current validated attestation
+  MUST match the recorded one; and
 * the proof and key binding MUST satisfy ATTEST and any applicable
   refresh-token rebinding profile under {{ATTEST, Section 13}}.
 
 Instance continuity does not imply key-binding continuity. A verified
-key change that retains the instance identity under {{continuity}} does
-not rebind an existing refresh token, and possession of the original
-key alone does not permit a different identity.
+key change that retains the Source Instance Identity under
+{{continuity}} does not rebind an existing refresh token, and
+possession of the original key alone does not permit a different
+identity.
 
-A refresh request MUST NOT change the recorded instance identity
+A refresh request MUST NOT change the recorded Source Instance Identity
 without an explicitly authorized migration that establishes continuity
 under {{continuity}}; no migration protocol is defined here. An
 otherwise valid attestation that conflicts with the grant's instance
@@ -514,11 +527,11 @@ suspension, revocation, and mapped context require the corresponding
 status, token associations, and mappings.
 
 In this section, "source identity" is the mapping input under
-{{context-claims}}: the instance identity `(iss, client_instance_id)`
-from a Client Attestation, or the upstream `(iss, id)` being remapped.
-"Consumer scope" is the Context Consumer, or explicitly configured set
-of Context Consumers, to which the mapping is scoped under
-{{context-claims}}.
+{{context-claims}}: the Source Instance Identity from a Client
+Attestation or, when remapping under {{context-exchange}}, the upstream
+Instance Context Identifier. "Consumer scope" is the Context Consumer,
+or explicitly configured set of Context Consumers, to which the mapping
+is scoped under {{context-claims}}.
 
 A mapping MUST be stable for the lifetime of its source identity: an
 issuer MUST NOT represent one source identity and consumer scope by
@@ -548,10 +561,11 @@ retention. Audit retention is local policy.
 ## Format and Mapping {#context-claims}
 
 An issuer MAY include `client_instance` in a token or introspection
-response {{RFC7662}}. It is an issuer-assigned representation of a
-validated Client Instance; its `id` need not equal the
-`client_instance_id` in the Client Attestation, and different issuers
-or consumer scopes can represent one instance by different values.
+response {{RFC7662}}. Its `(iss, id)` is an Instance Context
+Identifier: the issuer's own representation of a Source Instance
+Identity, analogous to a pairwise subject identifier. Its `id` need not
+equal the `client_instance_id` in the Client Attestation, and different
+issuers or consumer scopes represent one instance by different values.
 Its JSON object has two REQUIRED members:
 
 | Member | Type | Meaning |
@@ -566,8 +580,8 @@ is subject to {{grant-continuity}}. Token exchange follows
 
 The context MUST refer to validated instance participation; issuers
 MUST NOT copy unvalidated client-supplied context. From a Client
-Attestation, the issuer MUST map `(iss, client_instance_id)` to its own
-namespace. Remapping validated upstream context under
+Attestation, the issuer MUST map the Source Instance Identity to its
+own namespace. Remapping validated upstream context under
 {{context-exchange}} maps the upstream `(iss, id)` pair to the issuer's
 namespace by the same rules; the upstream `id` alone is not the mapping
 input. For each mapping, it MUST:
@@ -648,8 +662,9 @@ preservation is also a privacy default: each preservation discloses
 the upstream representation to a further consumer.
 
 Context MUST NOT be treated as a separate token or delegated actor.
-Remapping follows {{context-claims}} and, like preservation, leaves the
-identified instance unchanged; presenter authentication follows
+Remapping follows {{context-claims}}; it changes the Instance Context
+Identifier but, like preservation, leaves the Source Instance Identity
+it represents unchanged. Presenter authentication follows
 {{context-binding}}.
 
 ## Context Consumer Processing
