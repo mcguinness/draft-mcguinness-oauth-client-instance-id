@@ -1508,8 +1508,8 @@ separate from a user account, device registration, or Logical Client.<a href="#s
       <dd class="break"></dd>
 </dl>
 <p id="section-2-4">Identifier values in this profile are opaque. Implementations <span class="bcp14">MUST</span>
-compare <code>iss</code>, <code>client_instance_id</code>, and the members of
-<code>client_instance</code> as exact, case-sensitive strings without URI
+compare <code>iss</code>, <code>client_instance_id</code>, <code>client_instance.iss</code>, and
+<code>client_instance.id</code> as exact, case-sensitive strings without URI
 normalization, and <span class="bcp14">MUST NOT</span> derive permissions, granularity, or key
 locations by parsing them.<a href="#section-2-4" class="pilcrow">¶</a></p>
 </section>
@@ -1548,7 +1548,8 @@ That profile governs acceptance at AS endpoints only; a resource server
 validating attestations directly uses configured associations. A
 credential's <code>iss</code>, proof of possession, or client-published metadata
 (<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) alone does not establish attester authority.
-Trust management and key resolution follow <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a></span>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+Key resolution follows <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a></span>. Local trust
+withdrawal <span class="bcp14">MUST</span> take effect on subsequent authentication.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conformance">
@@ -1734,8 +1735,10 @@ rebinding profile under <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], 
 <p id="section-5.1-3">Instance continuity does not imply key-binding continuity, nor the
 reverse. A conflict with the recorded identity <span class="bcp14">MUST</span> produce
 <code>invalid_grant</code> <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> without disclosing the expected identity.
-Binding of authorization codes and other protocol artifacts follows
-<span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.4" class="relref">Section 10.4</a></span>.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+If authorization-time policy bound a code or other artifact to an
+instance, the AS <span class="bcp14">MUST</span> enforce that binding at redemption, in either
+authentication mode of <a href="#configuration" class="auto internal xref">Section 3</a>; establishing such bindings
+follows <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.4" class="relref">Section 10.4</a></span>.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="errors">
@@ -1877,10 +1880,14 @@ attestation, or former public key alone does not establish continuity.<a href="#
 A Receiver suspending an instance <span class="bcp14">SHOULD</span> revoke its grants or report
 their tokens inactive through introspection <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>; attesters and
 Receivers <span class="bcp14">SHOULD</span> agree on short attestation lifetimes where timely
-enforcement matters. Without a status channel, existing attestations
-remain acceptable until expiration plus clock skew, issued tokens
-remain valid for their own lifetimes, and local revocation does not
-notify resource servers validating tokens offline. Security Event
+enforcement matters. When an AS revokes a grant for instance
+suspension, retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span>
+invalidate all access and refresh tokens associated with that grant
+and prevent further refresh issuance. Without a status channel,
+existing attestations remain acceptable until expiration plus clock
+skew, issued tokens remain valid for their own lifetimes, and local
+revocation does not notify resource servers validating tokens offline.
+Security Event
 Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> can support a separate
 status integration, which this profile does not define.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 </section>
