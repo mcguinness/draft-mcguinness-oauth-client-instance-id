@@ -600,16 +600,18 @@ mapping it when configured trust and correlation scope authorize its
 disclosure to the downstream consumer. Otherwise it MUST map or omit
 the context, subject to the consuming profile's requirements.
 
-An issuer MUST limit preservation to input context whose `iss` equals
-the authenticated input-token issuer. It MUST remap or omit context
-already preserved by an intermediary unless a consuming profile specifies
-authenticated provenance, a finite hop limit, and enforcement rules.
-This permits one preservation hop by default; the object carries no
-forwarding history. The limit prevents forwarding context whose
-provenance the issuer has not authenticated; it does not bound the
-number of exchanges through which an instance's participation is
-conveyed, because each remap is a new mapping of validated input-token
-context.
+An issuer MUST NOT assert an upstream Instance Context Authority unless
+it has authenticated both that authority's assignment of the context
+and the context's association with the instance represented by the
+input token. Validating the input token authenticates only its
+issuer's assertions, so by default an issuer MUST limit preservation to
+input context whose `iss` equals the authenticated input-token issuer
+and MUST remap or omit context that an intermediary itself preserved.
+A consuming profile that specifies authenticated provenance for
+upstream context, and the rules for enforcing it, can permit deeper
+preservation. The object carries no forwarding history. Shallow
+preservation is also a privacy default: each preservation discloses
+the upstream representation to a further consumer.
 
 Context MUST NOT be treated as a separate token or delegated actor.
 Remapping follows {{context-claims}} and, like preservation, leaves the
