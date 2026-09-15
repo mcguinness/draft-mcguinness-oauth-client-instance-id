@@ -248,7 +248,10 @@ Conformance is role-specific:
   checks.
 
 An implementation serving several roles satisfies each role's
-requirements. Downstream context is optional.
+requirements. Conveying Instance Context ({{instance-context}}) is
+optional and independent of the attestation claims, processing, and
+attester requirements; a deployment can conform to this profile without
+issuing or consuming context.
 
 # Client Attestation Claims {#claims}
 
