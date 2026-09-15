@@ -269,10 +269,10 @@ The claims `exp` and `cnf` remain required; `iat` remains optional.
   {{configuration}}.
 
 `client_instance_id`:
-: REQUIRED. Nonempty StringOrURI {{RFC7519}}, no longer than 256
-  Unicode scalar values after JSON string decoding, identifying the
-  instance within the attester's namespace. This is a character limit,
-  not a limit on UTF-8 octets or JSON escape sequences.
+: REQUIRED. Nonempty JSON string whose UTF-8 encoding, after JSON
+  string decoding, is no longer than 256 octets, identifying the
+  instance within the attester's namespace. The value is opaque; a URI
+  form carries no URI semantics.
   The instance identity is `(iss, client_instance_id)`.
 
 Assignment, Receiver scoping, and generation follow
@@ -546,7 +546,7 @@ Its JSON object has two REQUIRED members:
 | Member | Type | Meaning |
 |---|---|---|
 | `iss` | Nonempty string | Instance Context Authority that assigned `id` |
-| `id` | Nonempty StringOrURI | Representation of the instance in that authority's namespace |
+| `id` | Nonempty string | Representation of the instance in that authority's namespace |
 
 For direct issuance from a validated Client Attestation, context MUST
 identify the authenticated presenting instance. On refresh, that identity
