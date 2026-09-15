@@ -25,6 +25,12 @@ author:
    email: public@karlmcguinness.com
 normative:
   ATTEST: I-D.ietf-oauth-attestation-based-client-auth
+  ATTESTER-ENDORSEMENT:
+    title: "OAuth 2.0 Client Attester Endorsement"
+    target: https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html
+    author:
+      - fullname: Karl McGuinness
+    date: 2026-09-14
   RFC6749:
   RFC6750:
   RFC7519:
@@ -35,12 +41,6 @@ normative:
   RFC9449:
 informative:
   ACTOR-PROFILE: I-D.mcguinness-oauth-actor-profile
-  ATTESTER-ENDORSEMENT:
-    title: "OAuth 2.0 Client Attester Endorsement"
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-09-14
   AAUTH: I-D.hardt-oauth-aauth-protocol
   RFC2104:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
@@ -71,6 +71,16 @@ After a key change, a new attestation alone cannot distinguish a
 continuing installation from a new instance. Treating them as the same
 can merge unrelated audit histories and status decisions.
 
+Assigning each instance its own `client_id`, with a shared `software_id`
+as contemplated by {{RFC7591, Section 2}}, is an alternative, but this
+profile targets deployments that share one Logical Client, one metadata
+URL when using {{CIMD}}, and authorization server (AS) policy and resource
+authorization keyed by that client.
+Those deployments need instance identity to survive verified key changes
+within the shared client model, because `software_id` correlates software
+registrations without defining shared grants or authorization policy for
+separate client identities.
+
 This optional profile adds two claims:
 
 * `client_instance_id`: identifies a particular client installation or
@@ -80,8 +90,8 @@ This optional profile adds two claims:
   introspection response, so a resource server can correlate requests
   with the instance validated when the token was issued.
 
-For example, an authorization server (AS) validates a harness's
-attestation and proof, then includes a mapped instance identifier in
+For example, an AS validates a harness's attestation and proof, then
+includes a mapped instance identifier in
 its access token. A resource server can use that identifier for audit
 without receiving the attestation. The token's proof-of-possession
 mechanism authenticates its current presenter.
@@ -227,6 +237,7 @@ requirements. Downstream context is optional.
 
 # Client Attestation Claims {#claims}
 
+This profile uses the additional claims allowed by {{ATTEST, Section 4}}.
 All ATTEST requirements apply. This profile retains
 `typ=oauth-client-attestation+jwt` and `sub=client_id`.
 The claims `exp` and `cnf` remain required; `iat` remains optional.
@@ -315,6 +326,9 @@ Key selection follows ATTEST, with sender constraint required by
 context identifies the instance associated with the Client Instance Key.
 Key continuity does not authorize transfer of existing tokens or grants
 to a replacement key.
+In particular, retaining the same instance identity does not make an
+existing refresh token usable with a new Client Instance Key; changing
+that binding requires a separate profile under {{ATTEST, Section 13}}.
 
 ## Grant Continuity {#grant-continuity}
 
@@ -455,9 +469,18 @@ allow retired credentials to recreate their old identifiers.
 A validating Receiver need not maintain an instance allowlist. Local
 suspension, revocation, and mapped context require the corresponding
 status, token associations, and mappings. Issuers MUST retain or
-securely reproduce a mapping for as long as any accepted attestation
-or continuing grant, including refresh tokens, requires its
-continuity, plus allowed clock skew.
+securely reproduce the same mapping for as long as they permit issuance
+of Instance Context for that source identity and Context Consumer scope,
+including across periods of inactivity. Expiration of attestations,
+access tokens, or refresh tokens alone MUST NOT end this obligation.
+
+An issuer MAY retire a mapping when no still-valid token or continuing
+grant requires its continuity, including allowed clock skew, and it stops
+issuing context for that source identity and consumer scope. If issuance
+later resumes for the same source identity and scope, the issuer MUST
+restore or reproduce the previous mapped identifier; it MUST NOT assign
+a replacement identifier. Issuers using random mappings therefore need
+to retain recoverable records if they intend to support resumption.
 
 Random generation satisfies non-reassignment probabilistically without
 an indefinite retired-identifier list; derivation depends on never
@@ -513,9 +536,10 @@ required proof, and reject an unconstrained token under
 mechanism.
 
 The binding authenticates the authorized token presenter. It does not
-establish that the presenter is the instance named in preserved upstream
-context. Key selection follows ATTEST; any presenter or key change during
-exchange requires authorization under the consuming exchange profile.
+establish that the presenter is the instance named in context derived
+from an upstream token, whether preserved or remapped. Key selection
+follows ATTEST; any presenter or key change during exchange requires
+authorization under the consuming exchange profile.
 
 ## Preservation and Authorization {#context-exchange}
 
@@ -544,6 +568,9 @@ This permits one preservation hop by default; the object carries no
 forwarding history.
 
 Context MUST NOT be treated as a separate token or delegated actor.
+Preserving or remapping context does not change which participant it
+identifies. Remapping upstream context into the current issuer's
+namespace does not make it identify the current presenter.
 Presenter authentication follows {{context-binding}}.
 
 ## Context Consumer Processing
@@ -557,6 +584,16 @@ Before using context, the Context Consumer MUST:
    token issuer explicitly trusted for that issuer and consumer.
 4. Reject invalid context and, when context is required, reject the
    request if context is missing or invalid under {{context-errors}}.
+
+A Context Consumer MUST establish the context's association with the
+subject, actor, or presenter from the applicable consuming profile and
+the validated token or trusted introspection configuration before using
+that association in policy or audit. If the association is not
+established, it MUST treat context only as evidence of instance
+participation and MUST NOT attribute the current request to that
+instance as its presenter. The `client_instance` object alone, including
+whether its `iss` matches the token issuer, does not establish this
+association.
 
 For introspection, trusted endpoint configuration identifies the
 expected token issuer. A response-level `iss`, if present, MUST match
@@ -648,6 +685,21 @@ not prove software integrity beyond the evaluated evidence.
   and keys across Receiver scopes, consistent with
   {{ATTEST, Section 11.1}}. Receivers MUST NOT assume identifiers across
   scopes are comparable. Explicitly shared scopes permit correlation.
+* **Token-binding keys:** scoping Instance Context to each consumer
+  limits correlation through its identifier; it does not guarantee
+  unlinkability between consumers. An AS can issue tokens with different
+  mapped identifiers but the same DPoP `cnf.jkt`, allowing resources to
+  correlate them while that key is reused. DPoP combined mode uses the
+  Client Instance Key for token binding. Scoping attestations to an AS
+  does not by itself separate binding keys between resources served by
+  that AS.
+  Deployments requiring unlinkability between Context Consumers MUST
+  use distinct token-binding keys across their consumer scopes and
+  address other correlating token claims and application data. This
+  applies to DPoP keys, mutual-TLS certificate keys, and other binding
+  mechanisms. Key selection and refresh-token binding requirements
+  continue to apply; identifier scoping does not permit changing a
+  refresh token's bound key.
 * **Attester visibility:** supplying Receiver scope reveals it to the
   attester. Deployments requiring ATTEST's audience-hiding property
   should omit this profile. Other claims and application data can also
