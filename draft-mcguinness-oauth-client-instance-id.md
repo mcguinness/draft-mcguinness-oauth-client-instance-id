@@ -285,17 +285,23 @@ derive permissions by parsing an identifier. Errors follow {{errors}}.
 
 ## Receiver Scope {#identifier-scope}
 
-The attester MUST assign distinct identifiers per Receiver unless an
-administrative agreement explicitly authorizes a shared identifier
-within a named set of Receivers. The client MUST request and use the
-attestation for that configured scope and use distinct Client Instance
-Keys across scopes. Identifiers and keys are scoped together because a
-shared key links attestations regardless of their identifiers. A
-deployment in which correlation across Receivers is intended, such as
-an enterprise workload, configures one scope spanning those Receivers;
-one identifier and one Client Instance Key then suffice. A shared
-client or trust domain does not by itself authorize sharing
-identifiers.
+Two requirements apply per Receiver scope. First, the attester MUST
+assign distinct identifiers per Receiver unless an administrative
+agreement explicitly authorizes a shared identifier within a named set
+of Receivers, and the client MUST request and use the attestation for
+that configured scope. A shared client or trust domain does not by
+itself authorize sharing identifiers.
+
+Second, the client MUST use distinct Client Instance Keys across
+scopes. {{ATTEST, Section 11.1}} recommends distinct keys across
+authorization and resource servers; this profile requires it across
+the scopes a deployment chooses to separate, because a shared key links
+attestations regardless of their identifiers and would leave scoped
+identifiers without effect. A deployment in which correlation across
+Receivers is intended, such as an enterprise workload, configures one
+scope spanning those Receivers; one identifier and one Client Instance
+Key then suffice. Binding-key separation between Context Consumers is
+a further requirement addressed in {{privacy}}.
 
 The Receiver scope is an enrollment or issuance input, not an OAuth
 parameter or an attestation audience. A Receiver cannot verify that
@@ -761,7 +767,7 @@ not prove software integrity beyond the evaluated evidence.
   binds the HTTP request. Forwarding resistance depends on ATTEST proof
   validation, freshness, and key possession, not identifier scope.
 * **Correlation:** {{identifier-scope}} requires separate identifiers
-  and keys across Receiver scopes, consistent with
+  and keys across Receiver scopes, strengthening the recommendation in
   {{ATTEST, Section 11.1}}. Receivers MUST NOT assume identifiers across
   scopes are comparable. Explicitly shared scopes permit correlation.
 * **Token-binding keys:** scoping Instance Context to each consumer
