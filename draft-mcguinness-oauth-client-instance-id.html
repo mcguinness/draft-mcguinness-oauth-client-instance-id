@@ -1333,11 +1333,14 @@ tokens carrying instance context are sender-constrained.<a href="#section-abstra
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">Attestation-Based Client Authentication <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> authenticates a
-Client Instance through an attestation and proof of key possession.
-After a key change, a new attestation alone cannot distinguish a
-continuing installation from a new instance. Treating them as the same
-can merge unrelated audit histories and status decisions.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">Attestation-Based Client Authentication <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> answers one
+question: is this an authorized Client Instance in possession of this
+key? This profile adds a second: is this the same Client Instance that
+the Receiver previously encountered? ATTEST authenticates an instance
+through an attestation and proof of key possession, but after a key
+change a new attestation alone cannot distinguish a continuing
+installation from a new instance. Treating them as the same can merge
+unrelated audit histories and status decisions.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Assigning each instance its own <code>client_id</code>, with a shared <code>software_id</code>
 as contemplated by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>], <a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a></span>, is an alternative, but this
 profile targets deployments that share one Logical Client, one metadata
@@ -1368,6 +1371,11 @@ mechanism authenticates its current presenter.<a href="#section-1-5" class="pilc
 <p id="section-1-6">The attester verifies continuity under <a href="#lifetime" class="auto internal xref">Section 6</a>. ATTEST alone is
 sufficient when correlation need only last for the current key or can
 remain internal to one system.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">This profile establishes instance identity and its continuity. It does
+not define what authority, if any, follows from that identity.
+Instance evidence grants no authority; authorization profiles <span class="bcp14">MAY</span> use
+validated instance identity or Instance Context as an input to policy,
+subject to the limits in <a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <div id="identity-and-scope">
 <section id="section-1.1">
         <h3 id="name-identity-and-scope">
@@ -1454,9 +1462,13 @@ is the pair <code>(iss, client_instance_id)</code>.<a href="#section-2-3.4.1" cl
 <dt id="section-2-3.5">Instance Context:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.6">
           <p id="section-2-3.6.1">The <code>client_instance</code> object in a token or introspection response.
-It identifies the instance associated with the token through a
-validated attestation and proof, or validated upstream context. It
-grants no authority and does not prove current possession.<a href="#section-2-3.6.1" class="pilcrow">¶</a></p>
+It is an issuer-assigned, pairwise representation of a validated
+Client Instance: its <code>id</code> is assigned by the Instance Context
+Authority for a consumer scope and need not equal the
+<code>client_instance_id</code> in the Client Attestation. It identifies the
+instance associated with the token through a validated attestation
+and proof, or validated upstream context. It grants no authority and
+does not prove current possession.<a href="#section-2-3.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-3.7">Receiver:</dt>
@@ -1478,11 +1490,13 @@ response. It need not receive the original Client Attestation.<a href="#section-
 Client Attester.<a href="#section-2-3.12.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-2-3.13">Instance Authority:</dt>
+<dt id="section-2-3.13">Instance Context Authority:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.14">
-          <p id="section-2-3.14.1">The namespace authority identified by <code>iss</code> in a <code>client_instance</code>
-object. It is the token issuer that assigned the context, including
-an upstream token issuer when context is preserved.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
+          <p id="section-2-3.14.1">The authority identified by <code>iss</code> in a <code>client_instance</code> object. It
+is the token issuer that assigned the current <code>id</code> in its own
+namespace: the enclosing token issuer, unless the context was
+preserved from an upstream token. The Client Attester remains the
+authority for the underlying instance identity.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-3.15">Enrollment:</dt>
@@ -1570,7 +1584,10 @@ checks.<a href="#section-3.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-3.2-3">An implementation serving several roles satisfies each role's
-requirements. Downstream context is optional.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+requirements. Conveying Instance Context (<a href="#instance-context" class="auto internal xref">Section 7</a>) is
+optional and independent of the attestation claims, processing, and
+attester requirements; a deployment can conform to this profile without
+issuing or consuming context.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1625,8 +1642,13 @@ derive permissions by parsing an identifier. Errors follow <a href="#errors" cla
 administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers. The client <span class="bcp14">MUST</span> request and use the
 attestation for that configured scope and use distinct Client Instance
-Keys across scopes. A shared client or trust domain does not authorize
-sharing identifiers.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+Keys across scopes. Identifiers and keys are scoped together because a
+shared key links attestations regardless of their identifiers. A
+deployment in which correlation across Receivers is intended, such as
+an enterprise workload, configures one scope spanning those Receivers;
+one identifier and one Client Instance Key then suffice. A shared
+client or trust domain does not by itself authorize sharing
+identifiers.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">The Receiver scope is an enrollment or issuance input, not an OAuth
 parameter or an attestation audience. A Receiver cannot verify that
 scope from the identifier alone; privacy limits are in <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
@@ -1677,7 +1699,8 @@ scope from the identifier alone; privacy limits are in <a href="#privacy" class=
 </li>
         <li id="section-5-2.3">
           <p id="section-5-2.3.1">Associate <code>(iss, client_instance_id)</code> with the Logical Client and
-validated Client Instance Key, then apply instance policy.<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
+validated Client Instance Key, then apply local instance acceptance
+policy (<a href="#errors" class="auto internal xref">Section 5.2</a>).<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
 <p id="section-5-3">The Receiver <span class="bcp14">MUST NOT</span>:<a href="#section-5-3" class="pilcrow">¶</a></p>
@@ -1710,31 +1733,29 @@ to a replacement key; refresh-token rebinding follows
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-grant-continuity" class="section-name selfRef">Grant Continuity</a>
         </h3>
 <p id="section-5.1-1">For a grant established using a Client Attestation validated under this
-profile, the AS <span class="bcp14">MUST</span>:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+profile, the AS <span class="bcp14">MUST</span> record <code>(iss, client_instance_id)</code> when issuing a
+refresh token, in addition to ATTEST's client and key bindings, and on
+refresh <span class="bcp14">MUST</span> enforce two independent invariants:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.1-2.1">
-            <p id="section-5.1-2.1.1">record <code>(iss, client_instance_id)</code> when issuing a refresh token, in
-addition to ATTEST's client and key bindings; and<a href="#section-5.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-2.1.1">the identity pair in the current validated attestation <span class="bcp14">MUST</span> match
+the recorded instance identity; and<a href="#section-5.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.1-2.2">
-            <p id="section-5.1-2.2.1">validate the current attestation on refresh and require its identity
-pair to match the recorded identity.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-2.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy ATTEST and any applicable
+refresh-token rebinding profile under <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a></span>.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.1-3">Possession of the original key alone does not permit a different
-identity, and a matching identity alone does not permit a different
-key. The refresh token remains bound to the Client Instance Key under
-ATTEST; a verified key change that retains the instance identity under
-<a href="#continuity" class="auto internal xref">Section 6.2</a> does not rebind it. Rebinding a refresh token to a new
-Client Instance Key requires a separate profile under
-<span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a></span>.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1-4">A refresh request for such a grant <span class="bcp14">MUST NOT</span> introduce or change the
-recorded instance identity without an explicitly authorized migration.
-The migration <span class="bcp14">MUST</span> establish continuity under <a href="#continuity" class="auto internal xref">Section 6.2</a> and, when
-the key changes, rebind the refresh token under such a profile; no
-migration protocol is defined here. An otherwise valid attestation that
-conflicts with the grant's instance binding <span class="bcp14">MUST</span> produce <code>invalid_grant</code>
-under <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, without disclosing the expected identity.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">Instance continuity does not imply key-binding continuity. A verified
+key change that retains the instance identity under <a href="#continuity" class="auto internal xref">Section 6.2</a> does
+not rebind an existing refresh token, and possession of the original
+key alone does not permit a different identity.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-4">A refresh request <span class="bcp14">MUST NOT</span> change the recorded instance identity
+without an explicitly authorized migration that establishes continuity
+under <a href="#continuity" class="auto internal xref">Section 6.2</a>; no migration protocol is defined here. An
+otherwise valid attestation that conflicts with the grant's instance
+binding <span class="bcp14">MUST</span> produce <code>invalid_grant</code> under <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, without
+disclosing the expected identity.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 <p id="section-5.1-5">When an issuer derives Instance Context solely from a validated input
 token, the consuming profile in <a href="#context-exchange" class="auto internal xref">Section 7.3</a> <span class="bcp14">MUST</span> define refresh
 binding and context continuity before permitting refresh-token issuance.
@@ -1807,9 +1828,13 @@ within a continuing enrollment; storing those values is sufficient.<a href="#sec
         <h3 id="name-continuity-and-lifecycle">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-continuity-and-lifecycle" class="section-name selfRef">Continuity and Lifecycle</a>
         </h3>
-<p id="section-6.2-1">Continuity is an unbroken, attester-recorded chain of verified key
-custody within one enrollment at the configured granularity. Before
-retaining an identifier, the attester <span class="bcp14">MUST</span> verify and record:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-1">Continuity is authenticated evidence sufficient for the attester to
+determine that a claimant represents the same enrolled Client Instance
+at the configured granularity. An attester-recorded chain of verified
+key custody within one enrollment is the primary mechanism; platform
+or hardware-rooted identity evidence can supplement it or, where the
+deployment's evidence policy permits, supply it. Before retaining an
+identifier, the attester <span class="bcp14">MUST</span> verify and record:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-6.2-2">
 <li id="section-6.2-2.1">
             <p id="section-6.2-2.1.1">An active enrollment binding the instance, Logical Client, Receiver
@@ -1917,26 +1942,27 @@ from a Client Attestation, or the upstream <code>(iss, id)</code> being remapped
 "Consumer scope" is the Context Consumer, or explicitly configured set
 of Context Consumers, to which the mapping is scoped under
 <a href="#context-claims" class="auto internal xref">Section 7.1</a>.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
-<p id="section-6.4-4">An issuer's obligation for a mapping ends only when the issuer retires
-it. An issuer <span class="bcp14">MAY</span> retire a mapping when no still-valid token or
-continuing grant, including allowed clock skew, requires its continuity
-and local policy no longer permits issuance of Instance Context for that
-source identity and consumer scope. Until then, the issuer <span class="bcp14">MUST</span> retain
-or securely reproduce the same mapping, including across periods of
-inactivity. Expiration of attestations, access tokens, or refresh tokens
-alone does not retire a mapping.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
-<p id="section-6.4-5">If issuance later resumes for a retired source identity and consumer
-scope, the issuer <span class="bcp14">MUST</span> restore or reproduce the previous mapped
-identifier; it <span class="bcp14">MUST NOT</span> assign a replacement identifier. An issuer that
-cannot do so <span class="bcp14">MUST</span> omit <code>client_instance</code> for that source identity and
-consumer scope; a Context Consumer requiring context then rejects under
-<a href="#context-errors" class="auto internal xref">Section 7.5</a>. Issuers using random mappings therefore need to
-retain recoverable records if they intend to support resumption.<a href="#section-6.4-5" class="pilcrow">¶</a></p>
-<p id="section-6.4-6">Random generation satisfies non-reassignment probabilistically without
-an indefinite retired-identifier list; derivation depends on never
-reusing enrollment inputs. After a mapping is retired and the attester's
-continuity and status obligations end, this profile requires no further
-retention. Audit retention is local policy.<a href="#section-6.4-6" class="pilcrow">¶</a></p>
+<p id="section-6.4-4">A mapping <span class="bcp14">MUST</span> be stable for the lifetime of its source identity: an
+issuer <span class="bcp14">MUST NOT</span> represent one source identity and consumer scope by
+more than one mapped identifier. Because identifiers are never
+reassigned (<a href="#attester-requirements" class="auto internal xref">Section 6.1</a>), a new enrollment presents a new
+source identity and receives a new mapping without further rule. An
+issuer that no longer holds or can reproduce a mapping <span class="bcp14">MUST</span> omit
+<code>client_instance</code> for that source identity and consumer scope rather
+than assign a replacement; a Context Consumer requiring context then
+rejects under <a href="#context-errors" class="auto internal xref">Section 7.5</a>. An issuer <span class="bcp14">MUST</span> retain a mapping while
+any token or grant it issued for that source identity remains valid,
+including allowed clock skew.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+<p id="section-6.4-5">Derived mappings need no per-instance records while the derivation
+secret and inputs remain available and reproduce the original
+identifier; a secret change requires stored values, as for attesters
+under <a href="#attester-requirements" class="auto internal xref">Section 6.1</a>. Issuers using random mappings need
+records for as long as they intend to include context for that source
+identity. Random generation satisfies
+non-reassignment probabilistically without an indefinite
+retired-identifier list; derivation depends on never reusing enrollment
+inputs. Beyond these obligations, this profile requires no further
+retention. Audit retention is local policy.<a href="#section-6.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1952,7 +1978,11 @@ retention. Audit retention is local policy.<a href="#section-6.4-6" class="pilcr
 <a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-format-and-mapping" class="section-name selfRef">Format and Mapping</a>
         </h3>
 <p id="section-7.1-1">An issuer <span class="bcp14">MAY</span> include <code>client_instance</code> in a token or introspection
-response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Its JSON object has two <span class="bcp14">REQUIRED</span> members:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. It is an issuer-assigned representation of a
+validated Client Instance; its <code>id</code> need not equal the
+<code>client_instance_id</code> in the Client Attestation, and different issuers
+or consumer scopes can represent one instance by different values.
+Its JSON object has two <span class="bcp14">REQUIRED</span> members:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-3">
           <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
@@ -1968,14 +1998,15 @@ response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Its JS
                 <code>iss</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">Nonempty string</td>
-              <td class="text-left" rowspan="1" colspan="1">Token issuer that assigned the context</td>
+              <td class="text-left" rowspan="1" colspan="1">Instance Context Authority that assigned <code>id</code>
+</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>id</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">Nonempty StringOrURI</td>
-              <td class="text-left" rowspan="1" colspan="1">Instance identifier in that issuer's namespace</td>
+              <td class="text-left" rowspan="1" colspan="1">Representation of the instance in that authority's namespace</td>
             </tr>
           </tbody>
         </table>
@@ -2062,16 +2093,18 @@ presenting instance. The object identifies one instance, not a chain.<a href="#s
 mapping it when configured trust and correlation scope authorize its
 disclosure to the downstream consumer. Otherwise it <span class="bcp14">MUST</span> map or omit
 the context, subject to the consuming profile's requirements.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
-<p id="section-7.3-5">An issuer <span class="bcp14">MUST</span> limit preservation to input context whose <code>iss</code> equals
-the authenticated input-token issuer. It <span class="bcp14">MUST</span> remap or omit context
-already preserved by an intermediary unless a consuming profile specifies
-authenticated provenance, a finite hop limit, and enforcement rules.
-This permits one preservation hop by default; the object carries no
-forwarding history. The limit prevents forwarding context whose
-provenance the issuer has not authenticated; it does not bound the
-number of exchanges through which an instance's participation is
-conveyed, because each remap is a new mapping of validated input-token
-context.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+<p id="section-7.3-5">An issuer <span class="bcp14">MUST NOT</span> assert an upstream Instance Context Authority unless
+it has authenticated both that authority's assignment of the context
+and the context's association with the instance represented by the
+input token. Validating the input token authenticates only its
+issuer's assertions, so by default an issuer <span class="bcp14">MUST</span> limit preservation to
+input context whose <code>iss</code> equals the authenticated input-token issuer
+and <span class="bcp14">MUST</span> remap or omit context that an intermediary itself preserved.
+A consuming profile that specifies authenticated provenance for
+upstream context, and the rules for enforcing it, can permit deeper
+preservation. The object carries no forwarding history. Shallow
+preservation is also a privacy default: each preservation discloses
+the upstream representation to a further consumer.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
 <p id="section-7.3-6">Context <span class="bcp14">MUST NOT</span> be treated as a separate token or delegated actor.
 Remapping follows <a href="#context-claims" class="auto internal xref">Section 7.1</a> and, like preservation, leaves the
 identified instance unchanged; presenter authentication follows
@@ -2536,8 +2569,8 @@ separate.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
 <p id="appendix-A.2-1">For an opaque access token, an authenticated introspection response
 conveys the same context. The resource has configured this endpoint as
 authoritative for <code>https://as.example</code>. The response-level <code>iss</code> names
-the token issuer; the nested <code>iss</code> names the Instance Authority. They
-coincide in this mapped example.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
+the token issuer; the nested <code>iss</code> names the Instance Context
+Authority. They coincide in this mapped example.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
 <div class="lang-http-message sourcecode" id="appendix-A.2-2">
 <pre>
 HTTP/1.1 200 OK
