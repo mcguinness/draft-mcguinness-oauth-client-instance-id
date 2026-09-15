@@ -362,6 +362,11 @@ to a replacement key; refresh-token rebinding follows
 
 ## Grant Continuity {#grant-continuity}
 
+{{ATTEST, Section 10.3}} already requires an AS to bind a refresh token
+to the Client Instance, not merely to the client, and by default to
+the Client Instance Key. This profile does not introduce instance-bound
+grants; it gives that binding an identity that survives verified key
+changes and detects a copied key presented with a different identity.
 For a grant established using a Client Attestation validated under this
 profile, the AS MUST record `(iss, client_instance_id)` when issuing a
 refresh token, in addition to ATTEST's client and key bindings, and on
