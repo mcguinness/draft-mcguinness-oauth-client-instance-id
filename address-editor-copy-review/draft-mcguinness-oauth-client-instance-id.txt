@@ -259,11 +259,11 @@ Table of Contents
       identifying the Client Attester.
 
    Instance Context Authority:  The authority identified by iss in a
-      client_instance object.  It assigned id in its own namespace and
-      is the token issuer that first mapped the context: the enclosing
-      token issuer, unless the context was preserved from an upstream
-      token.  The Client Attester remains the authority for the
-      underlying instance identity.
+      client_instance object.  It is the token issuer that assigned the
+      current id in its own namespace: the enclosing token issuer,
+      unless the context was preserved from an upstream token.  The
+      Client Attester remains the authority for the underlying instance
+      identity.
 
    Enrollment:  An attester-maintained record binding one instance, at
       the configured granularity, to its verified keys and assigned
@@ -635,16 +635,20 @@ Table of Contents
    that no longer holds or can reproduce a mapping MUST omit
    client_instance for that source identity and consumer scope rather
    than assign a replacement; a Context Consumer requiring context then
-   rejects under Section 7.5.  An issuer SHOULD retain a mapping while
-   any token or grant it issued for that source identity remains valid.
+   rejects under Section 7.5.  An issuer MUST retain a mapping while any
+   token or grant it issued for that source identity remains valid,
+   including allowed clock skew.
 
-   Derived mappings satisfy stability without stored state; issuers
-   using random mappings need records for as long as they intend to
-   include context for that source identity.  Random generation
-   satisfies non-reassignment probabilistically without an indefinite
-   retired-identifier list; derivation depends on never reusing
-   enrollment inputs.  Beyond these obligations, this profile requires
-   no further retention.  Audit retention is local policy.
+   Derived mappings need no per-instance records while the derivation
+   secret and inputs remain available and reproduce the original
+   identifier; a secret change requires stored values, as for attesters
+   under Section 6.1.  Issuers using random mappings need records for as
+   long as they intend to include context for that source identity.
+   Random generation satisfies non-reassignment probabilistically
+   without an indefinite retired-identifier list; derivation depends on
+   never reusing enrollment inputs.  Beyond these obligations, this
+   profile requires no further retention.  Audit retention is local
+   policy.
 
 7.  Conveying Instance Context
 

@@ -1493,9 +1493,9 @@ Client Attester.<a href="#section-2-3.12.1" class="pilcrow">¶</a></p>
 <dt id="section-2-3.13">Instance Context Authority:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.14">
           <p id="section-2-3.14.1">The authority identified by <code>iss</code> in a <code>client_instance</code> object. It
-assigned <code>id</code> in its own namespace and is the token issuer that first
-mapped the context: the enclosing token issuer, unless the context
-was preserved from an upstream token. The Client Attester remains the
+is the token issuer that assigned the current <code>id</code> in its own
+namespace: the enclosing token issuer, unless the context was
+preserved from an upstream token. The Client Attester remains the
 authority for the underlying instance identity.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
@@ -1950,12 +1950,15 @@ source identity and receives a new mapping without further rule. An
 issuer that no longer holds or can reproduce a mapping <span class="bcp14">MUST</span> omit
 <code>client_instance</code> for that source identity and consumer scope rather
 than assign a replacement; a Context Consumer requiring context then
-rejects under <a href="#context-errors" class="auto internal xref">Section 7.5</a>. An issuer <span class="bcp14">SHOULD</span> retain a mapping
-while any token or grant it issued for that source identity remains
-valid.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
-<p id="section-6.4-5">Derived mappings satisfy stability without stored state; issuers using
-random mappings need records for as long as they intend to include
-context for that source identity. Random generation satisfies
+rejects under <a href="#context-errors" class="auto internal xref">Section 7.5</a>. An issuer <span class="bcp14">MUST</span> retain a mapping while
+any token or grant it issued for that source identity remains valid,
+including allowed clock skew.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+<p id="section-6.4-5">Derived mappings need no per-instance records while the derivation
+secret and inputs remain available and reproduce the original
+identifier; a secret change requires stored values, as for attesters
+under <a href="#attester-requirements" class="auto internal xref">Section 6.1</a>. Issuers using random mappings need
+records for as long as they intend to include context for that source
+identity. Random generation satisfies
 non-reassignment probabilistically without an indefinite
 retired-identifier list; derivation depends on never reusing enrollment
 inputs. Beyond these obligations, this profile requires no further
