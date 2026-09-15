@@ -184,9 +184,9 @@ Attester Issuer:
 
 Instance Context Authority:
 : The authority identified by `iss` in a `client_instance` object. It
-  assigned `id` in its own namespace and is the token issuer that first
-  mapped the context: the enclosing token issuer, unless the context
-  was preserved from an upstream token. The Client Attester remains the
+  is the token issuer that assigned the current `id` in its own
+  namespace: the enclosing token issuer, unless the context was
+  preserved from an upstream token. The Client Attester remains the
   authority for the underlying instance identity.
 
 Enrollment:
@@ -515,13 +515,16 @@ source identity and receives a new mapping without further rule. An
 issuer that no longer holds or can reproduce a mapping MUST omit
 `client_instance` for that source identity and consumer scope rather
 than assign a replacement; a Context Consumer requiring context then
-rejects under {{context-errors}}. An issuer SHOULD retain a mapping
-while any token or grant it issued for that source identity remains
-valid.
+rejects under {{context-errors}}. An issuer MUST retain a mapping while
+any token or grant it issued for that source identity remains valid,
+including allowed clock skew.
 
-Derived mappings satisfy stability without stored state; issuers using
-random mappings need records for as long as they intend to include
-context for that source identity. Random generation satisfies
+Derived mappings need no per-instance records while the derivation
+secret and inputs remain available and reproduce the original
+identifier; a secret change requires stored values, as for attesters
+under {{attester-requirements}}. Issuers using random mappings need
+records for as long as they intend to include context for that source
+identity. Random generation satisfies
 non-reassignment probabilistically without an indefinite
 retired-identifier list; derivation depends on never reusing enrollment
 inputs. Beyond these obligations, this profile requires no further
