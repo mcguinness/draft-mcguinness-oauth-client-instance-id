@@ -616,10 +616,12 @@ defines:
 An issuer MUST NOT treat upstream context as identifying a different
 presenting instance. The object identifies one instance, not a chain.
 
-An issuer MAY preserve validated upstream `(iss, id)` instead of
-mapping it when configured trust and correlation scope authorize its
-disclosure to the downstream consumer. Otherwise it MUST map or omit
-the context, subject to the consuming profile's requirements.
+Issuers SHOULD remap upstream context into their own namespace; this
+is the default and keeps each consumer's view pairwise. An issuer MAY
+instead preserve validated upstream `(iss, id)` when configured trust
+and correlation scope authorize its disclosure to the downstream
+consumer. Otherwise it MUST remap or omit the context, subject to the
+consuming profile's requirements.
 
 An issuer MUST NOT assert an upstream Instance Context Authority unless
 it has authenticated both that authority's assignment of the context
