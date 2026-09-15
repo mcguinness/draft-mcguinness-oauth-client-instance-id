@@ -347,28 +347,26 @@ to a replacement key; refresh-token rebinding follows
 ## Grant Continuity {#grant-continuity}
 
 For a grant established using a Client Attestation validated under this
-profile, the AS MUST:
+profile, the AS MUST record `(iss, client_instance_id)` when issuing a
+refresh token, in addition to ATTEST's client and key bindings, and on
+refresh MUST enforce two independent invariants:
 
-* record `(iss, client_instance_id)` when issuing a refresh token, in
-  addition to ATTEST's client and key bindings; and
-* validate the current attestation on refresh and require its identity
-  pair to match the recorded identity.
+* the identity pair in the current validated attestation MUST match
+  the recorded instance identity; and
+* the proof and key binding MUST satisfy ATTEST and any applicable
+  refresh-token rebinding profile under {{ATTEST, Section 13}}.
 
-Possession of the original key alone does not permit a different
-identity, and a matching identity alone does not permit a different
-key. The refresh token remains bound to the Client Instance Key under
-ATTEST; a verified key change that retains the instance identity under
-{{continuity}} does not rebind it. Rebinding a refresh token to a new
-Client Instance Key requires a separate profile under
-{{ATTEST, Section 13}}.
+Instance continuity does not imply key-binding continuity. A verified
+key change that retains the instance identity under {{continuity}} does
+not rebind an existing refresh token, and possession of the original
+key alone does not permit a different identity.
 
-A refresh request for such a grant MUST NOT introduce or change the
-recorded instance identity without an explicitly authorized migration.
-The migration MUST establish continuity under {{continuity}} and, when
-the key changes, rebind the refresh token under such a profile; no
-migration protocol is defined here. An otherwise valid attestation that
-conflicts with the grant's instance binding MUST produce `invalid_grant`
-under {{RFC6749}}, without disclosing the expected identity.
+A refresh request MUST NOT change the recorded instance identity
+without an explicitly authorized migration that establishes continuity
+under {{continuity}}; no migration protocol is defined here. An
+otherwise valid attestation that conflicts with the grant's instance
+binding MUST produce `invalid_grant` under {{RFC6749}}, without
+disclosing the expected identity.
 
 When an issuer derives Instance Context solely from a validated input
 token, the consuming profile in {{context-exchange}} MUST define refresh
