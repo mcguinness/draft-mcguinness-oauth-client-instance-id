@@ -1702,10 +1702,8 @@ relationships belong to the consuming authorization profile.<a href="#section-5-
 <a href="#context-binding" class="auto internal xref">Section 7.2</a>. When a separate token-binding key is permitted,
 context identifies the instance associated with the Client Instance Key.
 Key continuity does not authorize transfer of existing tokens or grants
-to a replacement key.
-In particular, retaining the same instance identity does not make an
-existing refresh token usable with a new Client Instance Key; changing
-that binding requires a separate profile under <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a></span>.<a href="#section-5-6" class="pilcrow">¶</a></p>
+to a replacement key; refresh-token rebinding follows
+<a href="#grant-continuity" class="auto internal xref">Section 5.1</a>.<a href="#section-5-6" class="pilcrow">¶</a></p>
 <div id="grant-continuity">
 <section id="section-5.1">
         <h3 id="name-grant-continuity">
@@ -1723,14 +1721,20 @@ addition to ATTEST's client and key bindings; and<a href="#section-5.1-2.1.1" cl
 pair to match the recorded identity.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.1-3">Possession of the original key alone does not permit a different identity.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">Possession of the original key alone does not permit a different
+identity, and a matching identity alone does not permit a different
+key. The refresh token remains bound to the Client Instance Key under
+ATTEST; a verified key change that retains the instance identity under
+<a href="#continuity" class="auto internal xref">Section 6.2</a> does not rebind it. Rebinding a refresh token to a new
+Client Instance Key requires a separate profile under
+<span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a></span>.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.1-4">A refresh request for such a grant <span class="bcp14">MUST NOT</span> introduce or change the
 recorded instance identity without an explicitly authorized migration.
-The migration <span class="bcp14">MUST</span> establish continuity under <a href="#continuity" class="auto internal xref">Section 6.2</a> and satisfy
-the applicable key-binding requirements; no migration protocol is defined
-here. An otherwise valid attestation that conflicts with the grant's
-instance binding <span class="bcp14">MUST</span> produce <code>invalid_grant</code> under <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, without
-disclosing the expected identity.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+The migration <span class="bcp14">MUST</span> establish continuity under <a href="#continuity" class="auto internal xref">Section 6.2</a> and, when
+the key changes, rebind the refresh token under such a profile; no
+migration protocol is defined here. An otherwise valid attestation that
+conflicts with the grant's instance binding <span class="bcp14">MUST</span> produce <code>invalid_grant</code>
+under <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, without disclosing the expected identity.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 <p id="section-5.1-5">When an issuer derives Instance Context solely from a validated input
 token, the consuming profile in <a href="#context-exchange" class="auto internal xref">Section 7.3</a> <span class="bcp14">MUST</span> define refresh
 binding and context continuity before permitting refresh-token issuance.
@@ -1906,23 +1910,33 @@ Deleting continuity records requires new enrollment. Attesters <span class="bcp1
 allow retired credentials to recreate their old identifiers.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
 <p id="section-6.4-2">A validating Receiver need not maintain an instance allowlist. Local
 suspension, revocation, and mapped context require the corresponding
-status, token associations, and mappings. Issuers <span class="bcp14">MUST</span> retain or
-securely reproduce the same mapping for as long as they permit issuance
-of Instance Context for that source identity and Context Consumer scope,
-including across periods of inactivity. Expiration of attestations,
-access tokens, or refresh tokens alone <span class="bcp14">MUST NOT</span> end this obligation.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
-<p id="section-6.4-3">An issuer <span class="bcp14">MAY</span> retire a mapping when no still-valid token or continuing
-grant requires its continuity, including allowed clock skew, and it stops
-issuing context for that source identity and consumer scope. If issuance
-later resumes for the same source identity and scope, the issuer <span class="bcp14">MUST</span>
-restore or reproduce the previous mapped identifier; it <span class="bcp14">MUST NOT</span> assign
-a replacement identifier. Issuers using random mappings therefore need
-to retain recoverable records if they intend to support resumption.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
-<p id="section-6.4-4">Random generation satisfies non-reassignment probabilistically without
+status, token associations, and mappings.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">In this section, "source identity" is the mapping input under
+<a href="#context-claims" class="auto internal xref">Section 7.1</a>: the instance identity <code>(iss, client_instance_id)</code>
+from a Client Attestation, or the upstream <code>(iss, id)</code> being remapped.
+"Consumer scope" is the Context Consumer, or explicitly configured set
+of Context Consumers, to which the mapping is scoped under
+<a href="#context-claims" class="auto internal xref">Section 7.1</a>.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-4">An issuer's obligation for a mapping ends only when the issuer retires
+it. An issuer <span class="bcp14">MAY</span> retire a mapping when no still-valid token or
+continuing grant, including allowed clock skew, requires its continuity
+and local policy no longer permits issuance of Instance Context for that
+source identity and consumer scope. Until then, the issuer <span class="bcp14">MUST</span> retain
+or securely reproduce the same mapping, including across periods of
+inactivity. Expiration of attestations, access tokens, or refresh tokens
+alone does not retire a mapping.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+<p id="section-6.4-5">If issuance later resumes for a retired source identity and consumer
+scope, the issuer <span class="bcp14">MUST</span> restore or reproduce the previous mapped
+identifier; it <span class="bcp14">MUST NOT</span> assign a replacement identifier. An issuer that
+cannot do so <span class="bcp14">MUST</span> omit <code>client_instance</code> for that source identity and
+consumer scope; a Context Consumer requiring context then rejects under
+<a href="#context-errors" class="auto internal xref">Section 7.5</a>. Issuers using random mappings therefore need to
+retain recoverable records if they intend to support resumption.<a href="#section-6.4-5" class="pilcrow">¶</a></p>
+<p id="section-6.4-6">Random generation satisfies non-reassignment probabilistically without
 an indefinite retired-identifier list; derivation depends on never
-reusing enrollment inputs. After continuity and status obligations end,
-this profile requires no further retention. Audit retention is local
-policy.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+reusing enrollment inputs. After a mapping is retired and the attester's
+continuity and status obligations end, this profile requires no further
+retention. Audit retention is local policy.<a href="#section-6.4-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1972,7 +1986,10 @@ is subject to <a href="#grant-continuity" class="auto internal xref">Section 5.1
 <p id="section-7.1-4">The context <span class="bcp14">MUST</span> refer to validated instance participation; issuers
 <span class="bcp14">MUST NOT</span> copy unvalidated client-supplied context. From a Client
 Attestation, the issuer <span class="bcp14">MUST</span> map <code>(iss, client_instance_id)</code> to its own
-namespace. For each mapping, it <span class="bcp14">MUST</span>:<a href="#section-7.1-4" class="pilcrow">¶</a></p>
+namespace. Remapping validated upstream context under
+<a href="#context-exchange" class="auto internal xref">Section 7.3</a> maps the upstream <code>(iss, id)</code> pair to the issuer's
+namespace by the same rules; the upstream <code>id</code> alone is not the mapping
+input. For each mapping, it <span class="bcp14">MUST</span>:<a href="#section-7.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.1-5.1">
             <p id="section-7.1-5.1.1">keep distinct instances separate unless continuity is established;<a href="#section-7.1-5.1.1" class="pilcrow">¶</a></p>
@@ -2014,7 +2031,9 @@ mechanism.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 establish that the presenter is the instance named in context derived
 from an upstream token, whether preserved or remapped. Key selection
 follows ATTEST; any presenter or key change during exchange requires
-authorization under the consuming exchange profile.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+authorization under the consuming exchange profile. Unlinkability
+between Context Consumers additionally requires distinct binding keys
+under <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-exchange">
@@ -2048,12 +2067,15 @@ the authenticated input-token issuer. It <span class="bcp14">MUST</span> remap o
 already preserved by an intermediary unless a consuming profile specifies
 authenticated provenance, a finite hop limit, and enforcement rules.
 This permits one preservation hop by default; the object carries no
-forwarding history.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+forwarding history. The limit prevents forwarding context whose
+provenance the issuer has not authenticated; it does not bound the
+number of exchanges through which an instance's participation is
+conveyed, because each remap is a new mapping of validated input-token
+context.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
 <p id="section-7.3-6">Context <span class="bcp14">MUST NOT</span> be treated as a separate token or delegated actor.
-Preserving or remapping context does not change which participant it
-identifies. Remapping upstream context into the current issuer's
-namespace does not make it identify the current presenter.
-Presenter authentication follows <a href="#context-binding" class="auto internal xref">Section 7.2</a>.<a href="#section-7.3-6" class="pilcrow">¶</a></p>
+Remapping follows <a href="#context-claims" class="auto internal xref">Section 7.1</a> and, like preservation, leaves the
+identified instance unchanged; presenter authentication follows
+<a href="#context-binding" class="auto internal xref">Section 7.2</a>.<a href="#section-7.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-consumer-processing">
@@ -2085,18 +2107,26 @@ the validated token or trusted introspection configuration before using
 that association in policy or audit. If the association is not
 established, it <span class="bcp14">MUST</span> treat context only as evidence of instance
 participation and <span class="bcp14">MUST NOT</span> attribute the current request to that
-instance as its presenter. The <code>client_instance</code> object alone, including
-whether its <code>iss</code> matches the token issuer, does not establish this
-association.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
-<p id="section-7.4-4">For introspection, trusted endpoint configuration identifies the
+instance as its presenter. A Context Consumer whose configured
+requirement (<a href="#configuration" class="auto internal xref">Section 3</a>) includes that attribution <span class="bcp14">MUST</span> reject
+the request under <a href="#context-errors" class="auto internal xref">Section 7.5</a>. The <code>client_instance</code> object
+alone, including whether its <code>iss</code> matches the token issuer, does not
+establish this association.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-4">When the consumer's trusted configuration establishes that the token
+issuer conveys context only from direct Client Attestation validation,
+this document is the applicable consuming profile: context identifies
+the authenticated presenting instance under <a href="#context-claims" class="auto internal xref">Section 7.1</a>, and
+validating the token's binding under <a href="#context-binding" class="auto internal xref">Section 7.2</a> establishes
+that association.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<p id="section-7.4-5">For introspection, trusted endpoint configuration identifies the
 expected token issuer. A response-level <code>iss</code>, if present, <span class="bcp14">MUST</span> match
 it; neither the endpoint URL nor <code>client_instance.iss</code> selects the
 issuer. Multi-issuer introspection requires a consuming profile that
-authenticates the represented issuer.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
-<p id="section-7.4-5">An authority identifier does not authorize fetching keys from that
+authenticates the represented issuer.<a href="#section-7.4-5" class="pilcrow">¶</a></p>
+<p id="section-7.4-6">An authority identifier does not authorize fetching keys from that
 location. Consumers relying on granularity <span class="bcp14">MUST</span> configure it rather
 than parse the identifier. Extensions <span class="bcp14">MUST</span> specify their processing
-without changing the meaning of <code>iss</code> or <code>id</code>.<a href="#section-7.4-5" class="pilcrow">¶</a></p>
+without changing the meaning of <code>iss</code> or <code>id</code>.<a href="#section-7.4-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-errors">
@@ -2104,7 +2134,8 @@ without changing the meaning of <code>iss</code> or <code>id</code>.<a href="#se
         <h3 id="name-errors-2">
 <a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-errors-2" class="section-name selfRef">Errors</a>
         </h3>
-<p id="section-7.5-1">Rejection for missing or invalid required context <span class="bcp14">MUST</span> use:<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+<p id="section-7.5-1">Rejection for missing or invalid required context, or for required
+attribution that cannot be established, <span class="bcp14">MUST</span> use:<a href="#section-7.5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.5-2.1">
             <p id="section-7.5-2.1.1"><code>invalid_token</code> at a resource server (<span>[<a href="#RFC6750" class="cite xref">RFC6750</a>], <a href="https://rfc-editor.org/rfc/rfc6750#section-3.1" class="relref">Section 3.1</a></span>); or<a href="#section-7.5-2.1.1" class="pilcrow">¶</a></p>
@@ -2234,17 +2265,21 @@ scopes are comparable. Explicitly shared scopes permit correlation.<a href="#sec
 limits correlation through its identifier; it does not guarantee
 unlinkability between consumers. An AS can issue tokens with different
 mapped identifiers but the same DPoP <code>cnf.jkt</code>, allowing resources to
-correlate them while that key is reused. DPoP combined mode uses the
-Client Instance Key for token binding. Scoping attestations to an AS
-does not by itself separate binding keys between resources served by
-that AS.
-Deployments requiring unlinkability between Context Consumers <span class="bcp14">MUST</span>
-use distinct token-binding keys across their consumer scopes and
-address other correlating token claims and application data. This
-applies to DPoP keys, mutual-TLS certificate keys, and other binding
-mechanisms. Key selection and refresh-token binding requirements
-continue to apply; identifier scoping does not permit changing a
-refresh token's bound key.<a href="#section-9.2-1.3.1" class="pilcrow">¶</a></p>
+correlate them while that key is reused. In DPoP combined mode
+(<span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-5.2" class="relref">Section 5.2</a></span>), the Client Instance Key is the DPoP key,
+so every token bound to one attestation shares it. Scoping
+attestations to an AS does not by itself separate binding keys
+between resources served by that AS.
+Where unlinkability between Context Consumers is required, the client
+<span class="bcp14">MUST</span> use distinct token-binding keys across those consumer scopes, and
+the deployment <span class="bcp14">MUST</span> address other correlating token claims and
+application data. ATTEST permits DPoP without combined mode, with a
+DPoP key independent of the Client Instance Key; that mode, or a
+distinct mutual-TLS certificate per consumer scope, satisfies this
+requirement. This applies to DPoP keys, mutual-TLS certificate keys,
+and other binding mechanisms. Key selection follows <a href="#processing" class="auto internal xref">Section 5</a> and
+refresh-token binding follows <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>; identifier scoping
+does not permit changing a refresh token's bound key.<a href="#section-9.2-1.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-9.2-1.4">
             <p id="section-9.2-1.4.1"><strong>Attester visibility:</strong> supplying Receiver scope reveals it to the
@@ -2349,10 +2384,6 @@ or actor profile values.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
         <dd>
 <span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-11</span>, <time datetime="2026-09-03" class="refDate">3 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="ATTESTER-ENDORSEMENT">[ATTESTER-ENDORSEMENT]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <time datetime="2026-09-14" class="refDate">14 September 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC6749">[RFC6749]</dt>
         <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
@@ -2405,6 +2436,10 @@ or actor profile values.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
 <dt id="ACTOR-PROFILE">[ACTOR-PROFILE]</dt>
         <dd>
 <span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth Actor Profile for Delegation"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-actor-profile-00</span>, <time datetime="2026-04-30" class="refDate">30 April 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ATTESTER-ENDORSEMENT">[ATTESTER-ENDORSEMENT]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <time datetime="2026-09-14" class="refDate">14 September 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="AAUTH">[AAUTH]</dt>
         <dd>

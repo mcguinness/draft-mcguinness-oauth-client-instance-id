@@ -411,10 +411,7 @@ Table of Contents
    Section 7.2.  When a separate token-binding key is permitted, context
    identifies the instance associated with the Client Instance Key. Key
    continuity does not authorize transfer of existing tokens or grants
-   to a replacement key.  In particular, retaining the same instance
-   identity does not make an existing refresh token usable with a new
-   Client Instance Key; changing that binding requires a separate
-   profile under [ATTEST], Section 13.
+   to a replacement key; refresh-token rebinding follows Section 5.1.
 
 5.1.  Grant Continuity
 
@@ -428,16 +425,21 @@ Table of Contents
       identity pair to match the recorded identity.
 
    Possession of the original key alone does not permit a different
-   identity.
+   identity, and a matching identity alone does not permit a different
+   key.  The refresh token remains bound to the Client Instance Key
+   under ATTEST; a verified key change that retains the instance
+   identity under Section 6.2 does not rebind it.  Rebinding a refresh
+   token to a new Client Instance Key requires a separate profile under
+   [ATTEST], Section 13.
 
    A refresh request for such a grant MUST NOT introduce or change the
    recorded instance identity without an explicitly authorized
    migration.  The migration MUST establish continuity under Section 6.2
-   and satisfy the applicable key-binding requirements; no migration
-   protocol is defined here.  An otherwise valid attestation that
-   conflicts with the grant's instance binding MUST produce
-   invalid_grant under [RFC6749], without disclosing the expected
-   identity.
+   and, when the key changes, rebind the refresh token under such a
+   profile; no migration protocol is defined here.  An otherwise valid
+   attestation that conflicts with the grant's instance binding MUST
+   produce invalid_grant under [RFC6749], without disclosing the
+   expected identity.
 
    When an issuer derives Instance Context solely from a validated input
    token, the consuming profile in Section 7.3 MUST define refresh
@@ -591,27 +593,37 @@ Table of Contents
 
    A validating Receiver need not maintain an instance allowlist.  Local
    suspension, revocation, and mapped context require the corresponding
-   status, token associations, and mappings.  Issuers MUST retain or
-   securely reproduce the same mapping for as long as they permit
-   issuance of Instance Context for that source identity and Context
-   Consumer scope, including across periods of inactivity.  Expiration
-   of attestations, access tokens, or refresh tokens alone MUST NOT end
-   this obligation.
+   status, token associations, and mappings.
 
-   An issuer MAY retire a mapping when no still-valid token or
-   continuing grant requires its continuity, including allowed clock
-   skew, and it stops issuing context for that source identity and
-   consumer scope.  If issuance later resumes for the same source
-   identity and scope, the issuer MUST restore or reproduce the previous
-   mapped identifier; it MUST NOT assign a replacement identifier.
-   Issuers using random mappings therefore need to retain recoverable
-   records if they intend to support resumption.
+   In this section, "source identity" is the mapping input under
+   Section 7.1: the instance identity (iss, client_instance_id) from a
+   Client Attestation, or the upstream (iss, id) being remapped.
+   "Consumer scope" is the Context Consumer, or explicitly configured
+   set of Context Consumers, to which the mapping is scoped under
+   Section 7.1.
+
+   An issuer's obligation for a mapping ends only when the issuer
+   retires it.  An issuer MAY retire a mapping when no still-valid token
+   or continuing grant, including allowed clock skew, requires its
+   continuity and local policy no longer permits issuance of Instance
+   Context for that source identity and consumer scope.  Until then, the
+   issuer MUST retain or securely reproduce the same mapping, including
+   across periods of inactivity.  Expiration of attestations, access
+   tokens, or refresh tokens alone does not retire a mapping.
+
+   If issuance later resumes for a retired source identity and consumer
+   scope, the issuer MUST restore or reproduce the previous mapped
+   identifier; it MUST NOT assign a replacement identifier.  An issuer
+   that cannot do so MUST omit client_instance for that source identity
+   and consumer scope; a Context Consumer requiring context then rejects
+   under Section 7.5.  Issuers using random mappings therefore need to
+   retain recoverable records if they intend to support resumption.
 
    Random generation satisfies non-reassignment probabilistically
    without an indefinite retired-identifier list; derivation depends on
-   never reusing enrollment inputs.  After continuity and status
-   obligations end, this profile requires no further retention.  Audit
-   retention is local policy.
+   never reusing enrollment inputs.  After a mapping is retired and the
+   attester's continuity and status obligations end, this profile
+   requires no further retention.  Audit retention is local policy.
 
 7.  Conveying Instance Context
 
@@ -640,7 +652,10 @@ Table of Contents
    The context MUST refer to validated instance participation; issuers
    MUST NOT copy unvalidated client-supplied context.  From a Client
    Attestation, the issuer MUST map (iss, client_instance_id) to its own
-   namespace.  For each mapping, it MUST:
+   namespace.  Remapping validated upstream context under Section 7.3
+   maps the upstream (iss, id) pair to the issuer's namespace by the
+   same rules; the upstream id alone is not the mapping input.  For each
+   mapping, it MUST:
 
    *  keep distinct instances separate unless continuity is established;
 
@@ -675,6 +690,8 @@ Table of Contents
    derived from an upstream token, whether preserved or remapped.  Key
    selection follows ATTEST; any presenter or key change during exchange
    requires authorization under the consuming exchange profile.
+   Unlinkability between Context Consumers additionally requires
+   distinct binding keys under Section 9.2.
 
 7.3.  Preservation and Authorization
 
@@ -703,13 +720,16 @@ Table of Contents
    already preserved by an intermediary unless a consuming profile
    specifies authenticated provenance, a finite hop limit, and
    enforcement rules.  This permits one preservation hop by default; the
-   object carries no forwarding history.
+   object carries no forwarding history.  The limit prevents forwarding
+   context whose provenance the issuer has not authenticated; it does
+   not bound the number of exchanges through which an instance's
+   participation is conveyed, because each remap is a new mapping of
+   validated input-token context.
 
    Context MUST NOT be treated as a separate token or delegated actor.
-   Preserving or remapping context does not change which participant it
-   identifies.  Remapping upstream context into the current issuer's
-   namespace does not make it identify the current presenter.  Presenter
-   authentication follows Section 7.2.
+   Remapping follows Section 7.1 and, like preservation, leaves the
+   identified instance unchanged; presenter authentication follows
+   Section 7.2.
 
 7.4.  Context Consumer Processing
 
@@ -734,9 +754,18 @@ Table of Contents
    using that association in policy or audit.  If the association is not
    established, it MUST treat context only as evidence of instance
    participation and MUST NOT attribute the current request to that
-   instance as its presenter.  The client_instance object alone,
+   instance as its presenter.  A Context Consumer whose configured
+   requirement (Section 3) includes that attribution MUST reject the
+   request under Section 7.5.  The client_instance object alone,
    including whether its iss matches the token issuer, does not
    establish this association.
+
+   When the consumer's trusted configuration establishes that the token
+   issuer conveys context only from direct Client Attestation
+   validation, this document is the applicable consuming profile:
+   context identifies the authenticated presenting instance under
+   Section 7.1, and validating the token's binding under Section 7.2
+   establishes that association.
 
    For introspection, trusted endpoint configuration identifies the
    expected token issuer.  A response-level iss, if present, MUST match
@@ -751,7 +780,8 @@ Table of Contents
 
 7.5.  Errors
 
-   Rejection for missing or invalid required context MUST use:
+   Rejection for missing or invalid required context, or for required
+   attribution that cannot be established, MUST use:
 
    *  invalid_token at a resource server ([RFC6750], Section 3.1); or
 
@@ -847,17 +877,22 @@ Table of Contents
       limits correlation through its identifier; it does not guarantee
       unlinkability between consumers.  An AS can issue tokens with
       different mapped identifiers but the same DPoP cnf.jkt, allowing
-      resources to correlate them while that key is reused.  DPoP
-      combined mode uses the Client Instance Key for token binding.
+      resources to correlate them while that key is reused.  In DPoP
+      combined mode ([ATTEST], Section 5.2), the Client Instance Key is
+      the DPoP key, so every token bound to one attestation shares it.
       Scoping attestations to an AS does not by itself separate binding
-      keys between resources served by that AS.  Deployments requiring
-      unlinkability between Context Consumers MUST use distinct token-
-      binding keys across their consumer scopes and address other
-      correlating token claims and application data.  This applies to
-      DPoP keys, mutual-TLS certificate keys, and other binding
-      mechanisms.  Key selection and refresh-token binding requirements
-      continue to apply; identifier scoping does not permit changing a
-      refresh token's bound key.
+      keys between resources served by that AS.  Where unlinkability
+      between Context Consumers is required, the client MUST use
+      distinct token-binding keys across those consumer scopes, and the
+      deployment MUST address other correlating token claims and
+      application data.  ATTEST permits DPoP without combined mode, with
+      a DPoP key independent of the Client Instance Key; that mode, or a
+      distinct mutual-TLS certificate per consumer scope, satisfies this
+      requirement.  This applies to DPoP keys, mutual-TLS certificate
+      keys, and other binding mechanisms.  Key selection follows
+      Section 5 and refresh-token binding follows Section 5.1;
+      identifier scoping does not permit changing a refresh token's
+      bound key.
 
    *  *Attester visibility:* supplying Receiver scope reveals it to the
       attester.  Deployments requiring ATTEST's audience-hiding property
@@ -918,12 +953,6 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               attestation-based-client-auth-11>.
 
-   [ATTESTER-ENDORSEMENT]
-              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
-              14 September 2026, <https://mcguinness.github.io/draft-
-              mcguinness-oauth-client-attesters/draft-mcguinness-oauth-
-              client-attesters.html>.
-
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
@@ -979,6 +1008,12 @@ Table of Contents
               profile-00, 30 April 2026,
               <https://datatracker.ietf.org/doc/html/draft-mcguinness-
               oauth-actor-profile-00>.
+
+   [ATTESTER-ENDORSEMENT]
+              McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
+              14 September 2026, <https://mcguinness.github.io/draft-
+              mcguinness-oauth-client-attesters/draft-mcguinness-oauth-
+              client-attesters.html>.
 
    [AAUTH]    Hardt, D., "AAuth Protocol", Work in Progress, Internet-
               Draft, draft-hardt-oauth-aauth-protocol-10, 6 August 2026,
