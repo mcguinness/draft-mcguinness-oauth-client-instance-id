@@ -571,7 +571,7 @@ Its JSON object has two REQUIRED members:
 | Member | Type | Meaning |
 |---|---|---|
 | `iss` | Nonempty string | Instance Context Authority that assigned `id` |
-| `id` | Nonempty string | Representation of the instance in that authority's namespace |
+| `id` | Nonempty string, at most 256 octets of UTF-8 | Representation of the instance in that authority's namespace |
 
 For direct issuance from a validated Client Attestation, context MUST
 identify the authenticated presenting instance. On refresh, that identity
@@ -588,8 +588,9 @@ input. For each mapping, it MUST:
 
 * keep distinct instances separate unless continuity is established;
 * generate opaque, unpredictable, non-reassignable identifiers under
-  {{attester-requirements}} and retain them across attestation renewal
-  and verified key changes;
+  {{attester-requirements}}, subject to the same length bound as
+  `client_instance_id` ({{claims}}), and retain them across attestation
+  renewal and verified key changes;
 * scope identifiers to each Context Consumer, allowing sharing only
   within an explicitly configured set; and
 * retain or reproduce the mapping under {{state}}.
@@ -614,10 +615,18 @@ using Demonstrating Proof of Possession (DPoP) {{RFC9449}}, mutual TLS
 {{RFC8705}}, or another mechanism defined by the consuming profile,
 with a key the issuer associated with the authenticated instance at
 issuance, establishes that association; this applies equally when
-context is conveyed only through introspection. A bearer token
-carrying context supports no presenter attribution, and a consumer
-requiring attribution rejects it under {{context-errors}}. Proof errors
-follow the selected binding mechanism.
+context is conveyed only through introspection. A token without sender
+constraint carrying context supports no presenter attribution, and a
+consumer requiring attribution rejects it under {{context-errors}}.
+The HTTP `Bearer` authentication scheme does not indicate that a token
+is unbound; certificate-bound tokens under {{RFC8705}} use it as well.
+
+All validation requirements of the applicable token-binding mechanism
+continue to apply, regardless of whether Instance Context is used for
+presenter attribution; in particular, a resource server MUST reject a
+bound token presented without its required proof
+({{RFC9449, Section 7.2}}). Proof errors follow the selected binding
+mechanism.
 
 The binding authenticates the authorized token presenter. It does not
 establish that the presenter is the instance named in context derived
@@ -673,7 +682,9 @@ Before using context, the Context Consumer MUST:
 
 1. Validate the enclosing token or authenticated introspection response.
 2. Validate the context members, comparing exact, case-sensitive strings
-   without URI normalization; ignore unrecognized members.
+   without URI normalization, accepting `id` values up to the length
+   bound in {{context-claims}} and rejecting longer ones; ignore
+   unrecognized members.
 3. Accept its authority only when it is the token issuer or an upstream
    token issuer explicitly trusted for that issuer and consumer.
 4. Reject invalid context and, when context is required, reject the
