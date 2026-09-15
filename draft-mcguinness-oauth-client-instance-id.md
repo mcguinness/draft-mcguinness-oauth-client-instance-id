@@ -65,11 +65,14 @@ tokens carrying instance context are sender-constrained.
 
 # Introduction
 
-Attestation-Based Client Authentication {{ATTEST}} authenticates a
-Client Instance through an attestation and proof of key possession.
-After a key change, a new attestation alone cannot distinguish a
-continuing installation from a new instance. Treating them as the same
-can merge unrelated audit histories and status decisions.
+Attestation-Based Client Authentication {{ATTEST}} answers one
+question: is this an authorized Client Instance in possession of this
+key? This profile adds a second: is this the same Client Instance that
+the Receiver previously encountered? ATTEST authenticates an instance
+through an attestation and proof of key possession, but after a key
+change a new attestation alone cannot distinguish a continuing
+installation from a new instance. Treating them as the same can merge
+unrelated audit histories and status decisions.
 
 Assigning each instance its own `client_id`, with a shared `software_id`
 as contemplated by {{RFC7591, Section 2}}, is an alternative, but this
