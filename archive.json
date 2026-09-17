@@ -1,0 +1,172 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2026-09-17T04:36:25.739701+00:00",
+  "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+  "labels": [
+    {
+      "name": "accessibility",
+      "description": "Barrier affecting people with disabilities",
+      "color": "f143ab"
+    },
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOUbZuvs8AAAABDjsEtQ",
+      "title": "Clarify instance continuity, context interpretation, and privacy",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/1",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "## Summary\n\nClarify how implementations preserve instance identity during inactivity and interpret instance context after token exchange. An installation returning with the same source identity and consumer scope must recover its original mapped identifier, and a consumer must establish the instance's role before attributing a request to it in policy or audit.\n\n- Define mapping retention, retirement, and resumption independently of attestation and token expiration.\n- Preserve the distinction between a current presenter and an upstream participant through both preservation and remapping.\n- Explain correlation through reused token-binding keys and require separate keys across consumer scopes when deployments require unlinkability.\n- Frame shared CIMD/client identity as a deployment requirement, with a two-sentence response to per-instance `client_id` and shared `software_id`.\n- Classify the endorsement specification as normative, cite ATTEST Section 4 for claims extensibility, and make the existing refresh-token key-binding limitation explicit.\n\nIssuers using random mappings need recoverable records to support resumption. Consumer-specific identifiers alone do not guarantee unlinkability, and retaining an instance identifier does not enable use of an existing refresh token with a replacement key.\n\n## Validation\n\n- `make all lint`: text and HTML generation, document-name and whitespace lint passed.\n- Parsed all three JSON examples and both HTTP response bodies; verified both example `cnf.jkt` values against the attestation JWK.\n- Checked local cross-references, normative endorsement placement, and `git diff --check`.\n",
+      "createdAt": "2026-09-15T05:49:47Z",
+      "updatedAt": "2026-09-15T16:42:33Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "5b17baae37ecb26110f3a395a1509651221a30ce",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "clarify-instance-profile-semantics",
+      "headRefOid": "7282927ba4a1ec16b7e2986bdfc8427d36a077e4",
+      "closedAt": "2026-09-15T16:42:31Z",
+      "mergedAt": "2026-09-15T16:42:30Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "35398e6ac506312fadd1805feed2659e89b756f1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOUbZuvs8AAAABDpVBTw",
+      "title": "Address end-to-end review of the 15 September editor's copy",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/2",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Applies the substantive items from the end-to-end review of the 15 September editor's copy. One commit per review item so any can be dropped independently.\n\n| Review item | Commit | Change |\n|---|---|---|\n| 10 | Frame the profile as instance sameness over time | Introduction opens with the two questions: ATTEST asks whether this is an authorized instance holding this key; this profile asks whether it is the same instance seen before. |\n| 8 | State the identification-versus-authorization boundary | New Introduction paragraph: the profile establishes identity and continuity, defines no authority, and authorization profiles MAY use it as policy input. Step 3 of Request Processing now says \"local instance acceptance policy\". |\n| 4 | Rename Instance Authority to Instance Context Authority | `iss` is defined as the authority that assigned `id`; the attester remains the authority for the underlying identity. Table and example updated. |\n| 1 | Describe Instance Context as a pairwise representation | Definition and Section 7.1 state that `id` need not equal `client_instance_id` and that different issuers or consumer scopes can represent one instance by different values. |\n| 6 | Define continuity by evidence | Continuity is authenticated evidence that a claimant is the same enrolled instance; key custody is the primary mechanism, not the definition. |\n| 5 | Two refresh-token invariants | Identity match and ATTEST key binding are stated as independent invariants, with \"instance continuity does not imply key-binding continuity\". |\n| 2 | Mapping stability replaces retirement | One rule: never represent one source identity and consumer scope by more than one mapped identifier. Retire/resume/restore text removed. Issuers that lose a mapping omit context; SHOULD retain while grants are live. Stated in terms the issuer can enforce, since it cannot observe attester-side enrollment retirement. |\n| 3 | Provenance governs preservation | The MUST is now the provenance principle. The same-issuer default and remap-or-omit rule follow from it; \"hop limit\" removed; shallow preservation noted as a privacy default. |\n| 7 | Scoped keys explained, not decoupled | Kept identifiers and keys scoped together, since a shared key links attestations regardless of identifier. Added the enterprise path: one configured scope spanning the Receivers, one identifier, one key. |\n| 9 | Severability note | Conformance states that conveying Instance Context is optional and independent of the base profile. No split. |\n\nNot changed: `client_instance` remains registered as a JWT claim (item 9); the reviewer did not recommend splitting yet.\n\nBuild is clean (kramdown-rfc, xml2rfc txt and html) at every commit; all anchors and references resolve.\n",
+      "createdAt": "2026-09-15T17:08:34Z",
+      "updatedAt": "2026-09-15T17:19:12Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "35398e6ac506312fadd1805feed2659e89b756f1",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "address-editor-copy-review",
+      "headRefOid": "ee139b38fd6fb4f84e0c874d279c5b5a258d4c33",
+      "closedAt": "2026-09-15T17:19:10Z",
+      "mergedAt": "2026-09-15T17:19:09Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "fbfdfe2eef06c4ca96e6457054bceb1dba83bd8e"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 3,
+      "id": "PR_kwDOUbZuvs8AAAABDpjCXQ",
+      "title": "Address second end-to-end review: attribution, terminology, scoping",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/3",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Applies the recommendations from the second end-to-end review of the editor's copy. One commit per item so any can be dropped independently.\n\n| Review item | Commit | Change |\n|---|---|---|\n| 2 | Require presenter binding only where context attributes a presentation | Section 7.2 no longer mandates sender constraint for every token carrying `client_instance`. A binding between presenter and instance is required only when a consumer attributes the presentation to the instance; for direct issuance, sender constraint with an instance-associated key is that binding. A bearer token with context is participation evidence only. Abstract, Introduction, conformance list, and consumer processing updated to match. |\n| smaller | Type identifiers as plain strings with an octet length bound | `client_instance_id` and `id` are plain JSON strings, not StringOrURI. The length bound is 256 octets of UTF-8, a byte check rather than a Unicode scalar count. |\n| smaller | Make remapping the default and preservation the exception | Issuers SHOULD remap; preservation is the MAY. |\n| 4 | Separate identifier scoping from key scoping and cite ATTEST | Section 4.2 states the identifier rule and the key rule as two requirements. The key rule cites ATTEST Section 11.1 and says why this profile strengthens its RECOMMENDED to MUST across separated scopes: a shared key would leave scoped identifiers without effect. The enterprise single-scope path is retained. |\n| 3 | State the ATTEST basis for instance-bound refresh tokens | Not made conditional. ATTEST Section 10.3 already binds refresh tokens to the Client Instance rather than the client, so this profile does not introduce instance-bound grants. Grant Continuity now says so with the citation and states what the profile adds: an identity that survives verified key changes and detection of a copied key with a different identity. |\n| 1 | Introduce Source Instance Identity and Instance Context Identifier | Both terms defined in Conventions. Source Instance Identity is `(iss, client_instance_id)` from the attestation; Instance Context Identifier is `(iss, id)` in `client_instance`, the authority's pairwise correlator for it. Used consistently through claims, processing, grant continuity, retention, mapping, and preservation. |\n\nAlready done before this review: Instance Authority was renamed Instance Context Authority and the one-hop rule was replaced by the provenance rule in PR #2.\n\nBuild is clean (kramdown-rfc, xml2rfc txt and html) at every commit; all anchors and references resolve.\n",
+      "createdAt": "2026-09-15T17:34:51Z",
+      "updatedAt": "2026-09-15T18:55:16Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "fbfdfe2eef06c4ca96e6457054bceb1dba83bd8e",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "address-second-editor-copy-review",
+      "headRefOid": "1c4bd799569ae4a1805ff362f3919f6e42322f48",
+      "closedAt": "2026-09-15T18:55:14Z",
+      "mergedAt": "2026-09-15T18:55:14Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "42fceeae72d74f150b2a982a6b346c2dc758ca18"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 4,
+      "id": "PR_kwDOUbZuvs8AAAABDqUw2A",
+      "title": "Editorial consolidation pass",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/4",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Editorial consolidation and compression of the body. No change to the identity model, the roles, or the protocol behavior. Appendices are untouched.\n\n| Measure | Before | After |\n|---|---|---|\n| Markdown lines | 1039 | 908 |\n| Words | 6135 | 5143 |\n| Rendered text lines | 1328 | 1179 |\n| MUST / MUST NOT | 54 / 18 | 47 / 13 |\n| SHOULD / SHOULD NOT | 5 / 0 | 4 / 1 |\n| REQUIRED / MAY | 4 / 3 | 3 / 3 |\n\n**Consolidated**\n\n- One identifier-comparison and opacity rule in Conventions replaces four restatements in Attester Trust, Claims, and Consumer Processing.\n- Consumer Scope is now a defined term, replacing the local glosses in State and Retention.\n- Mapping Stability is its own subsection under Conveying Instance Context, moved out of Attester Requirements where it did not belong.\n- Instance Context and Instance Context Identifier no longer restate each other.\n- Grant Continuity states the two invariants once; the separate migration MUST NOT is folded into the identity invariant.\n- Access Token Binding is two paragraphs instead of three; Preservation merges the two \"one instance, not a chain\" statements.\n- Derived-context refresh binding is a bullet in the exchange-profile list rather than a paragraph in Grant Continuity.\n- Suspension is retitled Suspension and Status and is one paragraph.\n\n**Delegated to dependencies instead of restated**\n\n- Endorsement acceptance rules to ATTESTER-ENDORSEMENT.\n- Trust withdrawal and key resolution to ATTEST Section 10.8.\n- Protocol-artifact binding at redemption to ATTEST Section 10.4.\n- Grant revocation semantics to RFC 6749 and RFC 7662.\n\n**Normative requirements removed as unnecessary or scope-expanding**\n\n- \"A replacement key requires a new attestation.\" Inherent in ATTEST.\n- \"Attesters MUST NOT allow retired credentials to recreate their old identifiers.\" Duplicate of never-reassigned in Identifier Generation.\n- \"Logs MUST NOT contain raw credentials or private keys.\" Covered by the base security considerations.\n- \"An integration MUST NOT assert that a shared workload identity identifies an individual instance.\" Now a statement of fact pointing at continuity evidence; \"integration\" was not a defined role.\n- \"Consumers relying on granularity MUST configure it rather than parse the identifier.\" Covered by the global opacity rule.\n- \"The AS MUST enforce [artifact] binding at redemption.\" Delegated to ATTEST Section 10.4; this profile does not define instance-bound codes.\n- \"It MUST invalidate all access and refresh tokens associated with that grant.\" Restated what revoking a grant means.\n\nBuild is clean (kramdown-rfc, xml2rfc txt and html). All anchors and references resolve and no reference is left unused.\n",
+      "createdAt": "2026-09-15T19:08:02Z",
+      "updatedAt": "2026-09-15T19:26:22Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "42fceeae72d74f150b2a982a6b346c2dc758ca18",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "editorial-consolidation",
+      "headRefOid": "4e7b8ad2cb6e90dfd65b2f7da4d443f2839e1914",
+      "closedAt": "2026-09-15T19:26:20Z",
+      "mergedAt": "2026-09-15T19:26:20Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "28d66191c2e4bc4cd581fa138d5b4f3de40c55ed"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}
