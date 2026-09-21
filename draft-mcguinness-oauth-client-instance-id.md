@@ -142,10 +142,6 @@ Attester Issuer:
 : The value of `iss` in the Client Attestation, identifying the
   Client Attester.
 
-Instance Identifier:
-: The `client_instance_id` value, assigned by a Client Attester to one
-  Client Instance at the configured granularity.
-
 Source Instance Identity:
 : The pair `(iss, client_instance_id)` established by a validated
   Client Attestation. This profile keeps it stable across verified key
@@ -198,7 +194,7 @@ The client and Receiver MUST administratively configure:
 
 * the Logical Client, authentication method, and attester trust policy;
 * the instance granularity, continuity evidence, and freshness limits;
-* the intended Receiver and any explicitly shared correlation scope.
+* the intended Receiver and any explicitly shared Receiver scope.
 
 A Context Consumer requiring context MUST configure that requirement.
 Claims MUST NOT select this profile or change authentication methods;
@@ -415,7 +411,7 @@ individual processes. The attester MUST apply the following outcomes:
 
 | Event | Required outcome |
 |---|---|
-| Renewal, verified key change, installation process restart, or in-place update | Retain identifiers when continuity is verified |
+| Renewal, verified key change, process restart within an installation, or in-place update | Retain identifiers when continuity is verified |
 | Reinstall, independent clone, replacement or restart of the selected execution unit, or granularity change | New enrollment |
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
@@ -553,7 +549,7 @@ defines:
 Issuers SHOULD remap upstream context into their own namespace, which
 keeps each consumer's view pairwise. An issuer MAY instead preserve a
 validated upstream Instance Context Identifier when configured trust
-and correlation scope authorize its disclosure to the downstream
+and Consumer Scope authorize its disclosure to the downstream
 consumer; otherwise it MUST remap or omit the context.
 
 An issuer MUST NOT assert an upstream Instance Context Authority
@@ -807,7 +803,7 @@ Cache-Control: no-store
 }
 ~~~
 
-## Governed Actor and Runtime Context
+## Governed Actor and Instance Context
 {:numbered="false"}
 
 An exchange profile can authorize instance B to continue work begun by
@@ -907,9 +903,9 @@ platform-protected `K1`, using app-attestation evidence where available.
 Device enrollment or key storage alone does not identify the installation.
 Before step 2, the harness obtains a code through an external browser
 {{RFC8252}} with PKCE `S256` {{RFC7636}}, then redeems it directly with
-the verifier, redirect URI, `C1`, attestation, and DPoP proof. The browser
-receives neither attestation nor proof. Process restarts can retain the
-installation identity; reinstall requires new enrollment.
+the code verifier, redirect URI, `C1`, attestation, and DPoP proof. The
+browser receives neither attestation nor proof. Process restarts can
+retain the installation identity; reinstall requires new enrollment.
 
 # Document History {#history}
 {:numbered="false"}
