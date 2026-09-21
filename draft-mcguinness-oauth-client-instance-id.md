@@ -342,8 +342,8 @@ reverse. A conflict with the recorded identity MUST produce
 `invalid_grant` {{RFC6749}} without disclosing the expected identity.
 This profile defines no way to change a grant's recorded identity: a
 different Attester Issuer requires the migration procedure
-{{processing}} leaves undefined, and a different `client_instance_id`
-identifies a different instance ({{continuity}}).
+{{processing}} leaves undefined, and an attester assigns a different
+`client_instance_id` only for a new enrollment ({{continuity}}).
 
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
@@ -477,9 +477,8 @@ the upstream Instance Context Identifier (together, the mapping input)
 to its own namespace. Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
-* generate `id` under {{attester-requirements}}, within the length
-  bound above, and retain it across attestation renewal and verified
-  key changes; and
+* generate `id` under {{attester-requirements}} and retain it across
+  attestation renewal and verified key changes; and
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
