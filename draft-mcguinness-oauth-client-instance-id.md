@@ -142,10 +142,15 @@ Attester Issuer:
 : The value of `iss` in the Client Attestation, identifying the
   Client Attester.
 
+Instance Identifier:
+: The `client_instance_id` value, assigned by a Client Attester to one
+  Client Instance at the configured granularity.
+
 Source Instance Identity:
 : The pair `(iss, client_instance_id)` established by a validated
-  Client Attestation. This profile keeps it stable across verified key
-  changes; it is the input from which Instance Context is mapped.
+  Client Attestation: the Attester Issuer and its Instance Identifier.
+  This profile keeps it stable across verified key changes; it is the
+  input from which Instance Context is mapped.
 
 Instance Context:
 : The `client_instance` object in a token or introspection response.
@@ -343,7 +348,7 @@ reverse. A conflict with the recorded identity MUST produce
 This profile defines no way to change a grant's recorded identity: a
 different Attester Issuer requires the migration procedure
 {{processing}} leaves undefined, and an attester assigns a different
-`client_instance_id` only for a new enrollment ({{continuity}}).
+Instance Identifier only for a new enrollment ({{continuity}}).
 
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
