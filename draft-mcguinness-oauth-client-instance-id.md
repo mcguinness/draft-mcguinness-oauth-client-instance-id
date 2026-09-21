@@ -466,7 +466,7 @@ together form an Instance Context Identifier:
 | Member | Type | Meaning |
 |---|---|---|
 | `iss` | Nonempty string | Instance Context Authority that assigned `id` |
-| `id` | Nonempty string, at most 256 octets of UTF-8 | That authority's representation of the instance |
+| `id` | Nonempty string, at most 256 octets of UTF-8 after JSON string decoding | That authority's representation of the instance |
 
 For direct issuance from a validated Client Attestation, context MUST
 identify the authenticated presenting instance; on refresh, that
@@ -480,8 +480,9 @@ the upstream Instance Context Identifier (together, the mapping input)
 to its own namespace. Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
-* generate `id` under {{attester-requirements}} and retain it across
-  attestation renewal and verified key changes; and
+* generate `id` under {{attester-requirements}}, within the same
+  length bound as `client_instance_id` ({{claims}}), and retain it
+  across attestation renewal and verified key changes; and
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
