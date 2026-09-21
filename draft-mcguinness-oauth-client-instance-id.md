@@ -349,9 +349,10 @@ different Attester Issuer requires the migration procedure
 {{processing}} leaves undefined, and a different `client_instance_id`
 identifies a different instance ({{continuity}}).
 If authorization-time policy bound a code or other artifact to an
-instance, the AS MUST enforce that binding at redemption, in either
-authentication mode of {{configuration}}; establishing such bindings
-follows {{ATTEST, Section 10.4}}.
+instance, the AS MUST enforce that binding at redemption, whether the
+attestation is the client authentication method or an additional
+security signal. {{ATTEST, Section 10.4}} recommends establishing such
+bindings where attestation is the client authentication method.
 
 ## Errors {#errors}
 
