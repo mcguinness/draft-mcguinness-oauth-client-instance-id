@@ -344,6 +344,7 @@ This profile defines no way to change a grant's recorded identity: a
 different Attester Issuer requires the migration procedure
 {{processing}} leaves undefined, and a different `client_instance_id`
 identifies a different instance ({{continuity}}).
+
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
 attestation is the client authentication method or an additional
