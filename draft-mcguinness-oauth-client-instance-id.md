@@ -480,9 +480,9 @@ the upstream Instance Context Identifier (together, the mapping input)
 to its own namespace. Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
-* generate `id` under {{attester-requirements}}, including its length
-  bound, and retain it across attestation renewal and verified key
-  changes; and
+* generate `id` under {{attester-requirements}}, within the length
+  bound above, and retain it across attestation renewal and verified
+  key changes; and
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
