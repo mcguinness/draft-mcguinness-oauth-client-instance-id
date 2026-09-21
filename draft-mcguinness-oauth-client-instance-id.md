@@ -415,7 +415,7 @@ individual processes. The attester MUST apply the following outcomes:
 
 | Event | Required outcome |
 |---|---|
-| Renewal, verified key change, process restart within an installation, or in-place update | Retain identifiers when continuity is verified |
+| Renewal, verified key change, process restart at Installation granularity, or in-place update | Retain identifiers when continuity is verified |
 | Reinstall, independent clone, replacement or restart of the selected execution unit, or granularity change | New enrollment |
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
