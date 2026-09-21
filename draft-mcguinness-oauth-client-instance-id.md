@@ -144,13 +144,15 @@ Attester Issuer:
 
 Instance Identifier:
 : The `client_instance_id` value, assigned by a Client Attester to one
-  Client Instance at the configured granularity.
+  Client Instance at the configured granularity and Receiver scope
+  ({{identifier-scope}}).
 
 Source Instance Identity:
 : The pair `(iss, client_instance_id)` established by a validated
-  Client Attestation: the Attester Issuer and its Instance Identifier.
-  This profile keeps it stable across verified key changes; it is the
-  input from which Instance Context is mapped.
+  Client Attestation, pairing the Attester Issuer with the Client
+  Instance's Instance Identifier. This profile keeps it stable across
+  verified key changes; it is the input from which Instance Context is
+  mapped.
 
 Instance Context:
 : The `client_instance` object in a token or introspection response.
@@ -199,7 +201,8 @@ The client and Receiver MUST administratively configure:
 
 * the Logical Client, authentication method, and attester trust policy;
 * the instance granularity, continuity evidence, and freshness limits;
-* the intended Receiver and any explicitly shared Receiver scope.
+* the intended Receiver and any explicitly shared Receiver scope
+  ({{identifier-scope}}).
 
 A Context Consumer requiring context MUST configure that requirement.
 Claims MUST NOT select this profile or change authentication methods;
@@ -351,8 +354,9 @@ disclosing the expected identity.
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
 attestation is the client authentication method or an additional
-security signal. {{ATTEST, Section 10.4}} recommends establishing such
-bindings where attestation is the client authentication method.
+security signal ({{ATTEST, Section 7.6}}). {{ATTEST, Section 10.4}}
+recommends establishing such bindings where attestation is the client
+authentication method.
 
 ## Errors {#errors}
 
@@ -553,8 +557,8 @@ defines:
 Issuers SHOULD remap upstream context into their own namespace, which
 keeps each consumer's view pairwise. An issuer MAY instead preserve a
 validated upstream Instance Context Identifier when configured trust
-and Consumer Scope authorize its disclosure to the downstream
-consumer; otherwise it MUST remap or omit the context.
+and the upstream Consumer Scope authorize its disclosure to the
+downstream consumer; otherwise it MUST remap or omit the context.
 
 An issuer MUST NOT assert an upstream Instance Context Authority
 unless it has authenticated both that authority's assignment of the
