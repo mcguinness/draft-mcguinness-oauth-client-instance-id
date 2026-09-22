@@ -1715,7 +1715,11 @@ method.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-5-2.2">
           <p id="section-5-2.2.1">Validate the claims in <a href="#claims" class="auto internal xref">Section 4</a> and attester authority under
-<a href="#configuration" class="auto internal xref">Section 3</a>.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+<a href="#configuration" class="auto internal xref">Section 3</a>, including that the key that verified the
+attestation is one bound to the asserted <code>iss</code>. Key resolution
+under <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a></span> selects a key from JOSE header
+parameters, not from <code>iss</code>, so a trust anchor covering several
+attesters does not by itself establish that association.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-5-2.3">
           <p id="section-5-2.3.1">Associate the Source Instance Identity with the Logical Client and
@@ -1788,11 +1792,17 @@ authentication method.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 policy <span class="bcp14">MUST</span> produce <code>invalid_client_attestation</code>, deliberately reusing
 ATTEST's validation error so that responses do not disclose whether an
 instance is known, suspended, or retired; Receivers <span class="bcp14">SHOULD</span> also avoid
-distinguishable response timing. Unknown instances are rejected only
-when local policy requires prior enrollment. A failed profile check
-<span class="bcp14">MUST NOT</span> fall back to authentication without the required evidence.
-Grant-binding errors follow <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>; other errors follow
-ATTEST.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+distinguishable response timing. <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.4" class="relref">Section 7.4</a></span> defines that
+code for attestation verification failures and defers situations it
+does not describe to extensions such as this profile, which maps
+instance-policy rejection onto the same code rather than a distinct
+one. A consequence is that the response does not distinguish a
+transient verification failure from a durable policy decision, so a
+client cannot tell whether retrying with a fresh attestation will
+help. Unknown instances are rejected only when local policy requires
+prior enrollment. A failed profile check <span class="bcp14">MUST NOT</span> fall back to
+authentication without the required evidence. Grant-binding errors
+follow <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>; other errors follow ATTEST.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2084,8 +2094,12 @@ with the instance. For tokens issued directly from a validated Client
 Attestation, that mechanism is sender constraint: DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>,
 mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism the consuming profile
 defines, with a constraining key the issuer associated with the
-authenticated instance at issuance. This applies equally when context
-is conveyed only through introspection.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+authenticated instance at issuance. That key <span class="bcp14">MUST</span> be unique to the
+instance at the configured granularity. A key shared by instances
+inside that boundary establishes no attribution, because any of them
+can present the token and satisfy the proof; an issuer that cannot
+bind such a key <span class="bcp14">MUST</span> omit <code>client_instance</code>. This applies equally when
+context is conveyed only through introspection.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
 <p id="section-7.3-2">A token without sender constraint supports no presenter attribution,
 and a consumer requiring attribution rejects it under
 <a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code> scheme does not indicate an
@@ -2214,9 +2228,15 @@ change the meaning of <code>iss</code> or <code>id</code>.<a href="#section-7.5-
 attribution that cannot be established, <span class="bcp14">MUST</span> use <code>invalid_token</code> at a
 resource server (<span>[<a href="#RFC6750" class="cite xref">RFC6750</a>], <a href="https://rfc-editor.org/rfc/rfc6750#section-3.1" class="relref">Section 3.1</a></span>) or <code>invalid_request</code> for a
 rejected subject or actor token in an exchange
-(<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>], <a href="https://rfc-editor.org/rfc/rfc8693#section-2.2.2" class="relref">Section 2.2.2</a></span>). Other consuming profiles define their
-own error mapping. Direct Client Attestation failures follow
-<a href="#errors" class="auto internal xref">Section 5.2</a>.<a href="#section-7.6-1" class="pilcrow">¶</a></p>
+(<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>], <a href="https://rfc-editor.org/rfc/rfc8693#section-2.2.2" class="relref">Section 2.2.2</a></span>).<a href="#section-7.6-1" class="pilcrow">¶</a></p>
+<p id="section-7.6-2">A client receiving <code>invalid_token</code> may request a new access token and
+retry (<span>[<a href="#RFC6750" class="cite xref">RFC6750</a>], <a href="https://rfc-editor.org/rfc/rfc6750#section-3.1" class="relref">Section 3.1</a></span>), which does not help when the
+rejection was for a missing sender constraint. A resource server
+rejecting for that reason <span class="bcp14">SHOULD</span> include the challenge for the binding
+mechanism it requires, such as the <code>DPoP</code> scheme in
+<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>], <a href="https://rfc-editor.org/rfc/rfc9449#section-7.1" class="relref">Section 7.1</a></span>, so the client learns what to change.<a href="#section-7.6-2" class="pilcrow">¶</a></p>
+<p id="section-7.6-3">Other consuming profiles define their own error mapping. Direct Client
+Attestation failures follow <a href="#errors" class="auto internal xref">Section 5.2</a>.<a href="#section-7.6-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
