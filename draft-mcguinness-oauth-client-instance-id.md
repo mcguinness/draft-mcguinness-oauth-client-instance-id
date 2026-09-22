@@ -375,6 +375,11 @@ ATTEST.
 
 # Attester Requirements {#lifetime}
 
+Whether an instance identifier means the same thing over time depends
+entirely on the attester. This section covers how it generates
+identifiers, when it may retain them, how suspension works, and what
+it retains.
+
 ## Identifier Generation {#attester-requirements}
 
 For each enrollment and Receiver scope ({{identifier-scope}}), the
@@ -463,6 +468,10 @@ mapped context require the corresponding status, token associations,
 and mappings ({{mapping-stability}}). Audit retention is local policy.
 
 # Conveying Instance Context {#instance-context}
+
+This section is optional. It defines how a token issuer represents a
+validated instance to downstream consumers, and what a consumer may
+conclude from that representation.
 
 ## Format and Mapping {#context-claims}
 
@@ -632,6 +641,10 @@ own error mapping. Direct Client Attestation failures follow
 {{errors}}.
 
 # Relationship to Other Identity Systems
+
+This section places the profile alongside mechanisms that identify
+clients or workloads but not individual instances. It adds no
+requirements.
 
 ## Client ID Metadata Documents {#cimd}
 
