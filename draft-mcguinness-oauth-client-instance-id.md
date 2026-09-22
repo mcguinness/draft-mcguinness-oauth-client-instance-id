@@ -282,10 +282,10 @@ The client MUST also use distinct Client Instance Keys across scopes.
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
 attestations regardless of their identifiers. A deployment that
-intends correlation across Receivers, such as an enterprise workload,
+intends correlation across Receivers, as an enterprise workload might,
 configures one scope spanning them, and one identifier and key then
-suffice. Binding-key separation between Context Consumers is addressed
-in {{privacy}}.
+suffice. Token-binding key separation between Context Consumers is
+addressed in {{privacy}}.
 
 Separating a resource server into its own scope rules out DPoP
 combined mode there. Combined mode reuses one Client Instance Key as
@@ -330,8 +330,8 @@ The Receiver MUST:
    parameters, not from `iss`, so a trust anchor covering several
    attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
-   validated Client Instance Key, then apply local instance acceptance
-   policy ({{errors}}).
+   validated Client Instance Key, then apply instance policy
+   ({{errors}}).
 
 The Receiver MUST NOT:
 
@@ -386,14 +386,14 @@ attestation is the client authentication method.
 ## Attestation Errors {#errors}
 
 Missing or invalid required instance claims and rejection by instance
-policy MUST produce `invalid_client_attestation`, deliberately reusing
-ATTEST's validation error so that responses do not disclose whether an
-instance is known, suspended, or retired; Receivers SHOULD also avoid
-distinguishable response timing. {{ATTEST, Section 7.4}} defines that
-code for attestation verification failures and defers situations it
-does not describe to extensions such as this profile, which maps
-instance-policy rejection onto the same code rather than a distinct
-one. A consequence is that the response does not distinguish a
+policy MUST produce `invalid_client_attestation`. This profile
+deliberately reuses ATTEST's validation error so that responses do not
+disclose whether an instance is unknown, suspended, or retired.
+Receivers SHOULD also avoid distinguishable response timing.
+{{ATTEST, Section 7.4}} defines that code for attestation verification
+failures and defers situations it does not describe to extensions such
+as this profile. A consequence is that the response does not
+distinguish a
 transient verification failure from a durable policy decision, so a
 client cannot tell whether retrying with a fresh attestation will
 help. Unknown instances are rejected only when local policy requires
@@ -450,9 +450,10 @@ identifier, the attester MUST verify and record:
 
 The deployment specifies its evidence, freshness limits, and
 lifecycle boundaries. For example, a container restart can leave its
-Kubernetes Pod intact, but a new Pod is a new scheduling unit, and an
-installation or scheduling-unit identifier does not identify its
-individual processes. The attester MUST apply the following outcomes:
+Kubernetes Pod intact, but a new Pod is a new scheduling unit. An
+identifier at installation or scheduling-unit granularity does not
+identify the individual processes running within that installation or
+unit. The attester MUST apply the following outcomes:
 
 | Event | Required outcome |
 |---|---|
