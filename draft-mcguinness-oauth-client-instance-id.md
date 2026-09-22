@@ -561,8 +561,8 @@ For one mapping input and Consumer Scope, an issuer:
 * MUST retain the mapping while any token or grant that issuer issued
   for that input remains valid, including clock skew; and
 * MUST omit `client_instance` rather than assign a replacement once the
-  issuer no longer holds or can reproduce the mapping. A consumer
-  requiring context then rejects under {{context-errors}}.
+  issuer no longer holds or can reproduce the mapping. A Context
+  Consumer requiring context then rejects under {{context-errors}}.
 
 An issuer that changes its derivation inputs or secrets MUST still
 produce the identifiers already assigned for any input and scope for
@@ -588,8 +588,8 @@ Instance Context grants no authority and by itself describes only the
 instance that participated in obtaining the token. When a Context
 Consumer uses context to attribute the current token presentation to
 that instance, the applicable consuming profile MUST require, and the
-consumer MUST validate, a mechanism associating the token presenter
-with the instance. For tokens issued directly from a validated Client
+Context Consumer MUST validate, a mechanism associating the token
+presenter with the instance. For tokens issued directly from a validated Client
 Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
 mutual TLS {{RFC8705}}, or another mechanism the consuming profile
 defines, with a constraining key that the issuer associated with the
@@ -602,7 +602,7 @@ a key unique to the instance at that granularity MUST omit
 context is conveyed only through introspection.
 
 A token without sender constraint supports no presenter attribution,
-and a consumer requiring attribution rejects it under
+and a Context Consumer requiring attribution rejects it under
 {{context-errors}}. The HTTP `Bearer` scheme does not indicate an
 unbound token; certificate-bound tokens {{RFC8705}} use it as well.
 
@@ -680,12 +680,11 @@ only if that profile also defines how the context's provenance is
 authenticated, because the object carries no record of how the issuer
 obtained it. The `client_instance` object alone, including whether its
 `iss` matches the token issuer, establishes neither the association nor
-the provenance. If the
-association is not established, the consumer MUST treat context only
-as evidence of instance participation and MUST NOT attribute the
-current request to that instance. A consumer whose configured
-requirement includes attribution MUST reject under {{context-errors}}.
-When trusted configuration establishes that
+the provenance. If the association is not established, the Context
+Consumer MUST treat context only as evidence of instance participation
+and MUST NOT attribute the current request to that instance. A Context
+Consumer whose configured requirement includes attribution MUST reject
+under {{context-errors}}. When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
 the authenticated presenting instance ({{format-and-mapping}}), and
