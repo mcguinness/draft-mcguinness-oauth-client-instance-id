@@ -532,8 +532,8 @@ scheme does not indicate an unbound token; certificate-bound tokens
 {{RFC8705}} use it as well.
 
 All validation requirements of the token-binding mechanism apply
-regardless of whether context is used for attribution; in particular,
-a bound token presented without its proof MUST be rejected
+regardless of whether context is used for attribution, including
+rejection of a bound token presented without its proof
 ({{RFC9449, Section 7.2}}). The binding authenticates the presenter;
 it does not establish that the presenter is an instance named in
 context derived from an upstream token. Any presenter or key change
