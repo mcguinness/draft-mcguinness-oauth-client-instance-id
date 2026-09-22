@@ -283,6 +283,14 @@ configures one scope spanning them, and one identifier and key then
 suffice. Binding-key separation between Context Consumers is addressed
 in {{privacy}}.
 
+Separating a resource server into its own scope rules out DPoP
+combined mode there. Combined mode reuses one Client Instance Key as
+the DPoP key ({{ATTEST, Section 5.2}}), but the access token was bound
+under the authorization server's scope, so a single proof cannot match
+both the token's `cnf.jkt` and the resource server's attestation.
+Deployments either keep both Receivers in one scope or use DPoP
+without combined mode.
+
 ## Example
 
 Example decoded attestation payload, including the optional `iat`:
@@ -340,9 +348,12 @@ Instance Key.
 
 {{ATTEST, Section 10.3}} binds a refresh token to the Client Instance,
 by default through the Client Instance Key. This profile does not
-introduce instance-bound grants; it gives that binding an identity
-that survives verified key changes and detects a copied key presented
-with a different identity. For a grant established using a Client
+introduce instance-bound grants; it gives that binding a recorded
+identity that survives a verified key change, so later grants
+correlate with the same instance. The refresh token itself does not
+move: it stays bound to the key ATTEST bound it to, and only a profile
+acting under {{ATTEST, Section 13}} can change that. For a grant
+established using a Client
 Attestation validated under this profile, the AS MUST record the
 Source Instance Identity when issuing a refresh token and, on refresh,
 MUST enforce two independent invariants:
@@ -350,8 +361,8 @@ MUST enforce two independent invariants:
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one, absent an explicitly authorized
   migration establishing continuity under {{continuity}}; and
-* the proof and key binding MUST satisfy ATTEST and any applicable
-  rebinding profile under {{ATTEST, Section 13}}.
+* the proof and key binding MUST satisfy ATTEST, or a profile that has
+  redefined refresh-token binding under {{ATTEST, Section 13}}.
 
 Instance continuity does not imply key-binding continuity, nor the
 reverse. This profile defines no migration procedure. A conflict with
@@ -361,9 +372,12 @@ disclosing the expected identity.
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
 attestation is the client authentication method or an additional
-security signal ({{ATTEST, Section 7.6}}). {{ATTEST, Section 10.4}}
-recommends establishing such bindings where attestation is the client
-authentication method.
+security signal ({{ATTEST, Section 7.6}}). Presenting the attestation
+is optional in that second mode, so an AS that binds artifacts to
+instances MUST require it when those artifacts are redeemed; otherwise
+a conforming client cannot supply what the AS must check.
+{{ATTEST, Section 10.4}} recommends establishing such bindings where
+attestation is the client authentication method.
 
 ## Attestation Errors {#errors}
 
@@ -442,7 +456,7 @@ individual processes. The attester MUST apply the following outcomes:
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
-| Detected fork of one enrollment | Retire its identifiers, stop issuance, and enroll claimants separately |
+| Detected fork of one enrollment | Retire the identifiers and enroll claimants separately, unless authenticated evidence establishes which claimant continues the enrollment, which then retains them |
 
 The attester MUST NOT knowingly retain identifiers for independent
 instances. Concurrent processes within one installation are not by
@@ -515,6 +529,12 @@ to its own namespace. Each mapping MUST:
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
+An issuer selects which mapping to convey by the consumer that will
+receive it: the authenticated caller for an introspection response,
+and the audience for a token. Where a token's audiences fall in
+different Consumer Scopes, no single `id` is correct for all of them
+and the issuer MUST omit `client_instance`.
+
 For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope; issuers MUST separate
 this derivation from attester identifiers, for example by a distinct
@@ -531,6 +551,13 @@ For one mapping input and Consumer Scope, an issuer:
 * MUST omit `client_instance` rather than assign a replacement once it
   no longer holds or can reproduce the mapping. A consumer requiring
   context then rejects under {{context-errors}}.
+
+An issuer that changes its derivation inputs or secrets MUST still
+produce the identifiers already assigned for any input and scope for
+which it continues to include context, as attesters must under
+{{attester-requirements}}. Storing those values satisfies this
+requirement. Without it, rotating one secret silently and permanently
+strips context from every instance mapped under it.
 
 Because attester identifiers are never reassigned, a new enrollment
 presents a new mapping input and receives a new mapping.
@@ -637,14 +664,21 @@ using that association in policy or audit. The `client_instance`
 object alone, including whether its `iss` matches the token issuer,
 does not establish it. If the association is not established, the
 consumer MUST treat context only as evidence of instance participation
-and MUST NOT attribute the current request to that instance; a
+and MUST NOT attribute the current request to that instance. The
+object carries no record of how it was obtained, so a consumer MUST
+NOT attribute a request to an instance named in context that an issuer
+preserved from an input token unless the consuming profile defines how
+that provenance is authenticated. A
 consumer whose configured requirement includes attribution MUST reject
 under {{context-errors}}. When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
 the authenticated presenting instance ({{context-claims}}), and
 validating the token's sender constraint ({{context-binding}})
-establishes the association.
+establishes the association. That configuration describes the issuer,
+not the token, so it does not apply at an issuer that also preserves
+context from input tokens; distinguishing the two there requires a
+consuming profile that carries provenance.
 
 For introspection, trusted endpoint configuration identifies the
 expected token issuer; a response-level `iss`, if present, MUST match
