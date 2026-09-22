@@ -2209,8 +2209,10 @@ client mappings follow <span>[<a href="#SPIFFE-OAUTH" class="cite xref">SPIFFE-O
 <span>[<a href="#AAUTH" class="cite xref">AAUTH</a>]</span> or workload attester can instead issue a Client Attestation
 under this profile when it holds the required enrollment evidence.
 Native credentials with different <code>sub</code> or <code>typ</code> semantics require a
-separate carrier profile. <a href="#deployment-examples" class="auto internal xref">Appendix "Deployment Examples"</a> illustrates these
-boundaries.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+separate carrier profile. Instance Context is sourced only from a
+validated Client Attestation (<a href="#context-claims" class="auto internal xref">Section 7.1</a>), so a deployment
+authenticating with native credentials does not convey it under this
+profile. <a href="#deployment-examples" class="auto internal xref">Appendix "Deployment Examples"</a> illustrates these boundaries.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

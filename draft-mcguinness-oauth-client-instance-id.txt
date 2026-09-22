@@ -800,8 +800,10 @@ Table of Contents
    workload attester can instead issue a Client Attestation under this
    profile when it holds the required enrollment evidence.  Native
    credentials with different sub or typ semantics require a separate
-   carrier profile.  Appendix "Deployment Examples" illustrates these
-   boundaries.
+   carrier profile.  Instance Context is sourced only from a validated
+   Client Attestation (Section 7.1), so a deployment authenticating with
+   native credentials does not convey it under this profile.
+   Appendix "Deployment Examples" illustrates these boundaries.
 
 9.  Security Considerations
 
