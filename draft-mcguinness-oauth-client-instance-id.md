@@ -661,8 +661,10 @@ client mappings follow {{SPIFFE-OAUTH}}. An AAuth Agent Provider
 {{AAUTH}} or workload attester can instead issue a Client Attestation
 under this profile when it holds the required enrollment evidence.
 Native credentials with different `sub` or `typ` semantics require a
-separate carrier profile. {{deployment-examples}} illustrates these
-boundaries.
+separate carrier profile. Instance Context is sourced only from a
+validated Client Attestation ({{context-claims}}), so a deployment
+authenticating with native credentials does not convey it under this
+profile. {{deployment-examples}} illustrates these boundaries.
 
 # Security Considerations
 
