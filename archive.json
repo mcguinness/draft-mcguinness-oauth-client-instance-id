@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-20T04:36:19.513471+00:00",
+  "timestamp": "2026-09-22T04:30:22.011596+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
   "labels": [
     {
@@ -54,7 +54,80 @@
       "color": "ffffff"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 8,
+      "id": "I_kwDOUbZuvs8AAAABSex1zQ",
+      "title": "Instance Context can only be sourced from a Client Attestation",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/8",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "## The gap\n\nConveying Instance Context is welded to attestation. The mapping input in Format and Mapping is defined as exactly two things:\n\n- a Source Instance Identity, which Conventions defines as `(iss, client_instance_id)` **established by a validated Client Attestation**; or\n- an upstream Instance Context Identifier being remapped under Preservation and Authorization.\n\nThere is no third path. An authorization server that authenticated a client by some other validated instance credential cannot emit `client_instance` at all.\n\n## Why it matters\n\nThe nearest adjacent specification is [draft-ietf-oauth-spiffe-client-auth](https://datatracker.ietf.org/doc/draft-ietf-oauth-spiffe-client-auth/), a working group document that profiles RFC 7521, RFC 7523 and the same attestation base this profile targets, and that defines JWT-SVID, X.509-SVID and WIT-SVID client authentication.\n\nA deployment using it cannot convey pairwise instance context under this profile. The practical consequence is backwards: it must stand up an attester not because it needs attestation, since SVID authentication already proves possession, but because context conveyance requires one. It pays for a component to obtain a downstream privacy feature.\n\nConveying context is arguably the most reusable thing this profile defines, and it is unavailable to a population likely to want it.\n\n## Candidate fix\n\nGeneralize the mapping input to any validated instance identity, and require the consuming profile to define the continuity contract backing it. That device already exists in this document: Preservation and Authorization requires an exchange profile to define continuity and refresh binding for context derived from an input token. The same pattern would apply.\n\n## Cost, and why this is deferred past -00\n\nThe change alters what the document is. The title and abstract describe a claims profile of attestation-based client authentication; making context conveyance mechanism-independent broadens it.\n\nThat is the severability question an earlier review already raised, suggesting context propagation could eventually be a separate specification while recommending against splitting yet. This is a second data point on that open question rather than a reason to act on it now.\n\nReasons to hold until the working group has seen the document:\n\n- It is an extensibility question, not a defect. Nothing in the current text is wrong or misleading; the scope is stated and the behavior matches it.\n- Deciding it unilaterally pre-empts the group on the question they would most want to weigh in on.\n- It is purely additive later. A third mapping input source breaks nothing a -00 reader implemented.\n\n## Proposed for -00\n\nOne clause in Workload and Agent Credentials noting that Instance Context under this profile is sourced from a validated Client Attestation, so a deployment authenticating with native credentials does not convey it here. That section already routes SVID authentication to the other draft and says native credentials need a separate carrier profile, but says nothing about context. Without the clause the omission reads as an oversight; with it, as a scope decision.\n\nThen raise the generalization as an explicit open question when announcing the draft, rather than in the text.\n\n## What would change the timing\n\nIf the SPIFFE client authentication authors ask for composability, or this is presented to the working group alongside that draft, shipping -00 with the gap costs the room. In that case make the change first and let the scope question be the opening discussion.\n",
+      "createdAt": "2026-09-22T04:13:18Z",
+      "updatedAt": "2026-09-22T04:13:18Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 10,
+      "id": "I_kwDOUbZuvs8AAAABSezY_Q",
+      "title": "Upgrade ATTESTER-ENDORSEMENT to an I-D reference once the attesters draft is submitted",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/10",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "documentation"
+      ],
+      "body": "## State today\n\nThe reference is informative, with a hand-written entry pointing at a GitHub Pages URL:\n\n```yaml\n  ATTESTER-ENDORSEMENT:\n    title: \"OAuth 2.0 Client Attester Endorsement\"\n    target: https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html\n    author:\n      - fullname: Karl McGuinness\n    date: 2026-09-14\n```\n\n`curl -s -o /dev/null -w '%{http_code}' https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-attesters/` returns 404, so the draft is not yet citable by name.\n\n## Why it is informative rather than normative\n\nA standards-track draft cannot normatively cite a personal editor's copy. The original change moved it to `normative:`; it was reverted for that reason.\n\nThe endorsement path is also one of two alternatives in Attester Trust. A deployment using configured attester associations never needs the other document, so informative is defensible on the merits and not only on citability.\n\n## What to do, and when\n\nOnce the attesters draft is on the datatracker, replace the hand-written entry with `ATTESTER-ENDORSEMENT: I-D.mcguinness-oauth-client-attesters`.\n\nKeep it under `informative:` at least until both documents are working group items. A normative reference between two individual drafts couples their advancement, and the endorsement path remains optional for conformance. Revisit if the working group wants them coupled deliberately.\n\n## Related\n\nThis also encodes the publication order: the attesters draft goes first, this one second. That draft carries an informative reference back to this one by URL, so it gets the same upgrade in its next revision.\n",
+      "createdAt": "2026-09-22T04:16:52Z",
+      "updatedAt": "2026-09-22T04:16:52Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 11,
+      "id": "I_kwDOUbZuvs8AAAABSezdvw",
+      "title": "Add an Acknowledgments section before submission",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/11",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "documentation"
+      ],
+      "body": "The draft has no Acknowledgments section. `grep -in acknowledg` on the source returns nothing, and the back matter ends at Document History.\n\nIt is optional for a -00 and idnits does not flag its absence, but this document has been through several rounds of substantive external review that changed the architecture, not just the wording. Examples of what came from review rather than the original text:\n\n- the two-question framing that now opens the Introduction;\n- separating identification from attribution, which removed the unconditional sender-constraint requirement;\n- the Source Instance Identity and Instance Context Identifier vocabulary;\n- replacing the fixed preservation hop limit with the authenticated-provenance rule;\n- defining continuity by evidence rather than by key custody alone.\n\nCrediting those reviewers by name is customary and costs a short back-matter section. Only the author knows who they are.\n\nPlace it after Document History, unnumbered, consistent with the other back-matter sections.\n",
+      "createdAt": "2026-09-22T04:17:02Z",
+      "updatedAt": "2026-09-22T04:17:02Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 12,
+      "id": "I_kwDOUbZuvs8AAAABSezjiA",
+      "title": "Defined-term consistency: Enrollment capitalization and Receiver scope",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/12",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "documentation"
+      ],
+      "body": "Two leftovers from the consolidation and review rounds. Both were identified, both were deliberately left, and both are the kind of thing a working group reviewer will flag. Tracking so they get decided rather than forgotten.\n\n## Enrollment is defined capitalized and used lowercase\n\n`grep -c '\\bEnrollment\\b'` returns 2: the definition entry and one sentence-initial use. `grep -c '\\benrollment\\b'` returns 25. So the only mid-sentence capitalized occurrence is the definition itself.\n\nThe document's convention is that capitalization marks a defined term. Logical Client, Attester Issuer, Source Instance Identity, Instance Context, Instance Context Identifier, Instance Context Authority, Receiver, Context Consumer and Consumer Scope are all used capitalized in running text. Enrollment breaks it.\n\nThree ways out:\n\n1. Leave it. The definition carries a real scoping statement, \"separate from a user account, device registration, or Logical Client\", and enrollment reads naturally as an ordinary noun for a record type. This is the current state.\n2. Capitalize the 25 uses. Costs a rewrap pass, and \"New Enrollment\" reads oddly in the lifecycle table.\n3. Drop the definition and fold its scoping sentence into Identifier Generation or Continuity and Lifecycle, where enrollment first matters.\n\n## Receiver scope has no entry in Conventions\n\nConsumer Scope is defined in Conventions. Receiver scope is not; it exists only as the Receiver Scope section heading. The two are parallel concepts and a reader meets both in normative text.\n\nUses now carry a pointer, either `Receiver scope ({{identifier-scope}})` in Identifier Generation and the Instance Identifier definition, or the bare phrase elsewhere. That closed the review finding but left the asymmetry.\n\nEither add a Conventions entry for Receiver scope alongside Consumer Scope, or decide the section heading is sufficient and make the pointer usage uniform.\n",
+      "createdAt": "2026-09-22T04:17:16Z",
+      "updatedAt": "2026-09-22T04:17:16Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
   "pulls": [
     {
       "number": 1,
@@ -164,6 +237,146 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "28d66191c2e4bc4cd581fa138d5b4f3de40c55ed"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 5,
+      "id": "PR_kwDOUbZuvs8AAAABEgGryg",
+      "title": "Fix pre-submission consistency findings",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/5",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes the findings from the pre-submission consistency read, then the findings from the review of this PR. No change to the identity model or protocol behavior.\n\n## Round 1: pre-submission findings\n\n| Commit | Finding | Fix |\n|---|---|---|\n| `38c4c93`, later revised | Grant Continuity's migration exception was read as citing a section that does not define migration. | See round 2. The citation parses as a migration that establishes continuity as that section defines it, so the exception was restored. |\n| `b873d38` | Artifact binding cited \"either authentication mode of {{configuration}}\", a section describing no modes, and cited ATTEST 10.4 although that section scopes itself to the client-authentication mode. | Name both modes inline with the ATTEST 7.6 pointer, keep the profile's own enforcement MUST, cite 10.4 only for what it recommends and where. |\n| `b46213d`, `ffc6e47` | The mapping bullet cited the `id` length bound to Identifier Generation, which states none. | See round 2. Repointed at the claims section rather than deleted. |\n| `4ead647` | \"Correlation scope\" used for two different concepts; continuity table row wording; wire-example heading; \"the verifier\" in the managed-device example. | Disambiguated, reworded, renamed, clarified. |\n| `fc12a62` | Artifact binding shared a paragraph with two unrelated topics. | Split. |\n| `8613673` | Instance Identifier was deleted as an orphan, but it had been orphaned by the earlier consolidation dropping its only use. | Definition and both uses restored. |\n\n## Round 2: review of this PR\n\nA review of the round 1 diff found that three of those changes were wrong or weakening. All are fixed here.\n\n| Commit | Problem | Fix |\n|---|---|---|\n| `4d3edf1` | Deleting the migration exception made the refresh invariant unconditional, closing an extension point while the replacement prose still implied one. The prose also claimed an attester assigns a different Instance Identifier \"only for a new enrollment\", which is false: identifiers are assigned per enrollment **and** per Receiver scope. | Restore the original exception. Replace the prose with one accurate sentence: this profile defines no migration procedure. |\n| `4d81829` | Rewording the continuity table's first row to \"process restart within an installation\" made it contradict the second row at Execution granularity, where a process can be the selected unit and the two rows demand opposite outcomes. | Scope the row to Installation granularity, matching the draft's own deployment examples. |\n| `0224508` | Deleting \"including its length bound\" left no normative constraint on the issuer's generated `id`. Only the member table's Type column and a consumer-side rejection MUST remained, so an issuer could emit an over-long `id` that every consumer must reject with no rule broken on the issuing side. | Point the bullet at the claims section, which carries the identical bound with the precise \"after JSON string decoding\" wording, and align the table to match. |\n| `c0338d9` | \"Receiver scope\" appeared in a MUST configuration list at first use with no pointer; Consumer Scope was named without saying whose; the restored Instance Identifier definition omitted Receiver scope; the Source Instance Identity appositive attached to the wrong noun. | Pointers added, upstream scope named, definitions corrected. |\n\n## Note on verification\n\nRound 1's description claimed no requirement was added, removed, or weakened, citing an unchanged BCP 14 keyword count. That evidence was insufficient. The `id` length qualifier was removed from inside a surviving MUST bullet without changing any keyword, so neither a keyword count nor a normative-sentence diff could detect it. Constraints carried by list items under a keyword-bearing lead-in, and by table cells, need manual review.\n\n## Gates\n\nLint silent, build clean, versioned -00 renders, all citations resolve, no over-long lines. The idnits items are the usual kramdown-rfc set that is not ours: the combined references wrapper, the offline status fetch for the ATTEST reference, source-map tags, and the fetched abstract of a cited draft.\n",
+      "createdAt": "2026-09-21T23:33:07Z",
+      "updatedAt": "2026-09-22T03:20:01Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "28d66191c2e4bc4cd581fa138d5b4f3de40c55ed",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "fix-consistency-findings",
+      "headRefOid": "c0338d9ff6c28cad0849c49b647b5ef0a2627588",
+      "closedAt": "2026-09-22T03:19:58Z",
+      "mergedAt": "2026-09-22T03:19:58Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "9b69d2a819d70bf10960d1e98bd00251ec4c4cf5"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 6,
+      "id": "PR_kwDOUbZuvs8AAAABEhM-ww",
+      "title": "Normative audit: demote requirements that no party can observe",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/6",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Audits every BCP 14 keyword in the body against three tests: can another party observe compliance on the wire or in a token; is it already stated by a dependency; does it have exactly one home. Eight keywords fail and are demoted to descriptive prose. No enforceable requirement is lost, because none of the demoted statements was enforceable.\n\n| Keyword | Before | After |\n|---|---|---|\n| MUST | 50 | 44 |\n| MUST NOT | 13 | 13 |\n| SHOULD | 4 | 3 |\n| SHOULD NOT | 1 | 1 |\n| REQUIRED | 3 | 3 |\n| MAY | 3 | 2 |\n| Total | 74 | 66 |\n\n## Demoted: no party can observe compliance\n\nThese are configuration, agreement, and deployment-policy statements. Nothing on the wire or in a token reveals whether they were followed, so a conformance claim against them is untestable. Each keeps its content as a statement of the deployment model.\n\n- Profile Selection: the client and Receiver **administratively configure** the listed items, rather than MUST configure them. A Context Consumer that requires context **configures** that requirement.\n- Continuity and Lifecycle: the deployment **specifies** its evidence, freshness limits, and lifecycle boundaries.\n- Suspension and Status: the recommendation that attesters and Receivers agree on short attestation lifetimes becomes a statement of what short lifetimes buy. The revocation MUST in the same paragraph is untouched.\n- Attester Compromise: Receivers **limit** their attester associations and configure acceptable assurance. The prohibition on attesters overclaiming assurance is untouched.\n- Privacy: the deployment MUST address other correlating claims becomes a statement that other claims and application data can correlate requests despite scoped identifiers.\n- Introduction: authorization profiles **can** use instance identity as a policy input. A BCP 14 keyword in an introduction is not a requirement anyone implements.\n\n## Demoted: already stated by a dependency\n\nAccess Token Binding restated a rejection requirement that RFC 9449 Section 7.2 already carries as its own MUST. The scoping statement that binding validation applies regardless of whether context is used for attribution is retained, since that ambiguity is one this profile creates; only the restated MUST becomes a citation.\n\n## Considered and kept\n\nThese fail a literal reading of the observability test but are the profile's substance. An attester conformance specification that cannot say MUST about continuity verification has nothing left to say.\n\n- **Attester Trust**, binding approved Attester Issuers to keys and clients. Configuration-shaped, but its effect is observable in accept and reject decisions, and ATTEST Section 10.8 explicitly leaves trust establishment out of scope, so nothing else states it.\n- **Identifier Generation**, the entropy and derivation rules. Not verifiable from a single identifier, but they are the attester's conformance surface and the basis of the unpredictability and privacy properties. RFC 6749 states comparable entropy requirements normatively.\n- **Continuity and Lifecycle**, what the attester must verify and record before retaining an identifier. This is the mechanism the profile exists to specify.\n- **State and Retention**, retaining enrollment and verification records. Instrumental to continuity rather than separately observable, but without it an attester could delete its records and still claim conformance.\n- **Mapping Stability** and **Grant Continuity** recording requirements. Storage-shaped, but each is the premise of an observable enforcement rule stated in the same paragraph.\n\n## Not moved to Security Considerations\n\nThe timing side-channel SHOULD in Errors stays where it is. It hardens the non-disclosure MUST in the same sentence, and Security Considerations already points back at that section. Splitting one thought across two sections to satisfy a category serves the category, not the reader.\n\nLint silent, build clean, versioned -00 renders, all citations resolve, no over-long lines. The normative-sentence diff was checked against the list lead-ins and table preambles by hand, since constraints in those positions are invisible to it.\n",
+      "createdAt": "2026-09-22T03:36:44Z",
+      "updatedAt": "2026-09-22T03:38:07Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "9b69d2a819d70bf10960d1e98bd00251ec4c4cf5",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "normative-audit",
+      "headRefOid": "6877c0aba30cbb1d4ce55abbfaf73bcc09ccd445",
+      "closedAt": "2026-09-22T03:38:04Z",
+      "mergedAt": "2026-09-22T03:38:04Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "1adb5a8de371358a788d858a8bf6b4216b9b9195"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 7,
+      "id": "PR_kwDOUbZuvs8AAAABEhQfxw",
+      "title": "Reference BCP 14 in the requirements-language boilerplate",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/7",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Switches the boilerplate directive from `bcp14-tagged` to `bcp14-tagged-bcp14`, so the requirements-language paragraph cites BCP 14 as well as RFC 2119 and RFC 8174. One line.\n\nThis is the only actionable item idnits reported. It surfaced as PREFER_BCP14_REF: \"Consider referencing BCP14 instead of (or in addition to) RFC2119/RFC8174, as BCP14 encompasses both specifications.\" The warning is gone after the change.\n\n**Rendered result**\n\n```\nThe key words \"MUST\", \"MUST NOT\", ... are to be interpreted as\ndescribed in [BCP14] (RFC2119) (RFC8174) when, and only when, they\nappear in all capitals, as shown here.\n```\n\nBCP 14 now appears in the normative references as a grouping entry over both RFCs. All citations still resolve, no reference is uncited, and the build is clean.\n\n**The remaining idnits items are not ours**\n\nAgainst the XML, which is the authoritative mode, five nits remain and none originates in this document:\n\n- The references section name, because kramdown-rfc wraps the normative and informative subsections in an outer \"References\" section.\n- A possible downref on ATTEST, whose message is \"status can't be fetched\"; the datatracker assigns no level to an active working-group draft.\n- Four `<?line?>` processing instructions that kramdown-rfc emits for source mapping.\n- Non-ASCII characters, all from generated or fetched content: a non-breaking space in the BCP 14 boilerplate, and an author organization plus two em-dashes inside the fetched abstract of a cited draft. The markdown source contains none.\n- A bracketed reference inside that same fetched abstract.\n\nRunning idnits against the text output instead produces additional nits that are parser artifacts, verified individually: it reports the expiry line missing when it is present in the header, reports RFC 9068 unused when it is cited in the appendix, expects form-feed pagination that modern xml2rfc does not emit, and misclassifies an informative reference as a downref because it cannot distinguish the three references headings.\n",
+      "createdAt": "2026-09-22T03:49:29Z",
+      "updatedAt": "2026-09-22T03:51:01Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "1adb5a8de371358a788d858a8bf6b4216b9b9195",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "bcp14-reference",
+      "headRefOid": "2fa4807d8910db184f772aa70ca37375b7a82e65",
+      "closedAt": "2026-09-22T03:50:59Z",
+      "mergedAt": "2026-09-22T03:50:59Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "2fe8b98b8a2deab37123e13b22c045f726bdc75a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 9,
+      "id": "PR_kwDOUbZuvs8AAAABEhX70g",
+      "title": "Mark Instance Context as attestation-sourced for native-credential deployments",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/9",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "One sentence in Workload and Agent Credentials. No normative keyword added; the keyword count stays at 66.\n\nThat section already routes direct SVID authentication to the SPIFFE working group draft and says native credentials with different `sub` or `typ` semantics need a separate carrier profile. It said nothing about context, so a reader coming from that draft could not tell whether conveying `client_instance` was available to them.\n\nIt is not: the mapping input admits only a Source Instance Identity from a validated Client Attestation, or an upstream Instance Context Identifier being remapped. The clause states that, so the omission reads as a scope decision rather than an oversight.\n\n```\nNative credentials with different `sub` or `typ` semantics require a\nseparate carrier profile. Instance Context is sourced only from a\nvalidated Client Attestation ({{context-claims}}), so a deployment\nauthenticating with native credentials does not convey it under this\nprofile. {{deployment-examples}} illustrates these boundaries.\n```\n\nWhether to generalize the mapping input so this composes with the SPIFFE draft is tracked in #8, deferred past -00 because it changes what the document is and lands on the severability question an earlier review left open.\n\nBuild clean, all citations resolve, no over-long lines.\n",
+      "createdAt": "2026-09-22T04:14:06Z",
+      "updatedAt": "2026-09-22T04:15:08Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "2fe8b98b8a2deab37123e13b22c045f726bdc75a",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "context-scope-note",
+      "headRefOid": "1d1db31a0a40c174d1446e02d5bad0d7de6b7e87",
+      "closedAt": "2026-09-22T04:15:06Z",
+      "mergedAt": "2026-09-22T04:15:06Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "d6510a9a45b16605ef7c9fc7b8982466b4748b17"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 13,
+      "id": "PR_kwDOUbZuvs8AAAABEhb5Gg",
+      "title": "Readability and scanability pass",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/13",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Eight commits, one per finding class, from a fresh-eyes read of the rendered text plus structural metrics. No normative change: the BCP 14 keyword count stays at 66, and the normative-sentence diff shows every reworded requirement matched by its replacement.\n\nBody grows from 5270 to 5444 words. That is the cost of orienting sentences and one new table, paid to stop readers re-reading.\n\n## Structure\n\n| Measure | Before | After |\n|---|---|---|\n| Top-level sections opening straight onto a subsection | 3 | 0 |\n| Mapping Stability: paragraphs / longest block | 1 / 13 lines | 8 / 12 |\n| Suspension and Status: paragraphs / longest block | 1 / 14 lines | 3 / 6 |\n| Presenter Attribution: longest block | 15 lines | 11 |\n| Preservation and Authorization: paragraphs | 8 | 11 |\n\nOnly IANA Considerations and References still open on a subsection, which is conventional.\n\n## What changed\n\n- **Abstract** now distinguishes what selecting the profile requires from what stays optional. A cold reader took \"optional claims profile\" to mean both claims were opt-in; the identifier is REQUIRED once selected, and the client picks up hard requirements.\n- **Introduction** names the five roles and points at Conformance, which is where the orientation lives but not where a reader looks.\n- **Conformance** becomes a table of role, what it implements, and which sections. The bullets cited no sections at all.\n- **Three sections retitled.** Two were both called Errors and indistinguishable in the table of contents; they are now Attestation Errors and Context Errors. Access Token Binding is now Presenter Attribution, which is what the section is about. Anchors are explicit, so every cross-reference survives.\n- **Three top-level sections** gained one orienting sentence each.\n- **Definitions reordered** so no entry uses a term defined later. Instance Context Identifier was the sixth entry and used two terms the reader had not met.\n- **Mapping Stability** becomes three MUSTs as bullets plus a table contrasting derived and random strategies. It was six rules in one 134-word paragraph.\n- **Suspension and Status** splits into attester and Receiver duties, AS revocation, and what follows without a status channel.\n- **Three passages rewritten**: the sender-constraint sentence separated subject from predicate by thirty words; the upstream-authority prohibition was a \"both X and Y\" of stacked possessives, now a two-item list; and one MUST was addressed to \"Changes\" rather than to the attester.\n- **Receiver Scope** now opens with what a Receiver scope is. The definition was the last paragraph, after two paragraphs of requirements that presumed it.\n\n## Deliberately not changed\n\nThe migration paragraph trailing Request Processing has no heading and is hard to find, but giving it one renumbers two subsections for a five-line paragraph. The key-separation MUST inside a Security Considerations bullet stays where the normative audit left it; Receiver Scope already points at it. State and Retention keeps its name, since it sits under Attester Requirements and points at Mapping Stability for the issuer side.\n\nLint silent, build clean, versioned -00 renders, all citations resolve, no over-long lines, idnits unchanged.\n",
+      "createdAt": "2026-09-22T04:26:48Z",
+      "updatedAt": "2026-09-22T04:28:12Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "d6510a9a45b16605ef7c9fc7b8982466b4748b17",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "readability-pass",
+      "headRefOid": "37abf53801e4fbe9d179b8b81c589d58fedb6109",
+      "closedAt": "2026-09-22T04:28:10Z",
+      "mergedAt": "2026-09-22T04:28:10Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "551aab0fcfb29e7c180554a5890c0e2825bf74fd"
       },
       "comments": [],
       "reviews": []
