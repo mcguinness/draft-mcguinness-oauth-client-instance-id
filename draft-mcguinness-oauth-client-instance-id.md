@@ -660,17 +660,17 @@ Before using context, the Context Consumer MUST:
 A Context Consumer MUST establish the context's association with the
 subject, actor, or presenter from the applicable consuming profile and
 the validated token or trusted introspection configuration before
-using that association in policy or audit. The `client_instance`
-object alone, including whether its `iss` matches the token issuer,
-does not establish it. If the association is not established, the
-consumer MUST treat context only as evidence of instance participation
-and MUST NOT attribute the current request to that instance. The
-object carries no record of how it was obtained, so a consumer MUST
-NOT attribute a request to an instance named in context that an issuer
-preserved from an input token unless the consuming profile defines how
-that provenance is authenticated. A
-consumer whose configured requirement includes attribution MUST reject
-under {{context-errors}}. When trusted configuration establishes that
+using that association in policy or audit. Where the issuer may have
+preserved context from an input token, the association is established
+only if that profile also defines how the context's provenance is
+authenticated, because the object carries no record of how the issuer
+obtained it. The `client_instance` object alone, including whether its
+`iss` matches the token issuer, establishes neither. If the
+association is not established, the consumer MUST treat context only
+as evidence of instance participation and MUST NOT attribute the
+current request to that instance. A consumer whose configured
+requirement includes attribution MUST reject under {{context-errors}}.
+When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
 the authenticated presenting instance ({{context-claims}}), and
