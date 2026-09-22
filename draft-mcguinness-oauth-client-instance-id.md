@@ -121,8 +121,8 @@ Receivers, token issuers conveying context, and Context Consumers.
 
 The deployment chooses the instance granularity:
 
-* **Installation:** one installation, such as a harness on a managed
-  laptop, retaining its identity across process restarts.
+* **Installation:** one installation, retaining its identity across
+  process restarts.
 * **Execution:** one process, container, or scheduling unit such as a
   Kubernetes Pod, retaining its identity for that unit's lifetime.
 
