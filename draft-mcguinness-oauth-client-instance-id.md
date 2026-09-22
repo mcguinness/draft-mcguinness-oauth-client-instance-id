@@ -54,11 +54,12 @@ informative:
 --- abstract
 
 This specification defines an optional claims profile of OAuth 2.0
-Attestation-Based Client Authentication. It adds an attester-qualified
-client instance identifier that remains stable across verified key
-changes, continuity and privacy rules for that identifier, and optional
-instance context in tokens and introspection responses. Authentication
-and proof methods follow the base specification.
+Attestation-Based Client Authentication. Selecting it requires an
+attester-qualified client instance identifier that remains stable
+across verified key changes, and adds continuity and privacy rules for
+that identifier. Conveying instance context in tokens and introspection
+responses remains optional within the profile. Authentication and proof
+methods follow the base specification.
 
 --- middle
 
