@@ -51,15 +51,16 @@ informative:
   RFC8417:
   RFC8935:
   RFC9068:
+  RFC9421:
 --- abstract
 
 This specification defines an optional claims profile of OAuth 2.0
-Attestation-Based Client Authentication. Selecting it requires an
-attester-qualified client instance identifier that remains stable
-across verified key changes, and adds continuity and privacy rules for
-that identifier. Conveying instance context in tokens and introspection
-responses remains optional within the profile. Authentication and proof
-methods follow the base specification.
+Attestation-Based Client Authentication. When selected, the profile
+requires an attester-qualified client instance identifier that remains
+stable across verified key changes, and adds continuity and privacy
+rules for that identifier. Conveying instance context in tokens and
+introspection responses remains optional within the profile.
+Authentication and proof methods follow the base specification.
 
 --- middle
 
@@ -74,7 +75,8 @@ and treating them as the same can merge unrelated audit histories and
 status decisions.
 
 Assigning each instance its own `client_id` with a shared `software_id`
-{{RFC7591, Section 2}} is an alternative. This profile instead targets
+({{RFC7591, Section 2}}) is an alternative. This profile instead
+targets
 deployments that share one Logical Client, one metadata URL when using
 {{CIMD}}, and authorization server (AS) policy keyed by that client;
 `software_id` correlates registrations but defines no shared grants or
@@ -149,8 +151,8 @@ Attester Issuer:
 
 Instance Identifier:
 : The `client_instance_id` value, assigned by a Client Attester to one
-  Client Instance at the configured granularity and Receiver scope
-  ({{identifier-scope}}).
+  Client Instance at the configured granularity and Receiver Scope
+  ({{receiver-scope}}).
 
 Source Instance Identity:
 : The pair `(iss, client_instance_id)` established by a validated
@@ -172,13 +174,17 @@ Context Consumer:
 : A party that consumes Instance Context from a token or introspection
   response. It need not receive the Client Attestation.
 
+Receiver Scope:
+: The Receiver, or explicitly configured set of Receivers, to which one
+  assignment of `client_instance_id` is scoped ({{receiver-scope}}).
+
 Consumer Scope:
 : The Context Consumer, or explicitly configured set of Context
   Consumers, to which one mapping of Instance Context is scoped.
 
 Instance Context Authority:
-: The token issuer identified by `iss` in Instance Context, which
-  assigned the current `id`: the enclosing token issuer unless the
+: The token issuer identified by `iss` in Instance Context. It assigned
+  the current `id`, and it is the enclosing token issuer unless the
   context was preserved from an upstream token. The Client Attester
   remains the authority for the Source Instance Identity.
 
@@ -189,7 +195,7 @@ Instance Context Identifier:
   authority's own correlator for the instance, and `id` need not equal
   `client_instance_id`.
 
-Enrollment:
+enrollment:
 : An attester-maintained record binding one instance, at the configured
   granularity, to its verified keys and assigned identifiers. It is
   separate from a user account, device registration, or Logical Client.
@@ -206,8 +212,8 @@ The client and Receiver administratively configure:
 
 * the Logical Client, authentication method, and attester trust policy;
 * the instance granularity, continuity evidence, and freshness limits;
-* the intended Receiver and any explicitly shared Receiver scope
-  ({{identifier-scope}}).
+* the intended Receiver and any explicitly shared Receiver Scope
+  ({{receiver-scope}}).
 
 A Context Consumer that requires context configures that requirement.
 Claims MUST NOT select this profile or change authentication methods;
@@ -233,11 +239,11 @@ Conformance is role-specific:
 
 | Role | Implements | Where |
 |---|---|---|
-| Client Attester | Claim, identifier, continuity, and enrollment requirements | {{claims}}, {{lifetime}} |
-| Client | Scoped attestation use and the selected ATTEST proof method | {{identifier-scope}} |
+| Client Attester | Claim, identifier, continuity, and enrollment requirements | {{claims}}, {{attester-requirements}} |
+| Client | Scoped attestation use and the selected ATTEST proof method | {{receiver-scope}} |
 | Receiver | Trust, validation, and grant-continuity rules | {{configuration}}, {{processing}} |
 | Token issuer conveying context | Mapping, preservation, and any binding that attribution requires | {{instance-context}} |
-| Context Consumer | Context validation and applicable proof checks | {{context-claims}}, {{context-errors}} |
+| Context Consumer | Context validation and applicable proof checks | {{presenter-attribution}}, {{context-consumer}}, {{context-errors}} |
 
 An implementation serving several roles satisfies each. Conveying
 Instance Context ({{instance-context}}) is optional and independent of
@@ -259,13 +265,13 @@ and `cnf`, and optional `iat`.
   than 256 octets after JSON string decoding, identifying the instance
   within the attester's namespace. A URI form carries no URI semantics.
   Receivers MUST reject longer values. Assignment, scoping, and
-  generation follow {{attester-requirements}}.
+  generation follow {{identifier-generation}}.
 
-## Receiver Scope {#identifier-scope}
+## Receiver Scope {#receiver-scope}
 
-A Receiver scope is an enrollment or issuance input, not an OAuth
+A Receiver Scope is an enrollment or issuance input, not an OAuth
 parameter or attestation audience, and a Receiver cannot verify it
-from the identifier alone. Two requirements attach to it.
+from the identifier alone. The following requirements attach to it.
 
 The attester MUST assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
@@ -278,10 +284,10 @@ The client MUST also use distinct Client Instance Keys across scopes.
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
 attestations regardless of their identifiers. A deployment that
-intends correlation across Receivers, such as an enterprise workload,
+intends correlation across Receivers, as an enterprise workload might,
 configures one scope spanning them, and one identifier and key then
-suffice. Binding-key separation between Context Consumers is addressed
-in {{privacy}}.
+suffice. Token-binding key separation between Context Consumers is
+addressed in {{privacy}}.
 
 Separating a resource server into its own scope rules out DPoP
 combined mode there. Combined mode reuses one Client Instance Key as
@@ -291,7 +297,7 @@ both the token's `cnf.jkt` and the resource server's attestation.
 Deployments either keep both Receivers in one scope or use DPoP
 without combined mode.
 
-## Example
+## Example {#attestation-example}
 
 Example decoded attestation payload, including the optional `iat`:
 
@@ -326,22 +332,23 @@ The Receiver MUST:
    parameters, not from `iss`, so a trust anchor covering several
    attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
-   validated Client Instance Key, then apply local instance acceptance
-   policy ({{errors}}).
+   validated Client Instance Key, then apply instance policy
+   ({{errors}}).
 
 The Receiver MUST NOT:
 
 * substitute an identifier for proof of possession or infer it from a
   key thumbprint, certificate serial number, or JWT `jti`;
-* infer continuity from equal identifiers or keys across attester
-  issuers; or
+* infer continuity from equal identifiers or keys across Attester
+  Issuers; or
 * set an access token's `sub`, add `act`, or extend an actor chain
   solely from instance evidence.
 
-Migration between attester issuers requires a procedure establishing
-trust in both authorities and continuity evidence; none is defined
-here. Key selection follows ATTEST; when a separate token-binding key
-is used, context identifies the instance associated with the Client
+Migration between Attester Issuers requires a procedure that
+establishes trust in both authorities and that establishes continuity
+evidence; none is defined here. Key selection follows ATTEST; when a
+separate token-binding key is used, context identifies the instance
+associated with the Client
 Instance Key.
 
 ## Grant Continuity {#grant-continuity}
@@ -382,14 +389,14 @@ attestation is the client authentication method.
 ## Attestation Errors {#errors}
 
 Missing or invalid required instance claims and rejection by instance
-policy MUST produce `invalid_client_attestation`, deliberately reusing
-ATTEST's validation error so that responses do not disclose whether an
-instance is known, suspended, or retired; Receivers SHOULD also avoid
-distinguishable response timing. {{ATTEST, Section 7.4}} defines that
-code for attestation verification failures and defers situations it
-does not describe to extensions such as this profile, which maps
-instance-policy rejection onto the same code rather than a distinct
-one. A consequence is that the response does not distinguish a
+policy MUST produce `invalid_client_attestation`. This profile
+deliberately reuses ATTEST's validation error so that responses do not
+disclose whether an instance is unknown, suspended, or retired.
+Receivers SHOULD also avoid distinguishable response timing.
+{{ATTEST, Section 7.4}} defines that code for attestation verification
+failures and defers situations it does not describe to extensions such
+as this profile. A consequence is that the response does not
+distinguish a
 transient verification failure from a durable policy decision, so a
 client cannot tell whether retrying with a fresh attestation will
 help. Unknown instances are rejected only when local policy requires
@@ -397,20 +404,21 @@ prior enrollment. A failed profile check MUST NOT fall back to
 authentication without the required evidence. Grant-binding errors
 follow {{grant-continuity}}; other errors follow ATTEST.
 
-# Attester Requirements {#lifetime}
+# Attester Requirements {#attester-requirements}
 
-Whether an instance identifier means the same thing over time depends
+Whether an Instance Identifier means the same thing over time depends
 entirely on the attester. This section covers how it generates
-identifiers, when it may retain them, how suspension works, and what
-it retains.
+identifiers ({{identifier-generation}}), when it may retain them
+({{continuity}}), how it handles suspension ({{suspension}}), and what
+records it keeps ({{state}}).
 
-## Identifier Generation {#attester-requirements}
+## Identifier Generation {#identifier-generation}
 
-For each enrollment and Receiver scope ({{identifier-scope}}), the
+For each enrollment and Receiver Scope ({{receiver-scope}}), the
 attester MUST assign identifiers that are:
 
 * distinct, opaque, and never reassigned, including after retirement;
-* generated from at least 128 bits of cryptographically secure
+* generated from at least 128 bits of either cryptographically secure
   randomness or keyed pseudorandom-function output;
 * unpredictable to parties other than the attester; and
 * free of runtime hostnames, user identifiers, and embedded instance
@@ -419,7 +427,7 @@ attester MUST assign identifiers that are:
 A URI can name the attester's namespace; its instance-specific portion
 remains opaque. Keyed derivation, such as HMAC {{RFC2104}}, MUST use a
 secret with at least 128 bits of entropy and unambiguously encode the
-Logical Client, Receiver scope, and a unique enrollment component; a
+Logical Client, Receiver Scope, and a unique enrollment component; a
 platform-stable input alone would reproduce retired identifiers after
 reinstall. If the attester changes its derivation inputs or secrets,
 it MUST still produce the values already assigned within a continuing
@@ -431,8 +439,9 @@ Continuity is authenticated evidence sufficient for the attester to
 determine that a claimant represents the same enrolled Client Instance
 at the configured granularity. An attester-recorded chain of verified
 key custody within one enrollment is the primary mechanism; platform
-or hardware-rooted identity evidence can supplement it or, where the
-deployment's evidence policy permits, supply it. Before retaining an
+or hardware-rooted identity evidence can supplement that chain or,
+where the deployment's evidence policy permits, serve as the continuity
+evidence on its own. Before retaining an
 identifier, the attester MUST verify and record:
 
 1. an active enrollment binding the instance, Logical Client, Receiver
@@ -445,14 +454,15 @@ identifier, the attester MUST verify and record:
 
 The deployment specifies its evidence, freshness limits, and
 lifecycle boundaries. For example, a container restart can leave its
-Kubernetes Pod intact, but a new Pod is a new scheduling unit, and an
-installation or scheduling-unit identifier does not identify its
-individual processes. The attester MUST apply the following outcomes:
+Kubernetes Pod intact, but a new Pod is a new scheduling unit. An
+identifier at installation or scheduling-unit granularity does not
+identify the individual processes running within that installation or
+unit. The attester MUST apply the following outcomes:
 
 | Event | Required outcome |
 |---|---|
 | Renewal, verified key change, process restart at Installation granularity, or in-place update | Retain identifiers when continuity is verified |
-| Reinstall, independent clone, replacement or restart of the selected execution unit, or granularity change | New enrollment |
+| Reinstall, independent clone, replacement or restart of the unit at Execution granularity, or granularity change | Require new enrollment |
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
@@ -497,14 +507,16 @@ and mappings ({{mapping-stability}}). Audit retention is local policy.
 # Conveying Instance Context {#instance-context}
 
 This section is optional. It defines how a token issuer represents a
-validated instance to downstream consumers, and what a consumer may
-conclude from that representation.
+validated instance to downstream consumers ({{format-and-mapping}}), and
+what a consumer may conclude from that representation
+({{context-consumer}}).
 
-## Format and Mapping {#context-claims}
+## Format and Mapping {#format-and-mapping}
 
 An issuer MAY include `client_instance` in a token or introspection
-response {{RFC7662}}. Its JSON object has two REQUIRED members, which
-together form an Instance Context Identifier:
+response {{RFC7662}}. The `client_instance` value is a JSON object with
+two REQUIRED members, which together form an Instance Context
+Identifier:
 
 | Member | Type | Meaning |
 |---|---|---|
@@ -517,13 +529,13 @@ identity is subject to {{grant-continuity}}. Token exchange follows
 {{context-exchange}} rather than inheriting this association.
 
 Context MUST refer to validated instance participation; issuers MUST
-NOT copy unvalidated client-supplied context. The issuer MUST map the
-Source Instance Identity or, when remapping under {{context-exchange}},
-the upstream Instance Context Identifier (together, the mapping input)
-to its own namespace. Each mapping MUST:
+NOT copy unvalidated client-supplied context. The issuer MUST map, to
+its own namespace, the Source Instance Identity or, when remapping
+under {{context-exchange}}, the upstream Instance Context Identifier
+(whichever applies, the mapping input). Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
-* generate `id` under {{attester-requirements}}, within the same
+* generate `id` under {{identifier-generation}}, within the same
   length bound as `client_instance_id` ({{claims}}), and retain it
   across attestation renewal and verified key changes; and
 * scope `id` to a Consumer Scope, allowing sharing only within an
@@ -545,19 +557,20 @@ access token and an introspection response.
 
 For one mapping input and Consumer Scope, an issuer:
 
-* MUST NOT represent it by more than one `id`;
-* MUST retain the mapping while any token or grant it issued for that
-  input remains valid, including clock skew; and
-* MUST omit `client_instance` rather than assign a replacement once it
-  no longer holds or can reproduce the mapping. A consumer requiring
-  context then rejects under {{context-errors}}.
+* MUST NOT represent that input by more than one `id`;
+* MUST retain the mapping while any token or grant that issuer issued
+  for that input remains valid, including clock skew; and
+* MUST omit `client_instance` rather than assign a replacement once the
+  issuer no longer holds or can reproduce the mapping. A consumer
+  requiring context then rejects under {{context-errors}}.
 
 An issuer that changes its derivation inputs or secrets MUST still
 produce the identifiers already assigned for any input and scope for
 which it continues to include context, as attesters must under
-{{attester-requirements}}. Storing those values satisfies this
-requirement. Without it, rotating one secret silently and permanently
-strips context from every instance mapped under it.
+{{identifier-generation}}. Storing those values satisfies this
+requirement. Without that requirement, rotating one secret silently
+and permanently strips context from every instance mapped under that
+secret.
 
 Because attester identifiers are never reassigned, a new enrollment
 presents a new mapping input and receives a new mapping.
@@ -566,10 +579,10 @@ The two mapping strategies differ in what an issuer must store:
 
 | Strategy | Records needed | Non-reassignment rests on |
 |---|---|---|
-| Derived | None per instance, while the derivation secret and inputs remain available ({{attester-requirements}}) | Never reusing enrollment inputs |
+| Derived | None per instance, while the derivation secret and inputs remain available ({{identifier-generation}}) | Never reusing enrollment inputs |
 | Random | Retained for as long as the issuer intends to include context | Probability |
 
-## Presenter Attribution {#context-binding}
+## Presenter Attribution {#presenter-attribution}
 
 Instance Context grants no authority and by itself describes only the
 instance that participated in obtaining the token. When a Context
@@ -579,12 +592,13 @@ consumer MUST validate, a mechanism associating the token presenter
 with the instance. For tokens issued directly from a validated Client
 Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
 mutual TLS {{RFC8705}}, or another mechanism the consuming profile
-defines, with a constraining key the issuer associated with the
+defines, with a constraining key that the issuer associated with the
 authenticated instance at issuance. That key MUST be unique to the
 instance at the configured granularity. A key shared by instances
 inside that boundary establishes no attribution, because any of them
-can present the token and satisfy the proof; an issuer that cannot
-bind such a key MUST omit `client_instance`. This applies equally when
+can present the token and satisfy the proof; an issuer that cannot bind
+a key unique to the instance at that granularity MUST omit
+`client_instance`. This applies equally when
 context is conveyed only through introspection.
 
 A token without sender constraint supports no presenter attribution,
@@ -598,9 +612,9 @@ rejection of a bound token presented without its proof
 ({{RFC9449, Section 7.2}}). The binding authenticates the presenter;
 it does not establish that the presenter is an instance named in
 context derived from an upstream token. Any presenter or key change
-during exchange requires authorization under the consuming exchange
-profile, and unlinkability between Context Consumers additionally
-requires distinct binding keys ({{privacy}}).
+during exchange requires authorization under the consuming profile,
+and unlinkability between Context Consumers additionally requires
+distinct token-binding keys ({{privacy}}).
 
 ## Preservation and Authorization {#context-exchange}
 
@@ -643,19 +657,19 @@ context as identifying a different presenting instance, and the
 upstream identifier does not establish that the issuer validated the
 original Client Attestation.
 
-## Context Consumer Processing
+## Context Consumer Processing {#context-consumer}
 
 Before using context, the Context Consumer MUST:
 
 1. Validate the enclosing token or authenticated introspection
    response.
 2. Validate the context members, rejecting `id` values over the length
-   bound in {{context-claims}} and ignoring unrecognized members.
-3. Accept its authority only when it is the token issuer or an
-   upstream token issuer explicitly trusted for that issuer and
-   consumer.
-4. Reject invalid context and, when context is required, reject the
-   request if context is missing or invalid ({{context-errors}}).
+   bound in {{format-and-mapping}} and ignoring unrecognized members.
+3. Accept the Instance Context Authority only when it is the token
+   issuer or an upstream token issuer explicitly trusted for that
+   issuer and consumer.
+4. Reject invalid context and, when context is required, also reject
+   the request if context is missing or invalid ({{context-errors}}).
 
 A Context Consumer MUST establish the context's association with the
 subject, actor, or presenter from the applicable consuming profile and
@@ -665,7 +679,8 @@ preserved context from an input token, the association is established
 only if that profile also defines how the context's provenance is
 authenticated, because the object carries no record of how the issuer
 obtained it. The `client_instance` object alone, including whether its
-`iss` matches the token issuer, establishes neither. If the
+`iss` matches the token issuer, establishes neither the association nor
+the provenance. If the
 association is not established, the consumer MUST treat context only
 as evidence of instance participation and MUST NOT attribute the
 current request to that instance. A consumer whose configured
@@ -673,8 +688,8 @@ requirement includes attribution MUST reject under {{context-errors}}.
 When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
-the authenticated presenting instance ({{context-claims}}), and
-validating the token's sender constraint ({{context-binding}})
+the authenticated presenting instance ({{format-and-mapping}}), and
+validating the token's sender constraint ({{presenter-attribution}})
 establishes the association. That configuration describes the issuer,
 not the token, so it does not apply at an issuer that also preserves
 context from input tokens; distinguishing the two there requires a
@@ -684,7 +699,7 @@ For introspection, trusted endpoint configuration identifies the
 expected token issuer; a response-level `iss`, if present, MUST match
 it, and neither the endpoint URL nor `client_instance.iss` selects the
 issuer. Multi-issuer introspection requires a consuming profile that
-authenticates the represented issuer. An authority identifier does not
+authenticates the represented issuer. The `iss` value does not
 authorize fetching keys from that location, and extensions MUST NOT
 change the meaning of `iss` or `id`.
 
@@ -712,7 +727,7 @@ This section places the profile alongside mechanisms that identify
 clients or workloads but not individual instances. It adds no
 requirements.
 
-## Client ID Metadata Documents {#cimd}
+## Client ID Metadata Documents
 
 With {{CIMD}}, the metadata URL is the Logical Client's `client_id`,
 and many installations can use it. Fetching public metadata does not
@@ -724,7 +739,7 @@ prove that a caller is an authorized instance:
 | ATTEST | Authenticates an attester-approved instance and possession of its key |
 | This profile | Retains instance identity across verified key changes and conveys optional downstream context |
 
-Use one CIMD URL for the Logical Client and keep instance identifiers
+Use one CIMD URL for the Logical Client and keep Instance Identifiers
 in attestations, not separate metadata documents: the attestation's
 `sub` remains that URL and `client_instance_id` distinguishes its
 installations ({{cimd-example}}). CIMD removes per-AS registration of
@@ -744,7 +759,7 @@ client mappings follow {{SPIFFE-OAUTH}}. An AAuth Agent Provider
 under this profile when it holds the required enrollment evidence.
 Native credentials with different `sub` or `typ` semantics require a
 separate carrier profile. Instance Context is sourced only from a
-validated Client Attestation ({{context-claims}}), so a deployment
+validated Client Attestation ({{format-and-mapping}}), so a deployment
 authenticating with native credentials does not convey it under this
 profile. {{deployment-examples}} illustrates these boundaries.
 
@@ -772,8 +787,8 @@ the evaluated evidence.
   binds the HTTP request. Forwarding resistance depends on ATTEST
   proof validation, freshness, and key possession, not identifier
   scope.
-* **Correlation:** {{identifier-scope}} requires separate identifiers
-  and keys across Receiver scopes, strengthening
+* **Correlation:** {{receiver-scope}} requires separate identifiers
+  and keys across Receiver Scopes, strengthening
   {{ATTEST, Section 11.1}}. Receivers MUST NOT assume identifiers
   across scopes are comparable; explicitly shared scopes permit
   correlation.
@@ -789,7 +804,7 @@ the evaluated evidence.
   correlate requests despite scoped identifiers. Identifier scoping does
   not permit changing a refresh token's bound key
   ({{grant-continuity}}).
-* **Attester visibility:** supplying Receiver scope reveals it to the
+* **Attester visibility:** supplying Receiver Scope reveals it to the
   attester; deployments requiring ATTEST's audience-hiding property
   should omit this profile.
 * **Disclosure:** status non-disclosure follows {{errors}}, and
@@ -803,13 +818,12 @@ the evaluated evidence.
 ## JSON Web Token Claims
 
 This document requests the following registrations in the "JSON Web
-Token Claims" registry established by {{RFC7519}}. The Change Controller
-for both entries is IETF.
+Token Claims" registry established by {{RFC7519}}.
 
-| Claim Name | Claim Description | Specification Document(s) |
-|---|---|---|
-| `client_instance_id` | Issuer-scoped client instance identifier | {{claims}} of this document |
-| `client_instance` | Validated client instance context | {{instance-context}} of this document |
+| Claim Name | Claim Description | Change Controller | Specification Document(s) |
+|---|---|---|---|
+| `client_instance_id` | Issuer-scoped client instance identifier | IETF | {{claims}} of this document |
+| `client_instance` | Validated client instance context | IETF | {{instance-context}} of this document |
 
 ## OAuth Token Introspection Response
 
@@ -840,7 +854,8 @@ context. The AS maps the attester's identifier to a value scoped to
 
 Example decoded JWT access-token payload under {{RFC9068}}, with
 `typ=at+jwt` in its protected header. The `cnf.jkt` value identifies
-the public key in {{claims}}; the token's subject and context remain
+the public key in {{attestation-example}}; the token's subject and
+context remain
 separate.
 
 ~~~ json
@@ -898,13 +913,14 @@ Cache-Control: no-store
 ## Governed Actor and Instance Context
 {:numbered="false"}
 
-An exchange profile can authorize instance B to continue work begun by
-instance A for the same governed agent. In this example, that profile
+A consuming profile can authorize instance `B` to continue work begun
+by instance `A` for the same governed agent. In this example, that
+profile
 selects the authenticated presenting instance for output context and
 authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}}.
 The AS validates B's attestation and proof, replaces A's input context
-with B's resource-scoped mapping, and binds the output token under the
-exchange profile. The relevant output claims are:
+with `B`'s resource-scoped mapping, and binds the output token under
+the consuming profile. The relevant output claims are:
 
 ~~~ json
 {
@@ -921,9 +937,9 @@ exchange profile. The relevant output claims are:
 ~~~
 
 The governed actor remains `agent-42`; the mapped identifier identifies
-B. Neither B's authentication nor continuity of the agent identity alone
-authorizes this exchange. A profile preserving A's context instead would
-have to define its upstream association explicitly.
+`B`. Neither `B`'s authentication nor continuity of the agent identity
+alone authorizes this exchange. A profile that instead preserved `A`'s
+context would have to define its upstream association explicitly.
 
 ## Attestation Rejection
 {:numbered="false"}
@@ -946,7 +962,7 @@ Cache-Control: no-store
 {:numbered="false"}
 
 These informative sketches share three steps. `C1` is the Logical Client;
-`I1` and `K1` are an instance identifier and key scoped to the AS.
+`I1` and `K1` are an Instance Identifier and key scoped to the AS.
 
 1. The attester verifies enrollment evidence and possession of `K1`, then
    issues the attestation in {{claims}}: `sub=C1`,
@@ -963,9 +979,9 @@ These informative sketches share three steps. `C1` is the Logical Client;
 Let `C1` be `https://platform.example/oauth-client`. Its CIMD declares
 `attest_jwt_client_auth_dpop`; {{ATTESTER-ENDORSEMENT}} provides a
 metadata example. The AS validates the CIMD and uses configured attester
-trust or an accepted `client_attesters` endorsement. Instance-profile
-selection remains separately configured. Installations share `C1`, with
-distinct instance identifiers and keys; key renewal does not change the
+trust or an accepted `client_attesters` endorsement. Selection of this
+profile remains separately configured. Installations share `C1`, with
+distinct Instance Identifiers and keys; key renewal does not change the
 CIMD. User-authorized access follows {{managed-device-example}}.
 
 ## AAuth Agent Provider {#aauth-example}
@@ -973,7 +989,8 @@ CIMD. User-authorized access follows {{managed-device-example}}.
 
 The Agent Provider verifies managed installation evidence at step 1 and
 issues a separate Client Attestation. Native `aa-agent+jwt` credentials
-and HTTP Message Signatures do not replace the OAuth attestation or
+and HTTP Message Signatures {{RFC9421}} do not replace the OAuth
+attestation or
 proof. Step 2 uses a pre-authorized client credentials grant; AAuth
 metadata alone does not establish attester trust.
 
