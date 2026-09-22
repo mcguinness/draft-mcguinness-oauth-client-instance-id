@@ -8,11 +8,12 @@
 <meta content="Karl McGuinness" name="author">
 <meta content="
        This specification defines an optional claims profile of OAuth 2.0
-Attestation-Based Client Authentication. It adds an attester-qualified
-client instance identifier that remains stable across verified key
-changes, continuity and privacy rules for that identifier, and optional
-instance context in tokens and introspection responses. Authentication
-and proof methods follow the base specification. 
+Attestation-Based Client Authentication. Selecting it requires an
+attester-qualified client instance identifier that remains stable
+across verified key changes, and adds continuity and privacy rules for
+that identifier. Conveying instance context in tokens and introspection
+responses remains optional within the profile. Authentication and proof
+methods follow the base specification. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="OAuth" name="keyword">
@@ -1084,11 +1085,12 @@ svg {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This specification defines an optional claims profile of OAuth 2.0
-Attestation-Based Client Authentication. It adds an attester-qualified
-client instance identifier that remains stable across verified key
-changes, continuity and privacy rules for that identifier, and optional
-instance context in tokens and introspection responses. Authentication
-and proof methods follow the base specification.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+Attestation-Based Client Authentication. Selecting it requires an
+attester-qualified client instance identifier that remains stable
+across verified key changes, and adds continuity and privacy rules for
+that identifier. Conveying instance context in tokens and introspection
+responses remains optional within the profile. Authentication and proof
+methods follow the base specification.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1194,7 +1196,7 @@ and proof methods follow the base specification.<a href="#section-abstract-1" cl
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-grant-continuity" class="internal xref">Grant Continuity</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-errors" class="internal xref">Errors</a></p>
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-attestation-errors" class="internal xref">Attestation Errors</a></p>
 </li>
             </ul>
 </li>
@@ -1225,7 +1227,7 @@ and proof methods follow the base specification.<a href="#section-abstract-1" cl
                 <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-mapping-stability" class="internal xref">Mapping Stability</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
-                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-access-token-binding" class="internal xref">Access Token Binding</a></p>
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-presenter-attribution" class="internal xref">Presenter Attribution</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
                 <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-preservation-and-authorizat" class="internal xref">Preservation and Authorization</a></p>
@@ -1234,7 +1236,7 @@ and proof methods follow the base specification.<a href="#section-abstract-1" cl
                 <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-context-consumer-processing" class="internal xref">Context Consumer Processing</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
-                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-errors-2" class="internal xref">Errors</a></p>
+                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-context-errors" class="internal xref">Context Errors</a></p>
 </li>
             </ul>
 </li>
@@ -1363,8 +1365,11 @@ current key or can remain internal to one system.<a href="#section-1-5" class="p
 <p id="section-1-6">This profile establishes instance identity and its continuity. It does
 not define what authority, if any, follows from that identity. Instance
 evidence grants no authority; authorization profiles can use validated
-instance identity or Instance Context as a policy input, subject to
-<a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-6" class="pilcrow">¶</a></p>
+instance identity or Instance Context as a policy input, subject to the
+prohibitions in <a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">Five roles implement this profile: Client Attesters, clients,
+Receivers, token issuers conveying context, and Context Consumers.
+<a href="#conformance" class="auto internal xref">Section 3.2</a> states what each implements and where.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <div id="identity-and-scope">
 <section id="section-1.1">
         <h3 id="name-identity-and-scope">
@@ -1466,40 +1471,40 @@ mapped.<a href="#section-2-3.8.1" class="pilcrow">¶</a></p>
 It grants no authority and does not prove current possession.<a href="#section-2-3.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-2-3.11">Instance Context Identifier:</dt>
+<dt id="section-2-3.11">Receiver:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.12">
-          <p id="section-2-3.12.1">The pair <code>(iss, id)</code> in Instance Context: an Instance Context
+          <p id="section-2-3.12.1">A party that validates a Client Attestation under this profile, such
+as an AS or resource server. A Receiver that issues tokens carrying
+Instance Context also acts as a token issuer.<a href="#section-2-3.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.13">Context Consumer:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.14">
+          <p id="section-2-3.14.1">A party that consumes Instance Context from a token or introspection
+response. It need not receive the Client Attestation.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.15">Consumer Scope:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.16">
+          <p id="section-2-3.16.1">The Context Consumer, or explicitly configured set of Context
+Consumers, to which one mapping of Instance Context is scoped.<a href="#section-2-3.16.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.17">Instance Context Authority:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.18">
+          <p id="section-2-3.18.1">The token issuer identified by <code>iss</code> in Instance Context, which
+assigned the current <code>id</code>: the enclosing token issuer unless the
+context was preserved from an upstream token. The Client Attester
+remains the authority for the Source Instance Identity.<a href="#section-2-3.18.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.19">Instance Context Identifier:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.20">
+          <p id="section-2-3.20.1">The pair <code>(iss, id)</code> in Instance Context: an Instance Context
 Authority's pairwise representation of one Source Instance Identity
 for a Consumer Scope. Like a pairwise subject identifier, it is that
 authority's own correlator for the instance, and <code>id</code> need not equal
-<code>client_instance_id</code>.<a href="#section-2-3.12.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-3.13">Instance Context Authority:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-3.14">
-          <p id="section-2-3.14.1">The token issuer identified by <code>iss</code> in Instance Context, which
-assigned the current <code>id</code>: the enclosing token issuer unless the
-context was preserved from an upstream token. The Client Attester
-remains the authority for the Source Instance Identity.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-3.15">Receiver:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-3.16">
-          <p id="section-2-3.16.1">A party that validates a Client Attestation under this profile, such
-as an AS or resource server. A Receiver that issues tokens carrying
-Instance Context also acts as a token issuer.<a href="#section-2-3.16.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-3.17">Context Consumer:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-3.18">
-          <p id="section-2-3.18.1">A party that consumes Instance Context from a token or introspection
-response. It need not receive the Client Attestation.<a href="#section-2-3.18.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-2-3.19">Consumer Scope:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-3.20">
-          <p id="section-2-3.20.1">The Context Consumer, or explicitly configured set of Context
-Consumers, to which one mapping of Instance Context is scoped.<a href="#section-2-3.20.1" class="pilcrow">¶</a></p>
+<code>client_instance_id</code>.<a href="#section-2-3.20.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-3.21">Enrollment:</dt>
@@ -1562,27 +1567,53 @@ withdrawal <span class="bcp14">MUST</span> take effect on subsequent authenticat
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-conformance" class="section-name selfRef">Conformance</a>
         </h3>
 <p id="section-3.2-1">Conformance is role-specific:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3.2-2.1">
-            <p id="section-3.2-2.1.1">Client Attesters implement the claim, identifier, and enrollment
-requirements.<a href="#section-3.2-2.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-3.2-2.2">
-            <p id="section-3.2-2.2.1">Clients implement scoped attestation use and the selected ATTEST
-proof method.<a href="#section-3.2-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-3.2-2.3">
-            <p id="section-3.2-2.3.1">Receivers implement trust, validation, and grant-continuity rules.<a href="#section-3.2-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-3.2-2.4">
-            <p id="section-3.2-2.4.1">Token issuers conveying context implement mapping, preservation, and
-any binding that attribution requires.<a href="#section-3.2-2.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-3.2-2.5">
-            <p id="section-3.2-2.5.1">Context Consumers implement context validation and applicable proof
-checks.<a href="#section-3.2-2.5.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Role</th>
+              <th class="text-left" rowspan="1" colspan="1">Implements</th>
+              <th class="text-left" rowspan="1" colspan="1">Where</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Client Attester</td>
+              <td class="text-left" rowspan="1" colspan="1">Claim, identifier, continuity, and enrollment requirements</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#claims" class="auto internal xref">Section 4</a>, <a href="#lifetime" class="auto internal xref">Section 6</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Client</td>
+              <td class="text-left" rowspan="1" colspan="1">Scoped attestation use and the selected ATTEST proof method</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#identifier-scope" class="auto internal xref">Section 4.1</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Receiver</td>
+              <td class="text-left" rowspan="1" colspan="1">Trust, validation, and grant-continuity rules</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#configuration" class="auto internal xref">Section 3</a>, <a href="#processing" class="auto internal xref">Section 5</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Token issuer conveying context</td>
+              <td class="text-left" rowspan="1" colspan="1">Mapping, preservation, and any binding that attribution requires</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#instance-context" class="auto internal xref">Section 7</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Context Consumer</td>
+              <td class="text-left" rowspan="1" colspan="1">Context validation and applicable proof checks</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#context-claims" class="auto internal xref">Section 7.1</a>, <a href="#context-errors" class="auto internal xref">Section 7.6</a>
+</td>
+            </tr>
+          </tbody>
+        </table>
 <p id="section-3.2-3">An implementation serving several roles satisfies each. Conveying
 Instance Context (<a href="#instance-context" class="auto internal xref">Section 7</a>) is optional and independent of
 the remainder of the profile.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
@@ -1623,12 +1654,15 @@ generation follow <a href="#attester-requirements" class="auto internal xref">Se
         <h3 id="name-receiver-scope">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-receiver-scope" class="section-name selfRef">Receiver Scope</a>
         </h3>
-<p id="section-4.1-1">The attester <span class="bcp14">MUST</span> assign distinct identifiers per Receiver unless an
+<p id="section-4.1-1">A Receiver scope is an enrollment or issuance input, not an OAuth
+parameter or attestation audience, and a Receiver cannot verify it
+from the identifier alone. Two requirements attach to it.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">The attester <span class="bcp14">MUST</span> assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers; a shared client or trust domain does
 not by itself authorize sharing. The client <span class="bcp14">MUST</span> request and use the
-attestation for that configured scope.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1-2">The client <span class="bcp14">MUST</span> also use distinct Client Instance Keys across scopes.
+attestation for that configured scope.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">The client <span class="bcp14">MUST</span> also use distinct Client Instance Keys across scopes.
 <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>], <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a></span> recommends this across authorization and
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
@@ -1636,10 +1670,7 @@ attestations regardless of their identifiers. A deployment that
 intends correlation across Receivers, such as an enterprise workload,
 configures one scope spanning them, and one identifier and key then
 suffice. Binding-key separation between Context Consumers is addressed
-in <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.1-3">The Receiver scope is an enrollment or issuance input, not an OAuth
-parameter or attestation audience, and a Receiver cannot verify it
-from the identifier alone.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+in <a href="#privacy" class="auto internal xref">Section 9.2</a>.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="example">
@@ -1750,8 +1781,8 @@ authentication method.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 </div>
 <div id="errors">
 <section id="section-5.2">
-        <h3 id="name-errors">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-errors" class="section-name selfRef">Errors</a>
+        <h3 id="name-attestation-errors">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-attestation-errors" class="section-name selfRef">Attestation Errors</a>
         </h3>
 <p id="section-5.2-1">Missing or invalid required instance claims and rejection by instance
 policy <span class="bcp14">MUST</span> produce <code>invalid_client_attestation</code>, deliberately reusing
@@ -1771,6 +1802,10 @@ ATTEST.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
       <h2 id="name-attester-requirements">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-attester-requirements" class="section-name selfRef">Attester Requirements</a>
       </h2>
+<p id="section-6-1">Whether an instance identifier means the same thing over time depends
+entirely on the attester. This section covers how it generates
+identifiers, when it may retain them, how suspension works, and what
+it retains.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div id="attester-requirements">
 <section id="section-6.1">
         <h3 id="name-identifier-generation">
@@ -1799,9 +1834,9 @@ remains opaque. Keyed derivation, such as HMAC <span>[<a href="#RFC2104" class="
 secret with at least 128 bits of entropy and unambiguously encode the
 Logical Client, Receiver scope, and a unique enrollment component; a
 platform-stable input alone would reproduce retired identifiers after
-reinstall. Changes to derivation inputs or secrets <span class="bcp14">MUST</span> preserve
-assigned values within a continuing enrollment, for which storing
-those values is sufficient.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+reinstall. If the attester changes its derivation inputs or secrets,
+it <span class="bcp14">MUST</span> still produce the values already assigned within a continuing
+enrollment. Storing those values satisfies this requirement.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="continuity">
@@ -1836,8 +1871,8 @@ lifecycle boundaries. For example, a container restart can leave its
 Kubernetes Pod intact, but a new Pod is a new scheduling unit, and an
 installation or scheduling-unit identifier does not identify its
 individual processes. The attester <span class="bcp14">MUST</span> apply the following outcomes:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
-<table class="center" id="table-2">
-          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<table class="center" id="table-3">
+          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Event</th>
@@ -1887,16 +1922,17 @@ attestation, or former public key alone does not establish continuity.<a href="#
 A Receiver suspending an instance <span class="bcp14">SHOULD</span> revoke its grants or report
 their tokens inactive through introspection <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Short
 attestation lifetimes narrow the window in which a suspended instance
-remains acceptable. When an AS revokes a grant for instance
-suspension, retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span>
-invalidate all access and refresh tokens associated with that grant
-and prevent further refresh issuance. Without a status channel,
-existing attestations remain acceptable until expiration plus clock
-skew, issued tokens remain valid for their own lifetimes, and local
-revocation does not notify resource servers validating tokens
-offline. Security Event Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under
-<span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> can support a separate status integration, which this
-profile does not define.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+remains acceptable.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">When an AS revokes a grant for instance suspension, retirement, or
+attester trust withdrawal, it <span class="bcp14">MUST</span> invalidate all access and refresh
+tokens associated with that grant and prevent further refresh
+issuance.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">Without a status channel, three things follow: existing attestations
+remain acceptable until expiration plus clock skew; issued tokens
+remain valid for their own lifetimes; and local revocation does not
+notify resource servers validating tokens offline. Security Event
+Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> can support a separate
+status integration, which this profile does not define.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="state">
@@ -1920,6 +1956,9 @@ and mappings (<a href="#mapping-stability" class="auto internal xref">Section 7.
       <h2 id="name-conveying-instance-context">
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-conveying-instance-context" class="section-name selfRef">Conveying Instance Context</a>
       </h2>
+<p id="section-7-1">This section is optional. It defines how a token issuer represents a
+validated instance to downstream consumers, and what a consumer may
+conclude from that representation.<a href="#section-7-1" class="pilcrow">¶</a></p>
 <div id="context-claims">
 <section id="section-7.1">
         <h3 id="name-format-and-mapping">
@@ -1928,8 +1967,8 @@ and mappings (<a href="#mapping-stability" class="auto internal xref">Section 7.
 <p id="section-7.1-1">An issuer <span class="bcp14">MAY</span> include <code>client_instance</code> in a token or introspection
 response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Its JSON object has two <span class="bcp14">REQUIRED</span> members, which
 together form an Instance Context Identifier:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-3">
-          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Member</th>
@@ -1989,26 +2028,52 @@ access token and an introspection response.<a href="#section-7.1-6" class="pilcr
         <h3 id="name-mapping-stability">
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-mapping-stability" class="section-name selfRef">Mapping Stability</a>
         </h3>
-<p id="section-7.2-1">An issuer <span class="bcp14">MUST NOT</span> represent one mapping input and Consumer Scope by
-more than one <code>id</code>. Because attester identifiers are never reassigned,
-a new enrollment presents a new input and receives a new mapping. An
-issuer <span class="bcp14">MUST</span> retain a mapping while any token or grant it issued for
-that input remains valid, including clock skew. An issuer that no
-longer holds or can reproduce a mapping <span class="bcp14">MUST</span> omit <code>client_instance</code>
-for that input and scope rather than assign a replacement; a consumer
-requiring context then rejects under <a href="#context-errors" class="auto internal xref">Section 7.6</a>. Derived
-mappings need no per-instance records while the derivation secret and
-inputs remain available, as for attesters under
-<a href="#attester-requirements" class="auto internal xref">Section 6.1</a>; random mappings need records for as long as
-the issuer intends to include context. Random generation satisfies
-non-reassignment probabilistically; derivation depends on never
-reusing enrollment inputs.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-1">For one mapping input and Consumer Scope, an issuer:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-2.1">
+            <p id="section-7.2-2.1.1"><span class="bcp14">MUST NOT</span> represent it by more than one <code>id</code>;<a href="#section-7.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.2">
+            <p id="section-7.2-2.2.1"><span class="bcp14">MUST</span> retain the mapping while any token or grant it issued for that
+input remains valid, including clock skew; and<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.3">
+            <p id="section-7.2-2.3.1"><span class="bcp14">MUST</span> omit <code>client_instance</code> rather than assign a replacement once it
+no longer holds or can reproduce the mapping. A consumer requiring
+context then rejects under <a href="#context-errors" class="auto internal xref">Section 7.6</a>.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.2-3">Because attester identifiers are never reassigned, a new enrollment
+presents a new mapping input and receives a new mapping.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">The two mapping strategies differ in what an issuer must store:<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<table class="center" id="table-5">
+          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Strategy</th>
+              <th class="text-left" rowspan="1" colspan="1">Records needed</th>
+              <th class="text-left" rowspan="1" colspan="1">Non-reassignment rests on</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Derived</td>
+              <td class="text-left" rowspan="1" colspan="1">None per instance, while the derivation secret and inputs remain available (<a href="#attester-requirements" class="auto internal xref">Section 6.1</a>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Never reusing enrollment inputs</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Random</td>
+              <td class="text-left" rowspan="1" colspan="1">Retained for as long as the issuer intends to include context</td>
+              <td class="text-left" rowspan="1" colspan="1">Probability</td>
+            </tr>
+          </tbody>
+        </table>
 </section>
 </div>
 <div id="context-binding">
 <section id="section-7.3">
-        <h3 id="name-access-token-binding">
-<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-access-token-binding" class="section-name selfRef">Access Token Binding</a>
+        <h3 id="name-presenter-attribution">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-presenter-attribution" class="section-name selfRef">Presenter Attribution</a>
         </h3>
 <p id="section-7.3-1">Instance Context grants no authority and by itself describes only the
 instance that participated in obtaining the token. When a Context
@@ -2016,16 +2081,16 @@ Consumer uses context to attribute the current token presentation to
 that instance, the applicable consuming profile <span class="bcp14">MUST</span> require, and the
 consumer <span class="bcp14">MUST</span> validate, a mechanism associating the token presenter
 with the instance. For tokens issued directly from a validated Client
-Attestation, sender constraint using DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, mutual TLS
-<span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism defined by the consuming profile,
-with a key the issuer associated with the authenticated instance at
-issuance, is that mechanism; this applies equally when context is
-conveyed only through introspection. A token without sender constraint
-supports no presenter attribution, and a consumer requiring
-attribution rejects it under <a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code>
-scheme does not indicate an unbound token; certificate-bound tokens
-<span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> use it as well.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
-<p id="section-7.3-2">All validation requirements of the token-binding mechanism apply
+Attestation, that mechanism is sender constraint: DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>,
+mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism the consuming profile
+defines, with a constraining key the issuer associated with the
+authenticated instance at issuance. This applies equally when context
+is conveyed only through introspection.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">A token without sender constraint supports no presenter attribution,
+and a consumer requiring attribution rejects it under
+<a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code> scheme does not indicate an
+unbound token; certificate-bound tokens <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> use it as well.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.3-3">All validation requirements of the token-binding mechanism apply
 regardless of whether context is used for attribution, including
 rejection of a bound token presented without its proof
 (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>], <a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a></span>). The binding authenticates the presenter;
@@ -2033,7 +2098,7 @@ it does not establish that the presenter is an instance named in
 context derived from an upstream token. Any presenter or key change
 during exchange requires authorization under the consuming exchange
 profile, and unlinkability between Context Consumers additionally
-requires distinct binding keys (<a href="#privacy" class="auto internal xref">Section 9.2</a>).<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+requires distinct binding keys (<a href="#privacy" class="auto internal xref">Section 9.2</a>).<a href="#section-7.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-exchange">
@@ -2065,24 +2130,30 @@ keeps each consumer's view pairwise. An issuer <span class="bcp14">MAY</span> in
 validated upstream Instance Context Identifier when configured trust
 and the upstream Consumer Scope authorize its disclosure to the
 downstream consumer; otherwise it <span class="bcp14">MUST</span> remap or omit the context.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
-<p id="section-7.4-4">An issuer <span class="bcp14">MUST NOT</span> assert an upstream Instance Context Authority
-unless it has authenticated both that authority's assignment of the
-context and the context's association with the instance represented
-by the input token. Validating the input token authenticates only its
-issuer's assertions, so by default an issuer <span class="bcp14">MUST</span> limit preservation
-to context whose <code>iss</code> equals the authenticated input-token issuer and
-<span class="bcp14">MUST</span> remap or omit context that an intermediary itself preserved. A
-consuming profile that specifies authenticated provenance and its
-enforcement can permit deeper preservation; the object carries no
-forwarding history, and shallow preservation is also a privacy
-default.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
-<p id="section-7.4-5">Context identifies one instance, not a chain, and <span class="bcp14">MUST NOT</span> be treated
+<p id="section-7.4-4">An issuer <span class="bcp14">MUST NOT</span> name an upstream Instance Context Authority in
+<code>iss</code> unless it has authenticated two things:<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.4-5">
+<li id="section-7.4-5.1">
+            <p id="section-7.4-5.1.1">that the named authority assigned the context; and<a href="#section-7.4-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.4-5.2">
+            <p id="section-7.4-5.2.1">that the context refers to the instance the input token represents.<a href="#section-7.4-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.4-6">Validating the input token authenticates only its issuer's assertions,
+so by default an issuer <span class="bcp14">MUST</span> limit preservation to context whose <code>iss</code>
+equals the authenticated input-token issuer and <span class="bcp14">MUST</span> remap or omit
+context that an intermediary itself preserved. A consuming profile
+that specifies authenticated provenance and its enforcement can permit
+deeper preservation; the object carries no forwarding history, and
+shallow preservation is also a privacy default.<a href="#section-7.4-6" class="pilcrow">¶</a></p>
+<p id="section-7.4-7">Context identifies one instance, not a chain, and <span class="bcp14">MUST NOT</span> be treated
 as a separate token or delegated actor. Remapping changes the Instance
 Context Identifier but, like preservation, leaves the Source Instance
 Identity it represents unchanged; an issuer <span class="bcp14">MUST NOT</span> treat upstream
 context as identifying a different presenting instance, and the
 upstream identifier does not establish that the issuer validated the
-original Client Attestation.<a href="#section-7.4-5" class="pilcrow">¶</a></p>
+original Client Attestation.<a href="#section-7.4-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-consumer-processing">
@@ -2136,8 +2207,8 @@ change the meaning of <code>iss</code> or <code>id</code>.<a href="#section-7.5-
 </div>
 <div id="context-errors">
 <section id="section-7.6">
-        <h3 id="name-errors-2">
-<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-errors-2" class="section-name selfRef">Errors</a>
+        <h3 id="name-context-errors">
+<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-context-errors" class="section-name selfRef">Context Errors</a>
         </h3>
 <p id="section-7.6-1">Rejection for missing or invalid required context, or for required
 attribution that cannot be established, <span class="bcp14">MUST</span> use <code>invalid_token</code> at a
@@ -2155,6 +2226,9 @@ own error mapping. Direct Client Attestation failures follow
       <h2 id="name-relationship-to-other-ident">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-relationship-to-other-ident" class="section-name selfRef">Relationship to Other Identity Systems</a>
       </h2>
+<p id="section-8-1">This section places the profile alongside mechanisms that identify
+clients or workloads but not individual instances. It adds no
+requirements.<a href="#section-8-1" class="pilcrow">¶</a></p>
 <div id="cimd">
 <section id="section-8.1">
         <h3 id="name-client-id-metadata-document">
@@ -2163,8 +2237,8 @@ own error mapping. Direct Client Attestation failures follow
 <p id="section-8.1-1">With <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, the metadata URL is the Logical Client's <code>client_id</code>,
 and many installations can use it. Fetching public metadata does not
 prove that a caller is an authorized instance:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-4">
-          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<table class="center" id="table-6">
+          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Mechanism</th>
@@ -2304,8 +2378,8 @@ not authentication.<a href="#section-9.2-1.5.1" class="pilcrow">¶</a></p>
 <p id="section-10.1-1">This document requests the following registrations in the "JSON Web
 Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>. The Change Controller
 for both entries is IETF.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-5">
-          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+<table class="center" id="table-7">
+          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Claim Name</th>
