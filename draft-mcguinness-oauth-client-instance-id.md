@@ -75,7 +75,8 @@ and treating them as the same can merge unrelated audit histories and
 status decisions.
 
 Assigning each instance its own `client_id` with a shared `software_id`
-{{RFC7591, Section 2}} is an alternative. This profile instead targets
+({{RFC7591, Section 2}}) is an alternative. This profile instead
+targets
 deployments that share one Logical Client, one metadata URL when using
 {{CIMD}}, and authorization server (AS) policy keyed by that client;
 `software_id` correlates registrations but defines no shared grants or
@@ -816,13 +817,12 @@ the evaluated evidence.
 ## JSON Web Token Claims
 
 This document requests the following registrations in the "JSON Web
-Token Claims" registry established by {{RFC7519}}. The Change Controller
-for both entries is IETF.
+Token Claims" registry established by {{RFC7519}}.
 
-| Claim Name | Claim Description | Specification Document(s) |
-|---|---|---|
-| `client_instance_id` | Issuer-scoped client instance identifier | {{claims}} of this document |
-| `client_instance` | Validated client instance context | {{instance-context}} of this document |
+| Claim Name | Claim Description | Change Controller | Specification Document(s) |
+|---|---|---|---|
+| `client_instance_id` | Issuer-scoped client instance identifier | IETF | {{claims}} of this document |
+| `client_instance` | Validated client instance context | IETF | {{instance-context}} of this document |
 
 ## OAuth Token Introspection Response
 
