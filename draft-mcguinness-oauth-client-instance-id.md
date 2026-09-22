@@ -549,6 +549,13 @@ For one mapping input and Consumer Scope, an issuer:
   no longer holds or can reproduce the mapping. A consumer requiring
   context then rejects under {{context-errors}}.
 
+An issuer that changes its derivation inputs or secrets MUST still
+produce the identifiers already assigned for any input and scope for
+which it continues to include context, as attesters must under
+{{attester-requirements}}. Storing those values satisfies this
+requirement. Without it, rotating one secret silently and permanently
+strips context from every instance mapped under it.
+
 Because attester identifiers are never reassigned, a new enrollment
 presents a new mapping input and receives a new mapping.
 
