@@ -372,9 +372,12 @@ disclosing the expected identity.
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
 attestation is the client authentication method or an additional
-security signal ({{ATTEST, Section 7.6}}). {{ATTEST, Section 10.4}}
-recommends establishing such bindings where attestation is the client
-authentication method.
+security signal ({{ATTEST, Section 7.6}}). Presenting the attestation
+is optional in that second mode, so an AS that binds artifacts to
+instances MUST require it when those artifacts are redeemed; otherwise
+a conforming client cannot supply what the AS must check.
+{{ATTEST, Section 10.4}} recommends establishing such bindings where
+attestation is the client authentication method.
 
 ## Attestation Errors {#errors}
 
