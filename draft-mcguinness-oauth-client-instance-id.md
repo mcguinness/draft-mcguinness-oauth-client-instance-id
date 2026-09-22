@@ -263,6 +263,10 @@ and `cnf`, and optional `iat`.
 
 ## Receiver Scope {#identifier-scope}
 
+A Receiver scope is an enrollment or issuance input, not an OAuth
+parameter or attestation audience, and a Receiver cannot verify it
+from the identifier alone. Two requirements attach to it.
+
 The attester MUST assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers; a shared client or trust domain does
@@ -278,10 +282,6 @@ intends correlation across Receivers, such as an enterprise workload,
 configures one scope spanning them, and one identifier and key then
 suffice. Binding-key separation between Context Consumers is addressed
 in {{privacy}}.
-
-The Receiver scope is an enrollment or issuance input, not an OAuth
-parameter or attestation audience, and a Receiver cannot verify it
-from the identifier alone.
 
 ## Example
 
