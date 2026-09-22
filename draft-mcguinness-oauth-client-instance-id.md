@@ -241,7 +241,7 @@ Conformance is role-specific:
 | Client | Scoped attestation use and the selected ATTEST proof method | {{identifier-scope}} |
 | Receiver | Trust, validation, and grant-continuity rules | {{configuration}}, {{processing}} |
 | Token issuer conveying context | Mapping, preservation, and any binding that attribution requires | {{instance-context}} |
-| Context Consumer | Context validation and applicable proof checks | {{context-claims}}, {{context-errors}} |
+| Context Consumer | Context validation and applicable proof checks | {{context-binding}}, {{context-consumer}}, {{context-errors}} |
 
 An implementation serving several roles satisfies each. Conveying
 Instance Context ({{instance-context}}) is optional and independent of
@@ -295,7 +295,7 @@ both the token's `cnf.jkt` and the resource server's attestation.
 Deployments either keep both Receivers in one scope or use DPoP
 without combined mode.
 
-## Example
+## Example {#attestation-example}
 
 Example decoded attestation payload, including the optional `iat`:
 
@@ -403,10 +403,11 @@ follow {{grant-continuity}}; other errors follow ATTEST.
 
 # Attester Requirements {#lifetime}
 
-Whether an instance identifier means the same thing over time depends
+Whether an Instance Identifier means the same thing over time depends
 entirely on the attester. This section covers how it generates
-identifiers, when it may retain them, how suspension works, and what
-it retains.
+identifiers ({{attester-requirements}}), when it may retain them
+({{continuity}}), how it handles suspension ({{suspension}}), and what
+records it keeps ({{state}}).
 
 ## Identifier Generation {#attester-requirements}
 
@@ -503,8 +504,9 @@ and mappings ({{mapping-stability}}). Audit retention is local policy.
 # Conveying Instance Context {#instance-context}
 
 This section is optional. It defines how a token issuer represents a
-validated instance to downstream consumers, and what a consumer may
-conclude from that representation.
+validated instance to downstream consumers ({{context-claims}}), and
+what a consumer may conclude from that representation
+({{context-consumer}}).
 
 ## Format and Mapping {#context-claims}
 
@@ -652,7 +654,7 @@ context as identifying a different presenting instance, and the
 upstream identifier does not establish that the issuer validated the
 original Client Attestation.
 
-## Context Consumer Processing
+## Context Consumer Processing {#context-consumer}
 
 Before using context, the Context Consumer MUST:
 
@@ -850,7 +852,8 @@ context. The AS maps the attester's identifier to a value scoped to
 
 Example decoded JWT access-token payload under {{RFC9068}}, with
 `typ=at+jwt` in its protected header. The `cnf.jkt` value identifies
-the public key in {{claims}}; the token's subject and context remain
+the public key in {{attestation-example}}; the token's subject and
+context remain
 separate.
 
 ~~~ json
