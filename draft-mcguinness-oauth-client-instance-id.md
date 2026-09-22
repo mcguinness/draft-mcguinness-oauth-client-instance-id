@@ -215,7 +215,9 @@ The client and Receiver administratively configure:
 * the intended Receiver and any explicitly shared Receiver Scope
   ({{receiver-scope}}).
 
-A Context Consumer that requires context configures that requirement.
+A Context Consumer that requires context configures that requirement,
+including whether it extends to attribution, with the issuers it
+accepts context from.
 Claims MUST NOT select this profile or change authentication methods;
 selection is part of the client-specific trust agreement, and no
 discovery or metadata parameter is added. The error in {{errors}}
@@ -603,8 +605,9 @@ associated with the authenticated instance at issuance. That key MUST
 be unique to the instance at the configured granularity, because a key
 shared by instances inside that boundary establishes no attribution:
 any of them can present the token and satisfy the proof. An issuer that
-cannot bind such a key MUST omit `client_instance` where the receiving
-Context Consumer is configured to require attribution. Context conveyed
+cannot bind such a key MUST omit `client_instance` where the configured
+requirement for that Consumer Scope includes attribution. Context
+conveyed
 without such a key records only that the instance participated in
 obtaining the token, and {{context-consumer}} governs what a consumer
 may conclude from it. This applies equally when context is conveyed
