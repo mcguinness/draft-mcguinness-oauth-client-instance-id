@@ -151,7 +151,7 @@ Attester Issuer:
 
 Instance Identifier:
 : The `client_instance_id` value, assigned by a Client Attester to one
-  Client Instance at the configured granularity and Receiver scope
+  Client Instance at the configured granularity and Receiver Scope
   ({{receiver-scope}}).
 
 Source Instance Identity:
@@ -212,7 +212,7 @@ The client and Receiver administratively configure:
 
 * the Logical Client, authentication method, and attester trust policy;
 * the instance granularity, continuity evidence, and freshness limits;
-* the intended Receiver and any explicitly shared Receiver scope
+* the intended Receiver and any explicitly shared Receiver Scope
   ({{receiver-scope}}).
 
 A Context Consumer that requires context configures that requirement.
@@ -269,7 +269,7 @@ and `cnf`, and optional `iat`.
 
 ## Receiver Scope {#receiver-scope}
 
-A Receiver scope is an enrollment or issuance input, not an OAuth
+A Receiver Scope is an enrollment or issuance input, not an OAuth
 parameter or attestation audience, and a Receiver cannot verify it
 from the identifier alone. The following requirements attach to it.
 
@@ -414,7 +414,7 @@ records it keeps ({{state}}).
 
 ## Identifier Generation {#identifier-generation}
 
-For each enrollment and Receiver scope ({{receiver-scope}}), the
+For each enrollment and Receiver Scope ({{receiver-scope}}), the
 attester MUST assign identifiers that are:
 
 * distinct, opaque, and never reassigned, including after retirement;
@@ -427,7 +427,7 @@ attester MUST assign identifiers that are:
 A URI can name the attester's namespace; its instance-specific portion
 remains opaque. Keyed derivation, such as HMAC {{RFC2104}}, MUST use a
 secret with at least 128 bits of entropy and unambiguously encode the
-Logical Client, Receiver scope, and a unique enrollment component; a
+Logical Client, Receiver Scope, and a unique enrollment component; a
 platform-stable input alone would reproduce retired identifiers after
 reinstall. If the attester changes its derivation inputs or secrets,
 it MUST still produce the values already assigned within a continuing
@@ -739,7 +739,7 @@ prove that a caller is an authorized instance:
 | ATTEST | Authenticates an attester-approved instance and possession of its key |
 | This profile | Retains instance identity across verified key changes and conveys optional downstream context |
 
-Use one CIMD URL for the Logical Client and keep instance identifiers
+Use one CIMD URL for the Logical Client and keep Instance Identifiers
 in attestations, not separate metadata documents: the attestation's
 `sub` remains that URL and `client_instance_id` distinguishes its
 installations ({{cimd-example}}). CIMD removes per-AS registration of
@@ -788,7 +788,7 @@ the evaluated evidence.
   proof validation, freshness, and key possession, not identifier
   scope.
 * **Correlation:** {{receiver-scope}} requires separate identifiers
-  and keys across Receiver scopes, strengthening
+  and keys across Receiver Scopes, strengthening
   {{ATTEST, Section 11.1}}. Receivers MUST NOT assume identifiers
   across scopes are comparable; explicitly shared scopes permit
   correlation.
@@ -804,7 +804,7 @@ the evaluated evidence.
   correlate requests despite scoped identifiers. Identifier scoping does
   not permit changing a refresh token's bound key
   ({{grant-continuity}}).
-* **Attester visibility:** supplying Receiver scope reveals it to the
+* **Attester visibility:** supplying Receiver Scope reveals it to the
   attester; deployments requiring ATTEST's audience-hiding property
   should omit this profile.
 * **Disclosure:** status non-disclosure follows {{errors}}, and
@@ -962,7 +962,7 @@ Cache-Control: no-store
 {:numbered="false"}
 
 These informative sketches share three steps. `C1` is the Logical Client;
-`I1` and `K1` are an instance identifier and key scoped to the AS.
+`I1` and `K1` are an Instance Identifier and key scoped to the AS.
 
 1. The attester verifies enrollment evidence and possession of `K1`, then
    issues the attestation in {{claims}}: `sub=C1`,
@@ -981,7 +981,7 @@ Let `C1` be `https://platform.example/oauth-client`. Its CIMD declares
 metadata example. The AS validates the CIMD and uses configured attester
 trust or an accepted `client_attesters` endorsement. Selection of this
 profile remains separately configured. Installations share `C1`, with
-distinct instance identifiers and keys; key renewal does not change the
+distinct Instance Identifiers and keys; key renewal does not change the
 CIMD. User-authorized access follows {{managed-device-example}}.
 
 ## AAuth Agent Provider {#aauth-example}
