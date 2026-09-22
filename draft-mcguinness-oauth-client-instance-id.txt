@@ -158,7 +158,7 @@ Table of Contents
 
    This profile establishes instance identity and its continuity.  It
    does not define what authority, if any, follows from that identity.
-   Instance evidence grants no authority; authorization profiles MAY use
+   Instance evidence grants no authority; authorization profiles can use
    validated instance identity or Instance Context as a policy input,
    subject to Section 5.
 
@@ -270,7 +270,7 @@ Table of Contents
 
 3.  Profile Selection and Trust
 
-   The client and Receiver MUST administratively configure:
+   The client and Receiver administratively configure:
 
    *  the Logical Client, authentication method, and attester trust
       policy;
@@ -281,7 +281,7 @@ Table of Contents
    *  the intended Receiver and any explicitly shared Receiver scope
       (Section 4.1).
 
-   A Context Consumer requiring context MUST configure that requirement.
+   A Context Consumer that requires context configures that requirement.
    Claims MUST NOT select this profile or change authentication methods;
    selection is part of the client-specific trust agreement, and no
    discovery or metadata parameter is added.  The error in Section 5.2
@@ -501,7 +501,7 @@ Table of Contents
    3.  the configured continuity checks, their freshness, and observed
        lifecycle events or evidence of independent claimants.
 
-   The deployment MUST specify its evidence, freshness limits, and
+   The deployment specifies its evidence, freshness limits, and
    lifecycle boundaries.  For example, a container restart can leave its
    Kubernetes Pod intact, but a new Pod is a new scheduling unit, and an
    installation or scheduling-unit identifier does not identify its
@@ -552,9 +552,9 @@ Table of Contents
 
    The attester MUST stop issuance for suspended or retired enrollments.
    A Receiver suspending an instance SHOULD revoke its grants or report
-   their tokens inactive through introspection [RFC7662]; attesters and
-   Receivers SHOULD agree on short attestation lifetimes where timely
-   enforcement matters.  When an AS revokes a grant for instance
+   their tokens inactive through introspection [RFC7662].  Short
+   attestation lifetimes narrow the window in which a suspended instance
+   remains acceptable.  When an AS revokes a grant for instance
    suspension, retirement, or attester trust withdrawal, it MUST
    invalidate all access and refresh tokens associated with that grant
    and prevent further refresh issuance.  Without a status channel,
@@ -657,14 +657,14 @@ Table of Contents
    [RFC8705] use it as well.
 
    All validation requirements of the token-binding mechanism apply
-   regardless of whether context is used for attribution; in particular,
-   a bound token presented without its proof MUST be rejected
-   ([RFC9449], Section 7.2).  The binding authenticates the presenter;
-   it does not establish that the presenter is an instance named in
-   context derived from an upstream token.  Any presenter or key change
-   during exchange requires authorization under the consuming exchange
-   profile, and unlinkability between Context Consumers additionally
-   requires distinct binding keys (Section 9.2).
+   regardless of whether context is used for attribution, including
+   rejection of a bound token presented without its proof ([RFC9449],
+   Section 7.2).  The binding authenticates the presenter; it does not
+   establish that the presenter is an instance named in context derived
+   from an upstream token.  Any presenter or key change during exchange
+   requires authorization under the consuming exchange profile, and
+   unlinkability between Context Consumers additionally requires
+   distinct binding keys (Section 9.2).
 
 7.4.  Preservation and Authorization
 
@@ -810,7 +810,7 @@ Table of Contents
 9.1.  Attester Compromise and Assurance
 
    A compromised attester can impersonate instances within its approved
-   client associations.  Receivers MUST limit those associations and
+   client associations.  Receivers limit those associations and
    configure acceptable evidence assurance; attesters MUST NOT claim
    stronger assurance than their evidence supports, and self-reported,
    platform-verified, and hardware-rooted evidence are not
@@ -841,9 +841,10 @@ Table of Contents
       Where unlinkability between Context Consumers is required, the
       client MUST use distinct token-binding keys across those scopes,
       for example DPoP without combined mode or a distinct mutual-TLS
-      certificate per scope, and the deployment MUST address other
-      correlating claims and application data.  Identifier scoping does
-      not permit changing a refresh token's bound key (Section 5.1).
+      certificate per scope.  Other claims and application data can
+      correlate requests despite scoped identifiers.  Identifier scoping
+      does not permit changing a refresh token's bound key
+      (Section 5.1).
 
    *  *Attester visibility:* supplying Receiver scope reveals it to the
       attester; deployments requiring ATTEST's audience-hiding property

@@ -1362,7 +1362,7 @@ the attestation.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
 current key or can remain internal to one system.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">This profile establishes instance identity and its continuity. It does
 not define what authority, if any, follows from that identity. Instance
-evidence grants no authority; authorization profiles <span class="bcp14">MAY</span> use validated
+evidence grants no authority; authorization profiles can use validated
 instance identity or Instance Context as a policy input, subject to
 <a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <div id="identity-and-scope">
@@ -1522,7 +1522,7 @@ locations by parsing them.<a href="#section-2-4" class="pilcrow">¶</a></p>
       <h2 id="name-profile-selection-and-trust">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-profile-selection-and-trust" class="section-name selfRef">Profile Selection and Trust</a>
       </h2>
-<p id="section-3-1">The client and Receiver <span class="bcp14">MUST</span> administratively configure:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">The client and Receiver administratively configure:<a href="#section-3-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3-2.1">
           <p id="section-3-2.1.1">the Logical Client, authentication method, and attester trust policy;<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
@@ -1535,7 +1535,7 @@ locations by parsing them.<a href="#section-2-4" class="pilcrow">¶</a></p>
 (<a href="#identifier-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-3-3">A Context Consumer requiring context <span class="bcp14">MUST</span> configure that requirement.
+<p id="section-3-3">A Context Consumer that requires context configures that requirement.
 Claims <span class="bcp14">MUST NOT</span> select this profile or change authentication methods;
 selection is part of the client-specific trust agreement, and no
 discovery or metadata parameter is added. The error in <a href="#errors" class="auto internal xref">Section 5.2</a>
@@ -1831,7 +1831,7 @@ transition when the key changes; and<a href="#section-6.2-2.2.1" class="pilcrow"
 lifecycle events or evidence of independent claimants.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-6.2-3">The deployment <span class="bcp14">MUST</span> specify its evidence, freshness limits, and
+<p id="section-6.2-3">The deployment specifies its evidence, freshness limits, and
 lifecycle boundaries. For example, a container restart can leave its
 Kubernetes Pod intact, but a new Pod is a new scheduling unit, and an
 installation or scheduling-unit identifier does not identify its
@@ -1885,18 +1885,18 @@ attestation, or former public key alone does not establish continuity.<a href="#
         </h3>
 <p id="section-6.3-1">The attester <span class="bcp14">MUST</span> stop issuance for suspended or retired enrollments.
 A Receiver suspending an instance <span class="bcp14">SHOULD</span> revoke its grants or report
-their tokens inactive through introspection <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>; attesters and
-Receivers <span class="bcp14">SHOULD</span> agree on short attestation lifetimes where timely
-enforcement matters. When an AS revokes a grant for instance
+their tokens inactive through introspection <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Short
+attestation lifetimes narrow the window in which a suspended instance
+remains acceptable. When an AS revokes a grant for instance
 suspension, retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span>
 invalidate all access and refresh tokens associated with that grant
 and prevent further refresh issuance. Without a status channel,
 existing attestations remain acceptable until expiration plus clock
 skew, issued tokens remain valid for their own lifetimes, and local
-revocation does not notify resource servers validating tokens offline.
-Security Event
-Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> can support a separate
-status integration, which this profile does not define.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+revocation does not notify resource servers validating tokens
+offline. Security Event Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under
+<span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span> can support a separate status integration, which this
+profile does not define.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="state">
@@ -2026,8 +2026,8 @@ attribution rejects it under <a href="#context-errors" class="auto internal xref
 scheme does not indicate an unbound token; certificate-bound tokens
 <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> use it as well.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
 <p id="section-7.3-2">All validation requirements of the token-binding mechanism apply
-regardless of whether context is used for attribution; in particular,
-a bound token presented without its proof <span class="bcp14">MUST</span> be rejected
+regardless of whether context is used for attribution, including
+rejection of a bound token presented without its proof
 (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>], <a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a></span>). The binding authenticates the presenter;
 it does not establish that the presenter is an instance named in
 context derived from an upstream token. Any presenter or key change
@@ -2227,9 +2227,9 @@ boundaries.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-attester-compromise-and-ass" class="section-name selfRef">Attester Compromise and Assurance</a>
         </h3>
 <p id="section-9.1-1">A compromised attester can impersonate instances within its approved
-client associations. Receivers <span class="bcp14">MUST</span> limit those associations and
-configure acceptable evidence assurance; attesters <span class="bcp14">MUST NOT</span> claim
-stronger assurance than their evidence supports, and self-reported,
+client associations. Receivers limit those associations and configure
+acceptable evidence assurance; attesters <span class="bcp14">MUST NOT</span> claim stronger
+assurance than their evidence supports, and self-reported,
 platform-verified, and hardware-rooted evidence are not
 interchangeable. Copied keys and enrollment data can be
 indistinguishable from the original without independent platform
@@ -2267,8 +2267,8 @@ consumers can carry different <code>id</code> values but the same <code>cnf.jkt<
 Where unlinkability between Context Consumers is required, the
 client <span class="bcp14">MUST</span> use distinct token-binding keys across those scopes,
 for example DPoP without combined mode or a distinct mutual-TLS
-certificate per scope, and the deployment <span class="bcp14">MUST</span> address other
-correlating claims and application data. Identifier scoping does
+certificate per scope. Other claims and application data can
+correlate requests despite scoped identifiers. Identifier scoping does
 not permit changing a refresh token's bound key
 (<a href="#grant-continuity" class="auto internal xref">Section 5.1</a>).<a href="#section-9.2-1.3.1" class="pilcrow">¶</a></p>
 </li>
