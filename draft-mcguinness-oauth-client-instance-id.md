@@ -283,6 +283,14 @@ configures one scope spanning them, and one identifier and key then
 suffice. Binding-key separation between Context Consumers is addressed
 in {{privacy}}.
 
+Separating a resource server into its own scope rules out DPoP
+combined mode there. Combined mode reuses one Client Instance Key as
+the DPoP key ({{ATTEST, Section 5.2}}), but the access token was bound
+under the authorization server's scope, so a single proof cannot match
+both the token's `cnf.jkt` and the resource server's attestation.
+Deployments either keep both Receivers in one scope or use DPoP
+without combined mode.
+
 ## Example
 
 Example decoded attestation payload, including the optional `iat`:
