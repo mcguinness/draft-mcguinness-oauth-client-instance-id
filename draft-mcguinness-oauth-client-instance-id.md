@@ -435,8 +435,9 @@ Continuity is authenticated evidence sufficient for the attester to
 determine that a claimant represents the same enrolled Client Instance
 at the configured granularity. An attester-recorded chain of verified
 key custody within one enrollment is the primary mechanism; platform
-or hardware-rooted identity evidence can supplement it or, where the
-deployment's evidence policy permits, supply it. Before retaining an
+or hardware-rooted identity evidence can supplement that chain or,
+where the deployment's evidence policy permits, serve as the continuity
+evidence on its own. Before retaining an
 identifier, the attester MUST verify and record:
 
 1. an active enrollment binding the instance, Logical Client, Receiver
@@ -507,8 +508,9 @@ conclude from that representation.
 ## Format and Mapping {#context-claims}
 
 An issuer MAY include `client_instance` in a token or introspection
-response {{RFC7662}}. Its JSON object has two REQUIRED members, which
-together form an Instance Context Identifier:
+response {{RFC7662}}. The `client_instance` value is a JSON object with
+two REQUIRED members, which together form an Instance Context
+Identifier:
 
 | Member | Type | Meaning |
 |---|---|---|
@@ -521,10 +523,10 @@ identity is subject to {{grant-continuity}}. Token exchange follows
 {{context-exchange}} rather than inheriting this association.
 
 Context MUST refer to validated instance participation; issuers MUST
-NOT copy unvalidated client-supplied context. The issuer MUST map the
-Source Instance Identity or, when remapping under {{context-exchange}},
-the upstream Instance Context Identifier (together, the mapping input)
-to its own namespace. Each mapping MUST:
+NOT copy unvalidated client-supplied context. The issuer MUST map, to
+its own namespace, the Source Instance Identity or, when remapping
+under {{context-exchange}}, the upstream Instance Context Identifier
+(whichever applies, the mapping input). Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
 * generate `id` under {{attester-requirements}}, within the same
@@ -549,19 +551,20 @@ access token and an introspection response.
 
 For one mapping input and Consumer Scope, an issuer:
 
-* MUST NOT represent it by more than one `id`;
-* MUST retain the mapping while any token or grant it issued for that
-  input remains valid, including clock skew; and
-* MUST omit `client_instance` rather than assign a replacement once it
-  no longer holds or can reproduce the mapping. A consumer requiring
-  context then rejects under {{context-errors}}.
+* MUST NOT represent that input by more than one `id`;
+* MUST retain the mapping while any token or grant that issuer issued
+  for that input remains valid, including clock skew; and
+* MUST omit `client_instance` rather than assign a replacement once the
+  issuer no longer holds or can reproduce the mapping. A consumer
+  requiring context then rejects under {{context-errors}}.
 
 An issuer that changes its derivation inputs or secrets MUST still
 produce the identifiers already assigned for any input and scope for
 which it continues to include context, as attesters must under
 {{attester-requirements}}. Storing those values satisfies this
-requirement. Without it, rotating one secret silently and permanently
-strips context from every instance mapped under it.
+requirement. Without that requirement, rotating one secret silently
+and permanently strips context from every instance mapped under that
+secret.
 
 Because attester identifiers are never reassigned, a new enrollment
 presents a new mapping input and receives a new mapping.
@@ -583,12 +586,13 @@ consumer MUST validate, a mechanism associating the token presenter
 with the instance. For tokens issued directly from a validated Client
 Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
 mutual TLS {{RFC8705}}, or another mechanism the consuming profile
-defines, with a constraining key the issuer associated with the
+defines, with a constraining key that the issuer associated with the
 authenticated instance at issuance. That key MUST be unique to the
 instance at the configured granularity. A key shared by instances
 inside that boundary establishes no attribution, because any of them
-can present the token and satisfy the proof; an issuer that cannot
-bind such a key MUST omit `client_instance`. This applies equally when
+can present the token and satisfy the proof; an issuer that cannot bind
+a key unique to the instance at that granularity MUST omit
+`client_instance`. This applies equally when
 context is conveyed only through introspection.
 
 A token without sender constraint supports no presenter attribution,
@@ -655,11 +659,11 @@ Before using context, the Context Consumer MUST:
    response.
 2. Validate the context members, rejecting `id` values over the length
    bound in {{context-claims}} and ignoring unrecognized members.
-3. Accept its authority only when it is the token issuer or an
-   upstream token issuer explicitly trusted for that issuer and
-   consumer.
-4. Reject invalid context and, when context is required, reject the
-   request if context is missing or invalid ({{context-errors}}).
+3. Accept the Instance Context Authority only when it is the token
+   issuer or an upstream token issuer explicitly trusted for that
+   issuer and consumer.
+4. Reject invalid context and, when context is required, also reject
+   the request if context is missing or invalid ({{context-errors}}).
 
 A Context Consumer MUST establish the context's association with the
 subject, actor, or presenter from the applicable consuming profile and
@@ -669,7 +673,8 @@ preserved context from an input token, the association is established
 only if that profile also defines how the context's provenance is
 authenticated, because the object carries no record of how the issuer
 obtained it. The `client_instance` object alone, including whether its
-`iss` matches the token issuer, establishes neither. If the
+`iss` matches the token issuer, establishes neither the association nor
+the provenance. If the
 association is not established, the consumer MUST treat context only
 as evidence of instance participation and MUST NOT attribute the
 current request to that instance. A consumer whose configured
