@@ -660,9 +660,17 @@ Rejection for missing or invalid required context, or for required
 attribution that cannot be established, MUST use `invalid_token` at a
 resource server ({{RFC6750, Section 3.1}}) or `invalid_request` for a
 rejected subject or actor token in an exchange
-({{RFC8693, Section 2.2.2}}). Other consuming profiles define their
-own error mapping. Direct Client Attestation failures follow
-{{errors}}.
+({{RFC8693, Section 2.2.2}}).
+
+A client receiving `invalid_token` may request a new access token and
+retry ({{RFC6750, Section 3.1}}), which does not help when the
+rejection was for a missing sender constraint. A resource server
+rejecting for that reason SHOULD include the challenge for the binding
+mechanism it requires, such as the `DPoP` scheme in
+{{RFC9449, Section 7.1}}, so the client learns what to change.
+
+Other consuming profiles define their own error mapping. Direct Client
+Attestation failures follow {{errors}}.
 
 # Relationship to Other Identity Systems
 
