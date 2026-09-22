@@ -371,11 +371,17 @@ Missing or invalid required instance claims and rejection by instance
 policy MUST produce `invalid_client_attestation`, deliberately reusing
 ATTEST's validation error so that responses do not disclose whether an
 instance is known, suspended, or retired; Receivers SHOULD also avoid
-distinguishable response timing. Unknown instances are rejected only
-when local policy requires prior enrollment. A failed profile check
-MUST NOT fall back to authentication without the required evidence.
-Grant-binding errors follow {{grant-continuity}}; other errors follow
-ATTEST.
+distinguishable response timing. {{ATTEST, Section 7.4}} defines that
+code for attestation verification failures and defers situations it
+does not describe to extensions such as this profile, which maps
+instance-policy rejection onto the same code rather than a distinct
+one. A consequence is that the response does not distinguish a
+transient verification failure from a durable policy decision, so a
+client cannot tell whether retrying with a fresh attestation will
+help. Unknown instances are rejected only when local policy requires
+prior enrollment. A failed profile check MUST NOT fall back to
+authentication without the required evidence. Grant-binding errors
+follow {{grant-continuity}}; other errors follow ATTEST.
 
 # Attester Requirements {#lifetime}
 
