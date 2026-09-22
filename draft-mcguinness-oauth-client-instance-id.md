@@ -58,9 +58,9 @@ This specification defines an optional claims profile of OAuth 2.0
 Attestation-Based Client Authentication. When selected, the profile
 requires an attester-qualified client instance identifier that remains
 stable across verified key changes, and adds continuity and privacy
-rules for that identifier. Conveying instance context in tokens and introspection
-responses remains optional within the profile. Authentication and proof
-methods follow the base specification.
+rules for that identifier. Conveying instance context in tokens and
+introspection responses remains optional within the profile.
+Authentication and proof methods follow the base specification.
 
 --- middle
 
@@ -346,8 +346,9 @@ The Receiver MUST NOT:
 
 Migration between Attester Issuers requires a procedure that
 establishes trust in both authorities and that establishes continuity
-evidence; none is defined here. Key selection follows ATTEST; when a separate token-binding key
-is used, context identifies the instance associated with the Client
+evidence; none is defined here. Key selection follows ATTEST; when a
+separate token-binding key is used, context identifies the instance
+associated with the Client
 Instance Key.
 
 ## Grant Continuity {#grant-continuity}
