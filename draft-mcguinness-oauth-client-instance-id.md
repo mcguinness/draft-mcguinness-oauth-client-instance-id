@@ -54,10 +54,10 @@ informative:
 --- abstract
 
 This specification defines an optional claims profile of OAuth 2.0
-Attestation-Based Client Authentication. Selecting it requires an
-attester-qualified client instance identifier that remains stable
-across verified key changes, and adds continuity and privacy rules for
-that identifier. Conveying instance context in tokens and introspection
+Attestation-Based Client Authentication. When selected, the profile
+requires an attester-qualified client instance identifier that remains
+stable across verified key changes, and adds continuity and privacy
+rules for that identifier. Conveying instance context in tokens and introspection
 responses remains optional within the profile. Authentication and proof
 methods follow the base specification.
 
@@ -269,7 +269,7 @@ and `cnf`, and optional `iat`.
 
 A Receiver scope is an enrollment or issuance input, not an OAuth
 parameter or attestation audience, and a Receiver cannot verify it
-from the identifier alone. Two requirements attach to it.
+from the identifier alone. The following requirements attach to it.
 
 The attester MUST assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
@@ -337,14 +337,14 @@ The Receiver MUST NOT:
 
 * substitute an identifier for proof of possession or infer it from a
   key thumbprint, certificate serial number, or JWT `jti`;
-* infer continuity from equal identifiers or keys across attester
-  issuers; or
+* infer continuity from equal identifiers or keys across Attester
+  Issuers; or
 * set an access token's `sub`, add `act`, or extend an actor chain
   solely from instance evidence.
 
-Migration between attester issuers requires a procedure establishing
-trust in both authorities and continuity evidence; none is defined
-here. Key selection follows ATTEST; when a separate token-binding key
+Migration between Attester Issuers requires a procedure that
+establishes trust in both authorities and that establishes continuity
+evidence; none is defined here. Key selection follows ATTEST; when a separate token-binding key
 is used, context identifies the instance associated with the Client
 Instance Key.
 
@@ -414,7 +414,7 @@ For each enrollment and Receiver scope ({{identifier-scope}}), the
 attester MUST assign identifiers that are:
 
 * distinct, opaque, and never reassigned, including after retirement;
-* generated from at least 128 bits of cryptographically secure
+* generated from at least 128 bits of either cryptographically secure
   randomness or keyed pseudorandom-function output;
 * unpredictable to parties other than the attester; and
 * free of runtime hostnames, user identifiers, and embedded instance
@@ -458,7 +458,7 @@ unit. The attester MUST apply the following outcomes:
 | Event | Required outcome |
 |---|---|
 | Renewal, verified key change, process restart at Installation granularity, or in-place update | Retain identifiers when continuity is verified |
-| Reinstall, independent clone, replacement or restart of the selected execution unit, or granularity change | New enrollment |
+| Reinstall, independent clone, replacement or restart of the unit at Execution granularity, or granularity change | Require new enrollment |
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
