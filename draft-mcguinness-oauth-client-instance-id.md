@@ -598,14 +598,16 @@ presenter with the instance. For tokens issued directly from a
 validated Client Attestation, that mechanism is sender constraint:
 DPoP {{RFC9449}}, mutual TLS {{RFC8705}}, or another mechanism the
 consuming profile defines, with a constraining key that the issuer
-associated with the
-authenticated instance at issuance. That key MUST be unique to the
-instance at the configured granularity. A key shared by instances
-inside that boundary establishes no attribution, because any of them
-can present the token and satisfy the proof; an issuer that cannot bind
-a key unique to the instance at that granularity MUST omit
-`client_instance`. This applies equally when
-context is conveyed only through introspection.
+associated with the authenticated instance at issuance. That key MUST
+be unique to the instance at the configured granularity, because a key
+shared by instances inside that boundary establishes no attribution:
+any of them can present the token and satisfy the proof. An issuer that
+cannot bind such a key MUST omit `client_instance` where the receiving
+Context Consumer is configured to require attribution. Context conveyed
+without such a key records only that the instance participated in
+obtaining the token, and {{context-consumer}} governs what a consumer
+may conclude from it. This applies equally when context is conveyed
+only through introspection.
 
 A token without sender constraint supports no presenter attribution,
 and a Context Consumer requiring attribution rejects it under
