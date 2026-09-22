@@ -659,7 +659,10 @@ the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
 the authenticated presenting instance ({{context-claims}}), and
 validating the token's sender constraint ({{context-binding}})
-establishes the association.
+establishes the association. That configuration describes the issuer,
+not the token, so it does not apply at an issuer that also preserves
+context from input tokens; distinguishing the two there requires a
+consuming profile that carries provenance.
 
 For introspection, trusted endpoint configuration identifies the
 expected token issuer; a response-level `iss`, if present, MUST match
