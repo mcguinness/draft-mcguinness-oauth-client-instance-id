@@ -526,6 +526,12 @@ to its own namespace. Each mapping MUST:
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
+An issuer selects which mapping to convey by the consumer that will
+receive it: the authenticated caller for an introspection response,
+and the audience for a token. Where a token's audiences fall in
+different Consumer Scopes, no single `id` is correct for all of them
+and the issuer MUST omit `client_instance`.
+
 For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope; issuers MUST separate
 this derivation from attester identifiers, for example by a distinct
