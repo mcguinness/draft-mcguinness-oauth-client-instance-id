@@ -129,7 +129,7 @@ required client authentication.
 
 # Conventions and Definitions
 
-{::boilerplate bcp14-tagged}
+{::boilerplate bcp14-tagged-bcp14}
 
 The terms Client Attestation, Client Attester, Client Instance, and
 Client Instance Key are used as defined in {{ATTEST}}.
