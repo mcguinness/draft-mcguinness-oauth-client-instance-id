@@ -498,9 +498,9 @@ Without a status channel, three things follow for parties that have not
 learned of the change: existing attestations may remain acceptable
 until expiration plus clock skew; issued tokens may still be accepted
 for their own lifetimes; and local revocation does not notify resource
-servers validating tokens offline. Security Event
-Tokens {{RFC8417}} delivered under {{RFC8935}} can support a separate
-status integration, which this profile does not define.
+servers validating tokens offline. Security Event Tokens {{RFC8417}}
+delivered under {{RFC8935}} can support a separate status integration,
+which this profile does not define.
 
 ## State and Retention {#state}
 
@@ -607,11 +607,10 @@ shared by instances inside that boundary establishes no attribution:
 any of them can present the token and satisfy the proof. An issuer that
 cannot bind such a key MUST omit `client_instance` where the configured
 requirement for that Consumer Scope includes attribution. Context
-conveyed
-without such a key records only that the instance participated in
-obtaining the token, and {{context-consumer}} governs what a consumer
-may conclude from it. This applies equally when context is conveyed
-only through introspection.
+conveyed without such a key records only that the instance participated
+in obtaining the token, and {{context-consumer}} governs what a
+consumer may conclude from it. This applies equally when context is
+conveyed only through introspection.
 
 A token without sender constraint supports no presenter attribution,
 and a Context Consumer requiring attribution rejects it under
