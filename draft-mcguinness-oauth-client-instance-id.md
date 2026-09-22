@@ -69,36 +69,43 @@ Authentication and proof methods follow the base specification.
 Attestation-Based Client Authentication {{ATTEST}} answers one
 question: is this an authorized Client Instance in possession of this
 key? This profile adds a second: is this the same Client Instance the
-Receiver previously encountered? After a key change, a new attestation
-alone cannot distinguish a continuing installation from a new instance,
-and treating them as the same can merge unrelated audit histories and
-status decisions.
+Receiver previously encountered? A new attestation alone cannot answer
+it, because after a key change a continuing installation is
+indistinguishable from a new one.
 
-Assigning each instance its own `client_id` with a shared `software_id`
-({{RFC7591, Section 2}}) is an alternative. This profile instead targets
-deployments that share one Logical Client, one metadata URL when using
-{{CIMD}}, and authorization server (AS) policy keyed by that client;
-`software_id` correlates registrations but defines no shared grants or
-policy across separate client identities.
+The gap opens wherever one Logical Client has many running copies: a
+harness on each managed laptop, a container per replica, an agent
+runtime per user. Every copy presents a valid attestation for the same
+`client_id`, so to a Receiver they are interchangeable. Suspending one
+compromised installation means suspending the client, and the activity
+of every copy accumulates under a single identity in audit and status
+decisions.
 
 The profile adds two claims:
 
-* `client_instance_id`: identifies a particular client installation or
-  runtime in its Client Attestation. The attester assigns it, retains
-  it across verified key changes, and scopes it to a Receiver by default.
-* `client_instance`: carries a mapped reference to that instance in a
-  token or introspection response, so a resource server can correlate
-  requests with the instance validated at issuance without receiving
-  the attestation.
-
-ATTEST alone is sufficient when correlation need only last for the
-current key or can remain internal to one system.
+* `client_instance_id` names one client installation or runtime in its
+  Client Attestation, so a Receiver can tell the copies apart. The
+  attester assigns it, retains it across verified key changes, and
+  scopes it to a Receiver by default.
+* `client_instance` carries a mapped reference to that instance in a
+  token or introspection response, so a resource server that never sees
+  the attestation can still correlate requests with the instance
+  validated at issuance.
 
 This profile establishes instance identity and its continuity. It does
 not define what authority, if any, follows from that identity. Instance
 evidence grants no authority; authorization profiles can use validated
 instance identity or Instance Context as a policy input, subject to the
 prohibitions in {{processing}}.
+
+ATTEST alone is sufficient when correlation need only last for the
+current key or can remain internal to one system. Assigning each
+instance its own `client_id` with a shared `software_id`
+({{RFC7591, Section 2}}) is another route; this profile instead targets
+deployments that share one Logical Client, one metadata URL when using
+{{CIMD}}, and authorization server (AS) policy keyed by that client,
+where `software_id` correlates registrations but defines no shared
+grants or policy across separate client identities.
 
 Five roles implement this profile: Client Attesters, clients,
 Receivers, token issuers conveying context, and Context Consumers.
