@@ -361,7 +361,7 @@ security signal ({{ATTEST, Section 7.6}}). {{ATTEST, Section 10.4}}
 recommends establishing such bindings where attestation is the client
 authentication method.
 
-## Errors {#errors}
+## Attestation Errors {#errors}
 
 Missing or invalid required instance claims and rejection by instance
 policy MUST produce `invalid_client_attestation`, deliberately reusing
@@ -516,7 +516,7 @@ the issuer intends to include context. Random generation satisfies
 non-reassignment probabilistically; derivation depends on never
 reusing enrollment inputs.
 
-## Access Token Binding {#context-binding}
+## Presenter Attribution {#context-binding}
 
 Instance Context grants no authority and by itself describes only the
 instance that participated in obtaining the token. When a Context
@@ -621,7 +621,7 @@ authenticates the represented issuer. An authority identifier does not
 authorize fetching keys from that location, and extensions MUST NOT
 change the meaning of `iss` or `id`.
 
-## Errors {#context-errors}
+## Context Errors {#context-errors}
 
 Rejection for missing or invalid required context, or for required
 attribution that cannot be established, MUST use `invalid_token` at a
