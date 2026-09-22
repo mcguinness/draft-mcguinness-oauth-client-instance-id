@@ -75,8 +75,7 @@ and treating them as the same can merge unrelated audit histories and
 status decisions.
 
 Assigning each instance its own `client_id` with a shared `software_id`
-({{RFC7591, Section 2}}) is an alternative. This profile instead
-targets
+({{RFC7591, Section 2}}) is an alternative. This profile instead targets
 deployments that share one Logical Client, one metadata URL when using
 {{CIMD}}, and authorization server (AS) policy keyed by that client;
 `software_id` correlates registrations but defines no shared grants or
@@ -216,12 +215,11 @@ The client and Receiver administratively configure:
   ({{receiver-scope}}).
 
 A Context Consumer that requires context configures that requirement,
-including whether it extends to attribution, with the issuers it
-accepts context from.
-Claims MUST NOT select this profile or change authentication methods;
-selection is part of the client-specific trust agreement, and no
-discovery or metadata parameter is added. The error in {{errors}}
-reports rejection, not profile discovery.
+including whether it extends to attribution, with the issuers it accepts
+context from. Claims MUST NOT select this profile or change
+authentication methods; selection is part of the client-specific trust
+agreement, and no discovery or metadata parameter is added. The error in
+{{errors}} reports rejection, not profile discovery.
 
 ## Attester Trust
 
@@ -351,24 +349,22 @@ The Receiver MUST NOT:
 * set an access token's `sub`, add `act`, or extend an actor chain
   solely from instance evidence.
 
-Migration between Attester Issuers requires a procedure that
-establishes trust in both authorities and that establishes continuity
-evidence; none is defined here. Key selection follows ATTEST; when a
-separate token-binding key is used, context identifies the instance
-associated with the Client
-Instance Key.
+Migration between Attester Issuers requires a procedure that establishes
+trust in both authorities and that establishes continuity evidence; none
+is defined here. Key selection follows ATTEST; when a separate
+token-binding key is used, context identifies the instance associated
+with the Client Instance Key.
 
 ## Grant Continuity {#grant-continuity}
 
 {{ATTEST, Section 10.3}} binds a refresh token to the Client Instance,
 by default through the Client Instance Key. This profile does not
 introduce instance-bound grants; it gives that binding a recorded
-identity that survives a verified key change, so later grants
-correlate with the same instance. The refresh token itself does not
-move: it stays bound to the key ATTEST bound it to, and only a profile
-acting under {{ATTEST, Section 13}} can change that. For a grant
-established using a Client
-Attestation validated under this profile, the AS MUST record the
+identity that survives a verified key change, so later grants correlate
+with the same instance. The refresh token itself does not move: it stays
+bound to the key ATTEST bound it to, and only a profile acting under
+{{ATTEST, Section 13}} can change that. For a grant established using a
+Client Attestation validated under this profile, the AS MUST record the
 Source Instance Identity when issuing a refresh token and, on refresh,
 MUST enforce two independent invariants:
 
@@ -399,17 +395,16 @@ Missing or invalid required instance claims and rejection by instance
 policy MUST produce `invalid_client_attestation`. This profile
 deliberately reuses ATTEST's validation error so that responses do not
 disclose whether an instance is unknown, suspended, or retired.
-Receivers SHOULD also avoid distinguishable response timing.
-{{ATTEST, Section 7.4}} defines that code for attestation verification
-failures and defers situations it does not describe to extensions such
-as this profile. A consequence is that the response does not
-distinguish a
+Receivers SHOULD also avoid distinguishable response timing. {{ATTEST,
+Section 7.4}} defines that code for attestation verification failures
+and defers situations it does not describe to extensions such as this
+profile. A consequence is that the response does not distinguish a
 transient verification failure from a durable policy decision, so a
-client cannot tell whether retrying with a fresh attestation will
-help. Unknown instances are rejected only when local policy requires
-prior enrollment. A failed profile check MUST NOT fall back to
-authentication without the required evidence. Grant-binding errors
-follow {{grant-continuity}}; other errors follow ATTEST.
+client cannot tell whether retrying with a fresh attestation will help.
+Unknown instances are rejected only when local policy requires prior
+enrollment. A failed profile check MUST NOT fall back to authentication
+without the required evidence. Grant-binding errors follow
+{{grant-continuity}}; other errors follow ATTEST.
 
 # Attester Requirements {#attester-requirements}
 
@@ -445,11 +440,11 @@ enrollment. Storing those values satisfies this requirement.
 Continuity is authenticated evidence sufficient for the attester to
 determine that a claimant represents the same enrolled Client Instance
 at the configured granularity. An attester-recorded chain of verified
-key custody within one enrollment is the primary mechanism; platform
-or hardware-rooted identity evidence can supplement that chain or,
-where the deployment's evidence policy permits, serve as the continuity
-evidence on its own. Before retaining an
-identifier, the attester MUST verify and record:
+key custody within one enrollment is the primary mechanism; platform or
+hardware-rooted identity evidence can supplement that chain or, where
+the deployment's evidence policy permits, serve as the continuity
+evidence on its own. Before retaining an identifier, the attester MUST
+verify and record:
 
 1. an active enrollment binding the instance, Logical Client, Receiver
    scope, granularity, and previously verified keys;
@@ -718,15 +713,15 @@ change the meaning of `iss` or `id`.
 Rejection for missing or invalid required context, or for required
 attribution that cannot be established, MUST use `invalid_token` at a
 resource server ({{RFC6750, Section 3.1}}) or `invalid_request` for a
-rejected subject or actor token in an exchange
-({{RFC8693, Section 2.2.2}}).
+rejected subject or actor token in an exchange ({{RFC8693, Section
+2.2.2}}).
 
 A client receiving `invalid_token` may request a new access token and
-retry ({{RFC6750, Section 3.1}}), which does not help when the
-rejection was for a missing sender constraint. A resource server
-rejecting for that reason SHOULD include the challenge for the binding
-mechanism it requires, such as the `DPoP` scheme in
-{{RFC9449, Section 7.1}}, so the client learns what to change.
+retry ({{RFC6750, Section 3.1}}), which does not help when the rejection
+was for a missing sender constraint. A resource server rejecting for
+that reason SHOULD include the challenge for the binding mechanism it
+requires, such as the `DPoP` scheme in {{RFC9449, Section 7.1}}, so the
+client learns what to change.
 
 Other consuming profiles define their own error mapping. Direct Client
 Attestation failures follow {{errors}}.
@@ -863,10 +858,9 @@ context. The AS maps the attester's identifier to a value scoped to
 {:numbered="false"}
 
 Example decoded JWT access-token payload under {{RFC9068}}, with
-`typ=at+jwt` in its protected header. The `cnf.jkt` value identifies
-the public key in {{attestation-example}}; the token's subject and
-context remain
-separate.
+`typ=at+jwt` in its protected header. The `cnf.jkt` value identifies the
+public key in {{attestation-example}}; the token's subject and context
+remain separate.
 
 ~~~ json
 {
@@ -923,14 +917,13 @@ Cache-Control: no-store
 ## Governed Actor and Instance Context
 {:numbered="false"}
 
-A consuming profile can authorize instance `B` to continue work begun
-by instance `A` for the same governed agent. In this example, that
-profile
+A consuming profile can authorize instance `B` to continue work begun by
+instance `A` for the same governed agent. In this example, that profile
 selects the authenticated presenting instance for output context and
-authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}}.
-The AS validates B's attestation and proof, replaces A's input context
-with `B`'s resource-scoped mapping, and binds the output token under
-the consuming profile. The relevant output claims are:
+authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}}. The
+AS validates B's attestation and proof, replaces A's input context with
+`B`'s resource-scoped mapping, and binds the output token under the
+consuming profile. The relevant output claims are:
 
 ~~~ json
 {
@@ -1000,9 +993,8 @@ CIMD. User-authorized access follows {{managed-device-example}}.
 The Agent Provider verifies managed installation evidence at step 1 and
 issues a separate Client Attestation. Native `aa-agent+jwt` credentials
 and HTTP Message Signatures {{RFC9421}} do not replace the OAuth
-attestation or
-proof. Step 2 uses a pre-authorized client credentials grant; AAuth
-metadata alone does not establish attester trust.
+attestation or proof. Step 2 uses a pre-authorized client credentials
+grant; AAuth metadata alone does not establish attester trust.
 
 ## SPIFFE Workload {#spiffe-example}
 {:numbered="false"}
