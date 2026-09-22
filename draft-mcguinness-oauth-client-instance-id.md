@@ -397,9 +397,9 @@ remains opaque. Keyed derivation, such as HMAC {{RFC2104}}, MUST use a
 secret with at least 128 bits of entropy and unambiguously encode the
 Logical Client, Receiver scope, and a unique enrollment component; a
 platform-stable input alone would reproduce retired identifiers after
-reinstall. Changes to derivation inputs or secrets MUST preserve
-assigned values within a continuing enrollment, for which storing
-those values is sufficient.
+reinstall. If the attester changes its derivation inputs or secrets,
+it MUST still produce the values already assigned within a continuing
+enrollment. Storing those values satisfies this requirement.
 
 ## Continuity and Lifecycle {#continuity}
 
@@ -540,15 +540,16 @@ Consumer uses context to attribute the current token presentation to
 that instance, the applicable consuming profile MUST require, and the
 consumer MUST validate, a mechanism associating the token presenter
 with the instance. For tokens issued directly from a validated Client
-Attestation, sender constraint using DPoP {{RFC9449}}, mutual TLS
-{{RFC8705}}, or another mechanism defined by the consuming profile,
-with a key the issuer associated with the authenticated instance at
-issuance, is that mechanism; this applies equally when context is
-conveyed only through introspection. A token without sender constraint
-supports no presenter attribution, and a consumer requiring
-attribution rejects it under {{context-errors}}. The HTTP `Bearer`
-scheme does not indicate an unbound token; certificate-bound tokens
-{{RFC8705}} use it as well.
+Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
+mutual TLS {{RFC8705}}, or another mechanism the consuming profile
+defines, with a constraining key the issuer associated with the
+authenticated instance at issuance. This applies equally when context
+is conveyed only through introspection.
+
+A token without sender constraint supports no presenter attribution,
+and a consumer requiring attribution rejects it under
+{{context-errors}}. The HTTP `Bearer` scheme does not indicate an
+unbound token; certificate-bound tokens {{RFC8705}} use it as well.
 
 All validation requirements of the token-binding mechanism apply
 regardless of whether context is used for attribution, including
@@ -579,17 +580,19 @@ validated upstream Instance Context Identifier when configured trust
 and the upstream Consumer Scope authorize its disclosure to the
 downstream consumer; otherwise it MUST remap or omit the context.
 
-An issuer MUST NOT assert an upstream Instance Context Authority
-unless it has authenticated both that authority's assignment of the
-context and the context's association with the instance represented
-by the input token. Validating the input token authenticates only its
-issuer's assertions, so by default an issuer MUST limit preservation
-to context whose `iss` equals the authenticated input-token issuer and
-MUST remap or omit context that an intermediary itself preserved. A
-consuming profile that specifies authenticated provenance and its
-enforcement can permit deeper preservation; the object carries no
-forwarding history, and shallow preservation is also a privacy
-default.
+An issuer MUST NOT name an upstream Instance Context Authority in
+`iss` unless it has authenticated two things:
+
+1. that the named authority assigned the context; and
+2. that the context refers to the instance the input token represents.
+
+Validating the input token authenticates only its issuer's assertions,
+so by default an issuer MUST limit preservation to context whose `iss`
+equals the authenticated input-token issuer and MUST remap or omit
+context that an intermediary itself preserved. A consuming profile
+that specifies authenticated provenance and its enforcement can permit
+deeper preservation; the object carries no forwarding history, and
+shallow preservation is also a privacy default.
 
 Context identifies one instance, not a chain, and MUST NOT be treated
 as a separate token or delegated actor. Remapping changes the Instance
