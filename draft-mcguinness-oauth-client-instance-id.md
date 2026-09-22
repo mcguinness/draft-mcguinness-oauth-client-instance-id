@@ -492,10 +492,11 @@ attester trust withdrawal, it MUST invalidate all access and refresh
 tokens associated with that grant and prevent further refresh
 issuance.
 
-Without a status channel, three things follow: existing attestations
-remain acceptable until expiration plus clock skew; issued tokens
-remain valid for their own lifetimes; and local revocation does not
-notify resource servers validating tokens offline. Security Event
+Without a status channel, three things follow for parties that have not
+learned of the change: existing attestations may remain acceptable
+until expiration plus clock skew; issued tokens may still be accepted
+for their own lifetimes; and local revocation does not notify resource
+servers validating tokens offline. Security Event
 Tokens {{RFC8417}} delivered under {{RFC8935}} can support a separate
 status integration, which this profile does not define.
 
