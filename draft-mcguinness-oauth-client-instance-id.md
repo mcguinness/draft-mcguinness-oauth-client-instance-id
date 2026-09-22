@@ -312,7 +312,11 @@ The Receiver MUST:
 1. Validate the attestation and proof under the configured ATTEST
    method.
 2. Validate the claims in {{claims}} and attester authority under
-   {{configuration}}.
+   {{configuration}}, including that the key that verified the
+   attestation is one bound to the asserted `iss`. Key resolution
+   under {{ATTEST, Section 10.8}} selects a key from JOSE header
+   parameters, not from `iss`, so a trust anchor covering several
+   attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
    validated Client Instance Key, then apply local instance acceptance
    policy ({{errors}}).
