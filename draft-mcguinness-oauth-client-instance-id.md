@@ -589,10 +589,11 @@ instance that participated in obtaining the token. When a Context
 Consumer uses context to attribute the current token presentation to
 that instance, the applicable consuming profile MUST require, and the
 Context Consumer MUST validate, a mechanism associating the token
-presenter with the instance. For tokens issued directly from a validated Client
-Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
-mutual TLS {{RFC8705}}, or another mechanism the consuming profile
-defines, with a constraining key that the issuer associated with the
+presenter with the instance. For tokens issued directly from a
+validated Client Attestation, that mechanism is sender constraint:
+DPoP {{RFC9449}}, mutual TLS {{RFC8705}}, or another mechanism the
+consuming profile defines, with a constraining key that the issuer
+associated with the
 authenticated instance at issuance. That key MUST be unique to the
 instance at the configured granularity. A key shared by instances
 inside that boundary establishes no attribution, because any of them
