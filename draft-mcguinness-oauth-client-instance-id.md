@@ -340,9 +340,12 @@ Instance Key.
 
 {{ATTEST, Section 10.3}} binds a refresh token to the Client Instance,
 by default through the Client Instance Key. This profile does not
-introduce instance-bound grants; it gives that binding an identity
-that survives verified key changes and detects a copied key presented
-with a different identity. For a grant established using a Client
+introduce instance-bound grants; it gives that binding a recorded
+identity that survives a verified key change, so later grants
+correlate with the same instance. The refresh token itself does not
+move: it stays bound to the key ATTEST bound it to, and only a profile
+acting under {{ATTEST, Section 13}} can change that. For a grant
+established using a Client
 Attestation validated under this profile, the AS MUST record the
 Source Instance Identity when issuing a refresh token and, on refresh,
 MUST enforce two independent invariants:
@@ -350,8 +353,8 @@ MUST enforce two independent invariants:
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one, absent an explicitly authorized
   migration establishing continuity under {{continuity}}; and
-* the proof and key binding MUST satisfy ATTEST and any applicable
-  rebinding profile under {{ATTEST, Section 13}}.
+* the proof and key binding MUST satisfy ATTEST, or a profile that has
+  redefined refresh-token binding under {{ATTEST, Section 13}}.
 
 Instance continuity does not imply key-binding continuity, nor the
 reverse. This profile defines no migration procedure. A conflict with
