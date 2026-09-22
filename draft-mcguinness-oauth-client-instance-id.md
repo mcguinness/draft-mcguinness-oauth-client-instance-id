@@ -289,13 +289,18 @@ configures one scope spanning them, and one identifier and key then
 suffice. Token-binding key separation between Context Consumers is
 addressed in {{privacy}}.
 
-Separating a resource server into its own scope rules out DPoP
-combined mode there. Combined mode reuses one Client Instance Key as
-the DPoP key ({{ATTEST, Section 5.2}}), but the access token was bound
-under the authorization server's scope, so a single proof cannot match
-both the token's `cnf.jkt` and the resource server's attestation.
-Deployments either keep both Receivers in one scope or use DPoP
-without combined mode.
+Combined mode reuses one Client Instance Key as the DPoP key, whereas
+normal mode leaves the DPoP key independent of the attestation
+({{ATTEST, Section 5.2}}). A token issued in combined mode is bound to
+the authorization server's scoped key, so no single proof can match
+both that binding and a separately scoped resource server's
+attestation, and combined mode cannot also be used there. A client
+authenticating in normal mode can instead present the
+resource-server-scoped key as its DPoP key at issuance, which does
+allow combined mode at that resource server. The authorization server
+then also sees that key, so the two Receivers can correlate through its
+thumbprint even though their identifiers and Client Instance Keys
+differ.
 
 ## Example {#attestation-example}
 
