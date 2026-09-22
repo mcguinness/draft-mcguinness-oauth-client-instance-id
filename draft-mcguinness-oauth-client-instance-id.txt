@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                       15 September 2026
-Expires: 19 March 2027
+Intended status: Standards Track                       22 September 2026
+Expires: 26 March 2027
 
 
       Client Instance Identification for Attestation-Based Client
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 March 2027.
+   This Internet-Draft will expire on 26 March 2027.
 
 Copyright Notice
 
@@ -114,7 +114,7 @@ Table of Contents
    Wire Examples
      Access Token Payload
      Introspection Response
-     Governed Actor and Runtime Context
+     Governed Actor and Instance Context
      Attestation Rejection
    Deployment Examples
      CIMD Client
@@ -221,12 +221,13 @@ Table of Contents
 
    Instance Identifier:  The client_instance_id value, assigned by a
       Client Attester to one Client Instance at the configured
-      granularity.
+      granularity and Receiver scope (Section 4.1).
 
    Source Instance Identity:  The pair (iss, client_instance_id)
-      established by a validated Client Attestation.  This profile keeps
-      it stable across verified key changes; it is the input from which
-      Instance Context is mapped.
+      established by a validated Client Attestation, pairing the
+      Attester Issuer with the Client Instance's Instance Identifier.
+      This profile keeps it stable across verified key changes; it is
+      the input from which Instance Context is mapped.
 
    Instance Context:  The client_instance object in a token or
       introspection response.  It grants no authority and does not prove
@@ -277,7 +278,8 @@ Table of Contents
    *  the instance granularity, continuity evidence, and freshness
       limits;
 
-   *  the intended Receiver and any explicitly shared correlation scope.
+   *  the intended Receiver and any explicitly shared Receiver scope
+      (Section 4.1).
 
    A Context Consumer requiring context MUST configure that requirement.
    Claims MUST NOT select this profile or change authentication methods;
@@ -428,12 +430,16 @@ Table of Contents
       rebinding profile under [ATTEST], Section 13.
 
    Instance continuity does not imply key-binding continuity, nor the
-   reverse.  A conflict with the recorded identity MUST produce
-   invalid_grant [RFC6749] without disclosing the expected identity.  If
-   authorization-time policy bound a code or other artifact to an
-   instance, the AS MUST enforce that binding at redemption, in either
-   authentication mode of Section 3; establishing such bindings follows
-   [ATTEST], Section 10.4.
+   reverse.  This profile defines no migration procedure.  A conflict
+   with the recorded identity MUST produce invalid_grant [RFC6749]
+   without disclosing the expected identity.
+
+   If authorization-time policy bound a code or other artifact to an
+   instance, the AS MUST enforce that binding at redemption, whether the
+   attestation is the client authentication method or an additional
+   security signal ([ATTEST], Section 7.6).  [ATTEST], Section 10.4
+   recommends establishing such bindings where attestation is the client
+   authentication method.
 
 5.2.  Errors
 
@@ -502,35 +508,36 @@ Table of Contents
    individual processes.  The attester MUST apply the following
    outcomes:
 
-    +===============================+=================================+
-    | Event                         | Required outcome                |
-    +===============================+=================================+
-    | Renewal, verified key change, | Retain identifiers when         |
-    | installation process restart, | continuity is verified          |
-    | or in-place update            |                                 |
-    +-------------------------------+---------------------------------+
-    | Reinstall, independent clone, | New enrollment                  |
-    | replacement or restart of the |                                 |
-    | selected execution unit, or   |                                 |
-    | granularity change            |                                 |
-    +-------------------------------+---------------------------------+
-    | Restore or snapshot rollback  | Retain only with fresh evidence |
-    |                               | that the claimant succeeds the  |
-    |                               | prior holder; copied keys and   |
-    |                               | data alone are insufficient     |
-    +-------------------------------+---------------------------------+
-    | Suspend/resume                | Apply continuity checks at the  |
-    |                               | next issuance using available   |
-    |                               | authenticated evidence          |
-    +-------------------------------+---------------------------------+
-    | Continuity cannot be          | Require new enrollment; a       |
-    | established                   | continuing original can retain  |
-    |                               | its own enrollment              |
-    +-------------------------------+---------------------------------+
-    | Detected fork of one          | Retire its identifiers, stop    |
-    | enrollment                    | issuance, and enroll claimants  |
-    |                               | separately                      |
-    +-------------------------------+---------------------------------+
+   +=================================+=================================+
+   | Event                           | Required outcome                |
+   +=================================+=================================+
+   | Renewal, verified key change,   | Retain identifiers when         |
+   | process restart at              | continuity is verified          |
+   | Installation granularity, or    |                                 |
+   | in-place update                 |                                 |
+   +---------------------------------+---------------------------------+
+   | Reinstall, independent clone,   | New enrollment                  |
+   | replacement or restart of the   |                                 |
+   | selected execution unit, or     |                                 |
+   | granularity change              |                                 |
+   +---------------------------------+---------------------------------+
+   | Restore or snapshot rollback    | Retain only with fresh evidence |
+   |                                 | that the claimant succeeds the  |
+   |                                 | prior holder; copied keys and   |
+   |                                 | data alone are insufficient     |
+   +---------------------------------+---------------------------------+
+   | Suspend/resume                  | Apply continuity checks at the  |
+   |                                 | next issuance using available   |
+   |                                 | authenticated evidence          |
+   +---------------------------------+---------------------------------+
+   | Continuity cannot be            | Require new enrollment; a       |
+   | established                     | continuing original can retain  |
+   |                                 | its own enrollment              |
+   +---------------------------------+---------------------------------+
+   | Detected fork of one            | Retire its identifiers, stop    |
+   | enrollment                      | issuance, and enroll claimants  |
+   |                                 | separately                      |
+   +---------------------------------+---------------------------------+
 
                                   Table 2
 
@@ -576,18 +583,18 @@ Table of Contents
    response [RFC7662].  Its JSON object has two REQUIRED members, which
    together form an Instance Context Identifier:
 
-    +========+==========================+============================+
-    | Member | Type                     | Meaning                    |
-    +========+==========================+============================+
-    | iss    | Nonempty string          | Instance Context Authority |
-    |        |                          | that assigned id           |
-    +--------+--------------------------+----------------------------+
-    | id     | Nonempty string, at most | That authority's           |
-    |        | 256 octets of UTF-8      | representation of the      |
-    |        |                          | instance                   |
-    +--------+--------------------------+----------------------------+
+    +========+===========================+============================+
+    | Member | Type                      | Meaning                    |
+    +========+===========================+============================+
+    | iss    | Nonempty string           | Instance Context Authority |
+    |        |                           | that assigned id           |
+    +--------+---------------------------+----------------------------+
+    | id     | Nonempty string, at most  | That authority's           |
+    |        | 256 octets of UTF-8 after | representation of the      |
+    |        | JSON string decoding      | instance                   |
+    +--------+---------------------------+----------------------------+
 
-                                 Table 3
+                                  Table 3
 
    For direct issuance from a validated Client Attestation, context MUST
    identify the authenticated presenting instance; on refresh, that
@@ -602,8 +609,9 @@ Table of Contents
 
    *  keep distinct instances separate unless continuity is established;
 
-   *  generate id under Section 6.1, including its length bound, and
-      retain it across attestation renewal and verified key changes; and
+   *  generate id under Section 6.1, within the same length bound as
+      client_instance_id (Section 4), and retain it across attestation
+      renewal and verified key changes; and
 
    *  scope id to a Consumer Scope, allowing sharing only within an
       explicitly configured set.
@@ -677,7 +685,7 @@ Table of Contents
    Issuers SHOULD remap upstream context into their own namespace, which
    keeps each consumer's view pairwise.  An issuer MAY instead preserve
    a validated upstream Instance Context Identifier when configured
-   trust and correlation scope authorize its disclosure to the
+   trust and the upstream Consumer Scope authorize its disclosure to the
    downstream consumer; otherwise it MUST remap or omit the context.
 
    An issuer MUST NOT assert an upstream Instance Context Authority
@@ -1071,7 +1079,7 @@ Introspection Response
      }
    }
 
-Governed Actor and Runtime Context
+Governed Actor and Instance Context
 
    An exchange profile can authorize instance B to continue work begun
    by instance A for the same governed agent.  In this example, that
@@ -1168,8 +1176,8 @@ Managed Device
    available.  Device enrollment or key storage alone does not identify
    the installation.  Before step 2, the harness obtains a code through
    an external browser [RFC8252] with PKCE S256 [RFC7636], then redeems
-   it directly with the verifier, redirect URI, C1, attestation, and
-   DPoP proof.  The browser receives neither attestation nor proof.
+   it directly with the code verifier, redirect URI, C1, attestation,
+   and DPoP proof.  The browser receives neither attestation nor proof.
    Process restarts can retain the installation identity; reinstall
    requires new enrollment.
 
