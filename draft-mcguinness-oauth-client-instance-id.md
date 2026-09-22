@@ -312,7 +312,11 @@ The Receiver MUST:
 1. Validate the attestation and proof under the configured ATTEST
    method.
 2. Validate the claims in {{claims}} and attester authority under
-   {{configuration}}.
+   {{configuration}}, including that the key that verified the
+   attestation is one bound to the asserted `iss`. Key resolution
+   under {{ATTEST, Section 10.8}} selects a key from JOSE header
+   parameters, not from `iss`, so a trust anchor covering several
+   attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
    validated Client Instance Key, then apply local instance acceptance
    policy ({{errors}}).
@@ -367,11 +371,17 @@ Missing or invalid required instance claims and rejection by instance
 policy MUST produce `invalid_client_attestation`, deliberately reusing
 ATTEST's validation error so that responses do not disclose whether an
 instance is known, suspended, or retired; Receivers SHOULD also avoid
-distinguishable response timing. Unknown instances are rejected only
-when local policy requires prior enrollment. A failed profile check
-MUST NOT fall back to authentication without the required evidence.
-Grant-binding errors follow {{grant-continuity}}; other errors follow
-ATTEST.
+distinguishable response timing. {{ATTEST, Section 7.4}} defines that
+code for attestation verification failures and defers situations it
+does not describe to extensions such as this profile, which maps
+instance-policy rejection onto the same code rather than a distinct
+one. A consequence is that the response does not distinguish a
+transient verification failure from a durable policy decision, so a
+client cannot tell whether retrying with a fresh attestation will
+help. Unknown instances are rejected only when local policy requires
+prior enrollment. A failed profile check MUST NOT fall back to
+authentication without the required evidence. Grant-binding errors
+follow {{grant-continuity}}; other errors follow ATTEST.
 
 # Attester Requirements {#lifetime}
 
@@ -543,8 +553,12 @@ with the instance. For tokens issued directly from a validated Client
 Attestation, that mechanism is sender constraint: DPoP {{RFC9449}},
 mutual TLS {{RFC8705}}, or another mechanism the consuming profile
 defines, with a constraining key the issuer associated with the
-authenticated instance at issuance. This applies equally when context
-is conveyed only through introspection.
+authenticated instance at issuance. That key MUST be unique to the
+instance at the configured granularity. A key shared by instances
+inside that boundary establishes no attribution, because any of them
+can present the token and satisfy the proof; an issuer that cannot
+bind such a key MUST omit `client_instance`. This applies equally when
+context is conveyed only through introspection.
 
 A token without sender constraint supports no presenter attribution,
 and a consumer requiring attribution rejects it under
@@ -646,9 +660,17 @@ Rejection for missing or invalid required context, or for required
 attribution that cannot be established, MUST use `invalid_token` at a
 resource server ({{RFC6750, Section 3.1}}) or `invalid_request` for a
 rejected subject or actor token in an exchange
-({{RFC8693, Section 2.2.2}}). Other consuming profiles define their
-own error mapping. Direct Client Attestation failures follow
-{{errors}}.
+({{RFC8693, Section 2.2.2}}).
+
+A client receiving `invalid_token` may request a new access token and
+retry ({{RFC6750, Section 3.1}}), which does not help when the
+rejection was for a missing sender constraint. A resource server
+rejecting for that reason SHOULD include the challenge for the binding
+mechanism it requires, such as the `DPoP` scheme in
+{{RFC9449, Section 7.1}}, so the client learns what to change.
+
+Other consuming profiles define their own error mapping. Direct Client
+Attestation failures follow {{errors}}.
 
 # Relationship to Other Identity Systems
 
