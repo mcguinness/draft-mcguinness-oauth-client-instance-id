@@ -446,16 +446,19 @@ The attester MUST stop issuance for suspended or retired enrollments.
 A Receiver suspending an instance SHOULD revoke its grants or report
 their tokens inactive through introspection {{RFC7662}}. Short
 attestation lifetimes narrow the window in which a suspended instance
-remains acceptable. When an AS revokes a grant for instance
-suspension, retirement, or attester trust withdrawal, it MUST
-invalidate all access and refresh tokens associated with that grant
-and prevent further refresh issuance. Without a status channel,
-existing attestations remain acceptable until expiration plus clock
-skew, issued tokens remain valid for their own lifetimes, and local
-revocation does not notify resource servers validating tokens
-offline. Security Event Tokens {{RFC8417}} delivered under
-{{RFC8935}} can support a separate status integration, which this
-profile does not define.
+remains acceptable.
+
+When an AS revokes a grant for instance suspension, retirement, or
+attester trust withdrawal, it MUST invalidate all access and refresh
+tokens associated with that grant and prevent further refresh
+issuance.
+
+Without a status channel, three things follow: existing attestations
+remain acceptable until expiration plus clock skew; issued tokens
+remain valid for their own lifetimes; and local revocation does not
+notify resource servers validating tokens offline. Security Event
+Tokens {{RFC8417}} delivered under {{RFC8935}} can support a separate
+status integration, which this profile does not define.
 
 ## State and Retention {#state}
 
@@ -510,20 +513,24 @@ access token and an introspection response.
 
 ## Mapping Stability {#mapping-stability}
 
-An issuer MUST NOT represent one mapping input and Consumer Scope by
-more than one `id`. Because attester identifiers are never reassigned,
-a new enrollment presents a new input and receives a new mapping. An
-issuer MUST retain a mapping while any token or grant it issued for
-that input remains valid, including clock skew. An issuer that no
-longer holds or can reproduce a mapping MUST omit `client_instance`
-for that input and scope rather than assign a replacement; a consumer
-requiring context then rejects under {{context-errors}}. Derived
-mappings need no per-instance records while the derivation secret and
-inputs remain available, as for attesters under
-{{attester-requirements}}; random mappings need records for as long as
-the issuer intends to include context. Random generation satisfies
-non-reassignment probabilistically; derivation depends on never
-reusing enrollment inputs.
+For one mapping input and Consumer Scope, an issuer:
+
+* MUST NOT represent it by more than one `id`;
+* MUST retain the mapping while any token or grant it issued for that
+  input remains valid, including clock skew; and
+* MUST omit `client_instance` rather than assign a replacement once it
+  no longer holds or can reproduce the mapping. A consumer requiring
+  context then rejects under {{context-errors}}.
+
+Because attester identifiers are never reassigned, a new enrollment
+presents a new mapping input and receives a new mapping.
+
+The two mapping strategies differ in what an issuer must store:
+
+| Strategy | Records needed | Non-reassignment rests on |
+|---|---|---|
+| Derived | None per instance, while the derivation secret and inputs remain available ({{attester-requirements}}) | Never reusing enrollment inputs |
+| Random | Retained for as long as the issuer intends to include context | Probability |
 
 ## Presenter Attribution {#context-binding}
 
