@@ -453,7 +453,7 @@ individual processes. The attester MUST apply the following outcomes:
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
-| Detected fork of one enrollment | Retire its identifiers, stop issuance, and enroll claimants separately |
+| Detected fork of one enrollment | Retire the identifiers and enroll claimants separately, unless authenticated evidence establishes which claimant continues the enrollment, which then retains them |
 
 The attester MUST NOT knowingly retain identifiers for independent
 instances. Concurrent processes within one installation are not by
