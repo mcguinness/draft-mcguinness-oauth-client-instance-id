@@ -163,19 +163,6 @@ Instance Context:
 : The `client_instance` object in a token or introspection response.
   It grants no authority and does not prove current possession.
 
-Instance Context Identifier:
-: The pair `(iss, id)` in Instance Context: an Instance Context
-  Authority's pairwise representation of one Source Instance Identity
-  for a Consumer Scope. Like a pairwise subject identifier, it is that
-  authority's own correlator for the instance, and `id` need not equal
-  `client_instance_id`.
-
-Instance Context Authority:
-: The token issuer identified by `iss` in Instance Context, which
-  assigned the current `id`: the enclosing token issuer unless the
-  context was preserved from an upstream token. The Client Attester
-  remains the authority for the Source Instance Identity.
-
 Receiver:
 : A party that validates a Client Attestation under this profile, such
   as an AS or resource server. A Receiver that issues tokens carrying
@@ -188,6 +175,19 @@ Context Consumer:
 Consumer Scope:
 : The Context Consumer, or explicitly configured set of Context
   Consumers, to which one mapping of Instance Context is scoped.
+
+Instance Context Authority:
+: The token issuer identified by `iss` in Instance Context, which
+  assigned the current `id`: the enclosing token issuer unless the
+  context was preserved from an upstream token. The Client Attester
+  remains the authority for the Source Instance Identity.
+
+Instance Context Identifier:
+: The pair `(iss, id)` in Instance Context: an Instance Context
+  Authority's pairwise representation of one Source Instance Identity
+  for a Consumer Scope. Like a pairwise subject identifier, it is that
+  authority's own correlator for the instance, and `id` need not equal
+  `client_instance_id`.
 
 Enrollment:
 : An attester-maintained record binding one instance, at the configured
