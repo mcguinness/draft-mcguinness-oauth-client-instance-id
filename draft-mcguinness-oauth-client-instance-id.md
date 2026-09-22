@@ -172,13 +172,17 @@ Context Consumer:
 : A party that consumes Instance Context from a token or introspection
   response. It need not receive the Client Attestation.
 
+Receiver Scope:
+: The Receiver, or explicitly configured set of Receivers, to which one
+  assignment of `client_instance_id` is scoped ({{identifier-scope}}).
+
 Consumer Scope:
 : The Context Consumer, or explicitly configured set of Context
   Consumers, to which one mapping of Instance Context is scoped.
 
 Instance Context Authority:
-: The token issuer identified by `iss` in Instance Context, which
-  assigned the current `id`: the enclosing token issuer unless the
+: The token issuer identified by `iss` in Instance Context. It assigned
+  the current `id`, and it is the enclosing token issuer unless the
   context was preserved from an upstream token. The Client Attester
   remains the authority for the Source Instance Identity.
 
@@ -189,7 +193,7 @@ Instance Context Identifier:
   authority's own correlator for the instance, and `id` need not equal
   `client_instance_id`.
 
-Enrollment:
+enrollment:
 : An attester-maintained record binding one instance, at the configured
   granularity, to its verified keys and assigned identifiers. It is
   separate from a user account, device registration, or Logical Client.
