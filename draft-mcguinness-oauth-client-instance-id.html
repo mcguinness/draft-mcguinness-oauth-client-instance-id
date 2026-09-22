@@ -2080,8 +2080,8 @@ for that input remains valid, including clock skew; and<a href="#section-7.2-2.2
 </li>
           <li class="normal" id="section-7.2-2.3">
             <p id="section-7.2-2.3.1"><span class="bcp14">MUST</span> omit <code>client_instance</code> rather than assign a replacement once the
-issuer no longer holds or can reproduce the mapping. A consumer
-requiring context then rejects under <a href="#context-errors" class="auto internal xref">Section 7.6</a>.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+issuer no longer holds or can reproduce the mapping. A Context
+Consumer requiring context then rejects under <a href="#context-errors" class="auto internal xref">Section 7.6</a>.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-7.2-3">An issuer that changes its derivation inputs or secrets <span class="bcp14">MUST</span> still
@@ -2127,11 +2127,12 @@ presents a new mapping input and receives a new mapping.<a href="#section-7.2-4"
 instance that participated in obtaining the token. When a Context
 Consumer uses context to attribute the current token presentation to
 that instance, the applicable consuming profile <span class="bcp14">MUST</span> require, and the
-consumer <span class="bcp14">MUST</span> validate, a mechanism associating the token presenter
-with the instance. For tokens issued directly from a validated Client
-Attestation, that mechanism is sender constraint: DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>,
-mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism the consuming profile
-defines, with a constraining key that the issuer associated with the
+Context Consumer <span class="bcp14">MUST</span> validate, a mechanism associating the token
+presenter with the instance. For tokens issued directly from a
+validated Client Attestation, that mechanism is sender constraint:
+DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism the
+consuming profile defines, with a constraining key that the issuer
+associated with the
 authenticated instance at issuance. That key <span class="bcp14">MUST</span> be unique to the
 instance at the configured granularity. A key shared by instances
 inside that boundary establishes no attribution, because any of them
@@ -2140,7 +2141,7 @@ a key unique to the instance at that granularity <span class="bcp14">MUST</span>
 <code>client_instance</code>. This applies equally when
 context is conveyed only through introspection.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
 <p id="section-7.3-2">A token without sender constraint supports no presenter attribution,
-and a consumer requiring attribution rejects it under
+and a Context Consumer requiring attribution rejects it under
 <a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code> scheme does not indicate an
 unbound token; certificate-bound tokens <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> use it as well.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
 <p id="section-7.3-3">All validation requirements of the token-binding mechanism apply
@@ -2243,12 +2244,11 @@ only if that profile also defines how the context's provenance is
 authenticated, because the object carries no record of how the issuer
 obtained it. The <code>client_instance</code> object alone, including whether its
 <code>iss</code> matches the token issuer, establishes neither the association nor
-the provenance. If the
-association is not established, the consumer <span class="bcp14">MUST</span> treat context only
-as evidence of instance participation and <span class="bcp14">MUST NOT</span> attribute the
-current request to that instance. A consumer whose configured
-requirement includes attribution <span class="bcp14">MUST</span> reject under <a href="#context-errors" class="auto internal xref">Section 7.6</a>.
-When trusted configuration establishes that
+the provenance. If the association is not established, the Context
+Consumer <span class="bcp14">MUST</span> treat context only as evidence of instance participation
+and <span class="bcp14">MUST NOT</span> attribute the current request to that instance. A Context
+Consumer whose configured requirement includes attribution <span class="bcp14">MUST</span> reject
+under <a href="#context-errors" class="auto internal xref">Section 7.6</a>. When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
 validation, this document is the consuming profile: context identifies
 the authenticated presenting instance (<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>), and
@@ -2459,7 +2459,7 @@ Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref
               <td class="text-left" rowspan="1" colspan="1">
                 <code>client_instance_id</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">Issuer-scoped client instance identifier</td>
+              <td class="text-left" rowspan="1" colspan="1">Attester-qualified client instance identifier</td>
               <td class="text-left" rowspan="1" colspan="1">IETF</td>
               <td class="text-left" rowspan="1" colspan="1">
                 <a href="#claims" class="auto internal xref">Section 4</a> of this document</td>

@@ -698,7 +698,7 @@ Table of Contents
 
    *  MUST omit client_instance rather than assign a replacement once
       the issuer no longer holds or can reproduce the mapping.  A
-      consumer requiring context then rejects under Section 7.6.
+      Context Consumer requiring context then rejects under Section 7.6.
 
    An issuer that changes its derivation inputs or secrets MUST still
    produce the identifiers already assigned for any input and scope for
@@ -734,23 +734,23 @@ Table of Contents
    instance that participated in obtaining the token.  When a Context
    Consumer uses context to attribute the current token presentation to
    that instance, the applicable consuming profile MUST require, and the
-   consumer MUST validate, a mechanism associating the token presenter
-   with the instance.  For tokens issued directly from a validated
-   Client Attestation, that mechanism is sender constraint: DPoP
-   [RFC9449], mutual TLS [RFC8705], or another mechanism the consuming
-   profile defines, with a constraining key that the issuer associated
-   with the authenticated instance at issuance.  That key MUST be unique
-   to the instance at the configured granularity.  A key shared by
-   instances inside that boundary establishes no attribution, because
-   any of them can present the token and satisfy the proof; an issuer
-   that cannot bind a key unique to the instance at that granularity
-   MUST omit client_instance.  This applies equally when context is
-   conveyed only through introspection.
+   Context Consumer MUST validate, a mechanism associating the token
+   presenter with the instance.  For tokens issued directly from a
+   validated Client Attestation, that mechanism is sender constraint:
+   DPoP [RFC9449], mutual TLS [RFC8705], or another mechanism the
+   consuming profile defines, with a constraining key that the issuer
+   associated with the authenticated instance at issuance.  That key
+   MUST be unique to the instance at the configured granularity.  A key
+   shared by instances inside that boundary establishes no attribution,
+   because any of them can present the token and satisfy the proof; an
+   issuer that cannot bind a key unique to the instance at that
+   granularity MUST omit client_instance.  This applies equally when
+   context is conveyed only through introspection.
 
    A token without sender constraint supports no presenter attribution,
-   and a consumer requiring attribution rejects it under Section 7.6.
-   The HTTP Bearer scheme does not indicate an unbound token;
-   certificate-bound tokens [RFC8705] use it as well.
+   and a Context Consumer requiring attribution rejects it under
+   Section 7.6.  The HTTP Bearer scheme does not indicate an unbound
+   token; certificate-bound tokens [RFC8705] use it as well.
 
    All validation requirements of the token-binding mechanism apply
    regardless of whether context is used for attribution, including
@@ -835,19 +835,19 @@ Table of Contents
    authenticated, because the object carries no record of how the issuer
    obtained it.  The client_instance object alone, including whether its
    iss matches the token issuer, establishes neither the association nor
-   the provenance.  If the association is not established, the consumer
-   MUST treat context only as evidence of instance participation and
-   MUST NOT attribute the current request to that instance.  A consumer
-   whose configured requirement includes attribution MUST reject under
-   Section 7.6.  When trusted configuration establishes that the token
-   issuer conveys context only from direct Client Attestation
-   validation, this document is the consuming profile: context
-   identifies the authenticated presenting instance (Section 7.1), and
-   validating the token's sender constraint (Section 7.3) establishes
-   the association.  That configuration describes the issuer, not the
-   token, so it does not apply at an issuer that also preserves context
-   from input tokens; distinguishing the two there requires a consuming
-   profile that carries provenance.
+   the provenance.  If the association is not established, the Context
+   Consumer MUST treat context only as evidence of instance
+   participation and MUST NOT attribute the current request to that
+   instance.  A Context Consumer whose configured requirement includes
+   attribution MUST reject under Section 7.6.  When trusted
+   configuration establishes that the token issuer conveys context only
+   from direct Client Attestation validation, this document is the
+   consuming profile: context identifies the authenticated presenting
+   instance (Section 7.1), and validating the token's sender constraint
+   (Section 7.3) establishes the association.  That configuration
+   describes the issuer, not the token, so it does not apply at an
+   issuer that also preserves context from input tokens; distinguishing
+   the two there requires a consuming profile that carries provenance.
 
    For introspection, trusted endpoint configuration identifies the
    expected token issuer; a response-level iss, if present, MUST match
@@ -986,22 +986,19 @@ Table of Contents
    This document requests the following registrations in the "JSON Web
    Token Claims" registry established by [RFC7519].
 
-   +====================+=================+============+===============+
-   | Claim Name         | Claim           | Change     | Specification |
-   |                    | Description     | Controller | Document(s)   |
-   +====================+=================+============+===============+
-   | client_instance_id | Issuer-scoped   | IETF       | Section 4 of  |
-   |                    | client          |            | this document |
-   |                    | instance        |            |               |
-   |                    | identifier      |            |               |
-   +--------------------+-----------------+------------+---------------+
-   | client_instance    | Validated       | IETF       | Section 7 of  |
-   |                    | client          |            | this document |
-   |                    | instance        |            |               |
-   |                    | context         |            |               |
-   +--------------------+-----------------+------------+---------------+
+   +====================+====================+==========+=============+
+   | Claim Name         | Claim Description  |Change    |Specification|
+   |                    |                    |Controller|Document(s)  |
+   +====================+====================+==========+=============+
+   | client_instance_id | Attester-qualified |IETF      |Section 4 of |
+   |                    | client instance    |          |this document|
+   |                    | identifier         |          |             |
+   +--------------------+--------------------+----------+-------------+
+   | client_instance    | Validated client   |IETF      |Section 7 of |
+   |                    | instance context   |          |this document|
+   +--------------------+--------------------+----------+-------------+
 
-                                  Table 7
+                                 Table 7
 
 10.2.  OAuth Token Introspection Response
 
