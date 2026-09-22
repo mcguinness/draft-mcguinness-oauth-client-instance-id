@@ -51,6 +51,7 @@ informative:
   RFC8417:
   RFC8935:
   RFC9068:
+  RFC9421:
 --- abstract
 
 This specification defines an optional claims profile of OAuth 2.0
@@ -609,9 +610,9 @@ rejection of a bound token presented without its proof
 ({{RFC9449, Section 7.2}}). The binding authenticates the presenter;
 it does not establish that the presenter is an instance named in
 context derived from an upstream token. Any presenter or key change
-during exchange requires authorization under the consuming exchange
-profile, and unlinkability between Context Consumers additionally
-requires distinct binding keys ({{privacy}}).
+during exchange requires authorization under the consuming profile,
+and unlinkability between Context Consumers additionally requires
+distinct token-binding keys ({{privacy}}).
 
 ## Preservation and Authorization {#context-exchange}
 
@@ -696,7 +697,7 @@ For introspection, trusted endpoint configuration identifies the
 expected token issuer; a response-level `iss`, if present, MUST match
 it, and neither the endpoint URL nor `client_instance.iss` selects the
 issuer. Multi-issuer introspection requires a consuming profile that
-authenticates the represented issuer. An authority identifier does not
+authenticates the represented issuer. The `iss` value does not
 authorize fetching keys from that location, and extensions MUST NOT
 change the meaning of `iss` or `id`.
 
@@ -911,13 +912,14 @@ Cache-Control: no-store
 ## Governed Actor and Instance Context
 {:numbered="false"}
 
-An exchange profile can authorize instance B to continue work begun by
-instance A for the same governed agent. In this example, that profile
+A consuming profile can authorize instance `B` to continue work begun
+by instance `A` for the same governed agent. In this example, that
+profile
 selects the authenticated presenting instance for output context and
 authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}}.
 The AS validates B's attestation and proof, replaces A's input context
-with B's resource-scoped mapping, and binds the output token under the
-exchange profile. The relevant output claims are:
+with `B`'s resource-scoped mapping, and binds the output token under
+the consuming profile. The relevant output claims are:
 
 ~~~ json
 {
@@ -934,9 +936,9 @@ exchange profile. The relevant output claims are:
 ~~~
 
 The governed actor remains `agent-42`; the mapped identifier identifies
-B. Neither B's authentication nor continuity of the agent identity alone
-authorizes this exchange. A profile preserving A's context instead would
-have to define its upstream association explicitly.
+`B`. Neither `B`'s authentication nor continuity of the agent identity
+alone authorizes this exchange. A profile that instead preserved `A`'s
+context would have to define its upstream association explicitly.
 
 ## Attestation Rejection
 {:numbered="false"}
@@ -976,8 +978,8 @@ These informative sketches share three steps. `C1` is the Logical Client;
 Let `C1` be `https://platform.example/oauth-client`. Its CIMD declares
 `attest_jwt_client_auth_dpop`; {{ATTESTER-ENDORSEMENT}} provides a
 metadata example. The AS validates the CIMD and uses configured attester
-trust or an accepted `client_attesters` endorsement. Instance-profile
-selection remains separately configured. Installations share `C1`, with
+trust or an accepted `client_attesters` endorsement. Selection of this
+profile remains separately configured. Installations share `C1`, with
 distinct instance identifiers and keys; key renewal does not change the
 CIMD. User-authorized access follows {{managed-device-example}}.
 
@@ -986,7 +988,8 @@ CIMD. User-authorized access follows {{managed-device-example}}.
 
 The Agent Provider verifies managed installation evidence at step 1 and
 issues a separate Client Attestation. Native `aa-agent+jwt` credentials
-and HTTP Message Signatures do not replace the OAuth attestation or
+and HTTP Message Signatures {{RFC9421}} do not replace the OAuth
+attestation or
 proof. Step 2 uses a pre-authorized client credentials grant; AAuth
 metadata alone does not establish attester trust.
 
