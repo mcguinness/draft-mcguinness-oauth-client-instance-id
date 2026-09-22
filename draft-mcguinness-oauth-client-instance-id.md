@@ -648,7 +648,11 @@ using that association in policy or audit. The `client_instance`
 object alone, including whether its `iss` matches the token issuer,
 does not establish it. If the association is not established, the
 consumer MUST treat context only as evidence of instance participation
-and MUST NOT attribute the current request to that instance; a
+and MUST NOT attribute the current request to that instance. The
+object carries no record of how it was obtained, so a consumer MUST
+NOT attribute a request to an instance named in context that an issuer
+preserved from an input token unless the consuming profile defines how
+that provenance is authenticated. A
 consumer whose configured requirement includes attribution MUST reject
 under {{context-errors}}. When trusted configuration establishes that
 the token issuer conveys context only from direct Client Attestation
