@@ -821,7 +821,7 @@ Token Claims" registry established by {{RFC7519}}.
 
 | Claim Name | Claim Description | Change Controller | Specification Document(s) |
 |---|---|---|---|
-| `client_instance_id` | Issuer-scoped client instance identifier | IETF | {{claims}} of this document |
+| `client_instance_id` | Attester-qualified client instance identifier | IETF | {{claims}} of this document |
 | `client_instance` | Validated client instance context | IETF | {{instance-context}} of this document |
 
 ## OAuth Token Introspection Response
