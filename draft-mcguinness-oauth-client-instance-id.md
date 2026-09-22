@@ -96,8 +96,12 @@ current key or can remain internal to one system.
 This profile establishes instance identity and its continuity. It does
 not define what authority, if any, follows from that identity. Instance
 evidence grants no authority; authorization profiles can use validated
-instance identity or Instance Context as a policy input, subject to
-{{processing}}.
+instance identity or Instance Context as a policy input, subject to the
+prohibitions in {{processing}}.
+
+Five roles implement this profile: Client Attesters, clients,
+Receivers, token issuers conveying context, and Context Consumers.
+{{conformance}} states what each implements and where.
 
 ## Identity and Scope
 
@@ -223,19 +227,17 @@ credential's `iss`, proof of possession, or client-published metadata
 Key resolution follows {{ATTEST, Section 10.8}}. Local trust
 withdrawal MUST take effect on subsequent authentication.
 
-## Conformance
+## Conformance {#conformance}
 
 Conformance is role-specific:
 
-* Client Attesters implement the claim, identifier, and enrollment
-  requirements.
-* Clients implement scoped attestation use and the selected ATTEST
-  proof method.
-* Receivers implement trust, validation, and grant-continuity rules.
-* Token issuers conveying context implement mapping, preservation, and
-  any binding that attribution requires.
-* Context Consumers implement context validation and applicable proof
-  checks.
+| Role | Implements | Where |
+|---|---|---|
+| Client Attester | Claim, identifier, continuity, and enrollment requirements | {{claims}}, {{lifetime}} |
+| Client | Scoped attestation use and the selected ATTEST proof method | {{identifier-scope}} |
+| Receiver | Trust, validation, and grant-continuity rules | {{configuration}}, {{processing}} |
+| Token issuer conveying context | Mapping, preservation, and any binding that attribution requires | {{instance-context}} |
+| Context Consumer | Context validation and applicable proof checks | {{context-claims}}, {{context-errors}} |
 
 An implementation serving several roles satisfies each. Conveying
 Instance Context ({{instance-context}}) is optional and independent of
