@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                       22 September 2026
-Expires: 26 March 2027
+Intended status: Standards Track                       23 September 2026
+Expires: 27 March 2027
 
 
       Client Instance Identification for Attestation-Based Client
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 March 2027.
+   This Internet-Draft will expire on 27 March 2027.
 
 Copyright Notice
 
@@ -136,18 +136,18 @@ Table of Contents
 
    The gap opens wherever one Logical Client has many running copies: a
    harness on each managed laptop, a container per replica, an agent
-   runtime per user.  Every copy presents a valid attestation for the
-   same client_id, so to a Receiver they are interchangeable.
-   Suspending one compromised installation means suspending the client,
-   and the activity of every copy accumulates under a single identity in
-   audit and status decisions.
+   runtime per host.  Every copy presents a valid attestation for the
+   same client_id, distinguishable only by its current key.  Once a copy
+   rotates that key, a Receiver cannot tell whether it is the copy it
+   suspended or a new one, and audit history and status decisions tied
+   to the old key do not carry over.
 
    The profile adds two claims:
 
    *  client_instance_id names one client installation or runtime in its
-      Client Attestation, so a Receiver can tell the copies apart.  The
-      attester assigns it, retains it across verified key changes, and
-      scopes it to a Receiver by default.
+      Client Attestation, so a Receiver can follow each copy across key
+      changes.  The attester assigns it, retains it across verified key
+      changes, and scopes it to a Receiver by default.
 
    *  client_instance carries a mapped reference to that instance in a
       token or introspection response, so a resource server that never
@@ -161,13 +161,14 @@ Table of Contents
    subject to the prohibitions in Section 5.
 
    ATTEST alone is sufficient when correlation need only last for the
-   current key or can remain internal to one system.  Assigning each
-   instance its own client_id with a shared software_id ([RFC7591],
-   Section 2) is another route; this profile instead targets deployments
-   that share one Logical Client, one metadata URL when using [CIMD],
-   and authorization server (AS) policy keyed by that client, where
-   software_id correlates registrations but defines no shared grants or
-   policy across separate client identities.
+   current key or can remain internal to one system.
+
+   Assigning each instance its own client_id with a shared software_id
+   ([RFC7591], Section 2) is an alternative to this profile.  This
+   profile instead targets deployments that share one Logical Client,
+   one metadata URL when using [CIMD], and authorization server (AS)
+   policy keyed by that client. software_id correlates registrations but
+   defines no shared grants or policy across separate client identities.
 
    Five roles implement this profile: Client Attesters, clients,
    Receivers, token issuers conveying context, and Context Consumers.
