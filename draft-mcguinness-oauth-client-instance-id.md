@@ -75,7 +75,7 @@ indistinguishable from a new one.
 
 The gap opens wherever one Logical Client has many running copies: a
 harness on each managed laptop, a container per replica, an agent
-runtime per user. Every copy presents a valid attestation for the same
+runtime per host. Every copy presents a valid attestation for the same
 `client_id`, distinguishable only by its current key. Once a copy
 rotates that key, a Receiver cannot tell whether it is the copy it
 suspended or a new one, and audit history and status decisions tied to
