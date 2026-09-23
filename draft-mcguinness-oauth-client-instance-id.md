@@ -84,9 +84,9 @@ the old key do not carry over.
 The profile adds two claims:
 
 * `client_instance_id` names one client installation or runtime in its
-  Client Attestation, so a Receiver can tell the copies apart. The
-  attester assigns it, retains it across verified key changes, and
-  scopes it to a Receiver by default.
+  Client Attestation, so a Receiver can follow each copy across key
+  changes. The attester assigns it, retains it across verified key
+  changes, and scopes it to a Receiver by default.
 * `client_instance` carries a mapped reference to that instance in a
   token or introspection response, so a resource server that never sees
   the attestation can still correlate requests with the instance
