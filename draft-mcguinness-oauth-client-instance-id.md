@@ -99,13 +99,14 @@ instance identity or Instance Context as a policy input, subject to the
 prohibitions in {{processing}}.
 
 ATTEST alone is sufficient when correlation need only last for the
-current key or can remain internal to one system. Assigning each
-instance its own `client_id` with a shared `software_id`
-({{RFC7591, Section 2}}) is another route; this profile instead targets
-deployments that share one Logical Client, one metadata URL when using
-{{CIMD}}, and authorization server (AS) policy keyed by that client,
-where `software_id` correlates registrations but defines no shared
-grants or policy across separate client identities.
+current key or can remain internal to one system.
+
+Assigning each instance its own `client_id` with a shared `software_id`
+({{RFC7591, Section 2}}) is an alternative to this profile. This profile
+instead targets deployments that share one Logical Client, one metadata
+URL when using {{CIMD}}, and authorization server (AS) policy keyed by
+that client. `software_id` correlates registrations but defines no
+shared grants or policy across separate client identities.
 
 Five roles implement this profile: Client Attesters, clients,
 Receivers, token issuers conveying context, and Context Consumers.
