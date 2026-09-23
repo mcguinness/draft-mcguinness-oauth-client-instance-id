@@ -76,10 +76,10 @@ indistinguishable from a new one.
 The gap opens wherever one Logical Client has many running copies: a
 harness on each managed laptop, a container per replica, an agent
 runtime per user. Every copy presents a valid attestation for the same
-`client_id`, so to a Receiver they are interchangeable. Suspending one
-compromised installation means suspending the client, and the activity
-of every copy accumulates under a single identity in audit and status
-decisions.
+`client_id`, distinguishable only by its current key. Once a copy
+rotates that key, a Receiver cannot tell whether it is the copy it
+suspended or a new one, and audit history and status decisions tied to
+the old key do not carry over.
 
 The profile adds two claims:
 
