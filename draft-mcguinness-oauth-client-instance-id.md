@@ -572,11 +572,15 @@ under {{context-exchange}}, the upstream Instance Context Identifier
 * scope `id` to a Consumer Scope, allowing sharing only within an
   explicitly configured set.
 
-An issuer selects which mapping to convey by the consumer that will
-receive it: the authenticated caller for an introspection response,
-and the audience for a token. Where a token's audiences fall in
-different Consumer Scopes, no single `id` is correct for all of them
-and the issuer MUST omit `client_instance`.
+An issuer selects which mapping to convey by the token's intended
+audience: its `aud` claim, or for an opaque token the audience the
+issuer recorded at issuance. Each Consumer Scope is configured as a set
+of audience values. Where a token's audiences fall in different
+Consumer Scopes, or it has none, no single `id` is correct and the
+issuer MUST omit `client_instance`. An introspection response conveys
+the same `id` as the token would, and the issuer MUST omit
+`client_instance` when the authenticated caller is outside that
+Consumer Scope.
 
 For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope; issuers MUST separate
