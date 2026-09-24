@@ -389,15 +389,13 @@ Source Instance Identity when issuing a refresh token and, on refresh,
 MUST enforce two independent invariants:
 
 * the Source Instance Identity in the current validated attestation
-  MUST match the recorded one, absent an explicitly authorized
-  migration establishing continuity under {{continuity}}; and
+  MUST match the recorded one; and
 * the proof and key binding MUST satisfy ATTEST, or a profile that has
   redefined refresh-token binding under {{ATTEST, Section 13}}.
 
 Instance continuity does not imply key-binding continuity, nor the
-reverse. This profile defines no migration procedure. A conflict with
-the recorded identity MUST produce `invalid_grant` {{RFC6749}} without
-disclosing the expected identity.
+reverse. A conflict with the recorded identity MUST produce
+`invalid_grant` {{RFC6749}} without disclosing the expected identity.
 
 If authorization-time policy bound a code or other artifact to an
 instance, the AS MUST enforce that binding at redemption, whether the
