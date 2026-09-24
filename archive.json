@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-22T04:30:22.011596+00:00",
+  "timestamp": "2026-09-24T04:23:58.730433+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
   "labels": [
     {
@@ -114,7 +114,7 @@
       "id": "I_kwDOUbZuvs8AAAABSezjiA",
       "title": "Defined-term consistency: Enrollment capitalization and Receiver scope",
       "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/12",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mcguinness",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -123,7 +123,196 @@
       ],
       "body": "Two leftovers from the consolidation and review rounds. Both were identified, both were deliberately left, and both are the kind of thing a working group reviewer will flag. Tracking so they get decided rather than forgotten.\n\n## Enrollment is defined capitalized and used lowercase\n\n`grep -c '\\bEnrollment\\b'` returns 2: the definition entry and one sentence-initial use. `grep -c '\\benrollment\\b'` returns 25. So the only mid-sentence capitalized occurrence is the definition itself.\n\nThe document's convention is that capitalization marks a defined term. Logical Client, Attester Issuer, Source Instance Identity, Instance Context, Instance Context Identifier, Instance Context Authority, Receiver, Context Consumer and Consumer Scope are all used capitalized in running text. Enrollment breaks it.\n\nThree ways out:\n\n1. Leave it. The definition carries a real scoping statement, \"separate from a user account, device registration, or Logical Client\", and enrollment reads naturally as an ordinary noun for a record type. This is the current state.\n2. Capitalize the 25 uses. Costs a rewrap pass, and \"New Enrollment\" reads oddly in the lifecycle table.\n3. Drop the definition and fold its scoping sentence into Identifier Generation or Continuity and Lifecycle, where enrollment first matters.\n\n## Receiver scope has no entry in Conventions\n\nConsumer Scope is defined in Conventions. Receiver scope is not; it exists only as the Receiver Scope section heading. The two are parallel concepts and a reader meets both in normative text.\n\nUses now carry a pointer, either `Receiver scope ({{identifier-scope}})` in Identifier Generation and the Instance Identifier definition, or the bare phrase elsewhere. That closed the review finding but left the asymmetry.\n\nEither add a Conventions entry for Receiver scope alongside Consumer Scope, or decide the section heading is sufficient and make the pointer usage uniform.\n",
       "createdAt": "2026-09-22T04:17:16Z",
-      "updatedAt": "2026-09-22T04:17:16Z",
+      "updatedAt": "2026-09-22T15:00:15Z",
+      "closedAt": "2026-09-22T14:57:18Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Closed by #24. Recording what was decided, since the auto-close left no reasoning.\n\n**Enrollment capitalization.** It was the only section 2 term capitalized in its definition and lowercase in all 25 body uses. Every other defined term is capitalized at every occurrence, so this was the lone exception to the document's own rule. The definition head is now lowercase, matching how the document actually uses the word. Capitalizing the 25 sites was the alternative and reads worse, for example \"New Enrollment\" in the continuity table.\n\n**Receiver scope.** It was used as a term of art in eight places with no section 2 definition, while its exact counterpart Consumer Scope had one. Section 2's own Instance Identifier entry forward-referenced it, so a reader looked for it there and found only the counterpart. Receiver Scope now has a definition alongside Consumer Scope and is capitalized throughout.\n\nSection 4.1 keeps its opening characterization, which says what a Receiver Scope is not, an enrollment or issuance input rather than an OAuth parameter or attestation audience. That complements the definition rather than duplicating it, the same split Consumer Scope already had between section 2 and section 7.\n\nA fresh-eyes terminology audit reached these two items independently, which is some confirmation the issue had the right scope.",
+          "createdAt": "2026-09-22T15:00:15Z",
+          "updatedAt": "2026-09-22T15:00:15Z"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "id": "I_kwDOUbZuvs8AAAABSe9UBA",
+      "title": "Key-change continuity is advertised but delivers nothing normative",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/15",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "The Abstract and Introduction motivate the profile on instance identity surviving a verified key change. Grant Continuity is the only consumer of that property, and it does not deliver it.\n\n## Why\n\nGrant Continuity leaves [ATTEST] Section 10.3 intact, so the refresh token stays bound to the Client Instance Key. Section 10.6 of that document says a new key means a new attestation. The grant therefore still dies on key change, which is the outcome the framing implies it prevents.\n\nThe second invariant defers to \"any applicable rebinding profile under {{ATTEST, Section 13}}\". Section 13 defines no such category. It grants a deviation permission, conditioned on the use case not allowing refresh tokens to bind to the Client Instance Key, and obliges a profile taking it to define what the refresh token binds to instead and how that binding is proven.\n\n## Related overclaim\n\nGrant Continuity also says the profile \"detects a copied key presented with a different identity\". Section 10.2 of the base specification deliberately allows one attestation JWT to be reused across requests, so the key and a valid attestation are stored together. An attacker with one read of instance state has both. The detection fires only when someone holds the key but not the attestation, which in practice is a benign re-enrollment reusing an old key.\n\n## Options\n\n1. Take the Section 13 hook properly: define what a refresh token binds to instead of the Client Instance Key, and how that binding is proven. This makes the advertised property real.\n2. Drop the key-change framing from the Abstract and Introduction, and lead the motivation with what the first invariant actually buys, which is that a matching identity is required on refresh and a mismatched one is refused.\n\nOption 2 is smaller and honest. Option 1 is the feature the current framing promises.\n",
+      "createdAt": "2026-09-22T04:44:31Z",
+      "updatedAt": "2026-09-22T04:55:49Z",
+      "closedAt": "2026-09-22T04:55:49Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Fixed in #21, commit b30d511, by narrowing the claim rather than adding the capability.\n\n**The finding was half right.** The Abstract does not overclaim. It says the identifier remains stable across verified key changes, and that is exactly what the profile delivers. The defect was local to Grant Continuity, which said the recorded identity \"detects a copied key presented with a different identity.\" It does not. ATTEST Section 10.2 makes attestations reusable and stored alongside the key, so an attacker who copies the key copies the attestation with it and presents the matching identity. Nothing is detected.\n\nThat section now states the property that is delivered, namely that later grants correlate with the same instance, and says plainly that the refresh token does not move: it stays bound to the key ATTEST bound it to.\n\nAlso repaired a dangling reference found while fixing this. The second refresh invariant required the binding to satisfy \"any applicable rebinding profile under Section 13,\" naming a category ATTEST Section 13 does not define. It now refers to a profile that has actually redefined refresh-token binding.\n\n**Deliberately not done:** taking the Section 13 hook so a grant survives a key change. Identifier survival is the delivered property and it is useful on its own. Redefining what a refresh token binds to is a different feature with its own security analysis, larger than this finding warrants and not something to settle before -00.",
+          "createdAt": "2026-09-22T04:55:49Z",
+          "updatedAt": "2026-09-22T04:55:49Z"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "I_kwDOUbZuvs8AAAABSe9UfQ",
+      "title": "Combined mode is unsatisfiable for an attesting resource server under default scoping",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/16",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "Resource servers are Receivers under this profile, and direct resource-server presentation is endorsed in the Introduction. Receiver Scope requires the client to use distinct Client Instance Keys across scopes. Those two facts make DPoP combined mode unsatisfiable at an attesting resource server.\n\n## The contradiction\n\n- [ATTEST] Section 7.3 step 2 requires precisely one DPoP header field in the request.\n- [ATTEST] Section 7.3 step 4 requires the DPoP proof's `jwk` to be identical to the `cnf` key of the Client Attestation, which at a resource server is the resource-server-scoped key.\n- RFC 9449 Section 7.1 requires that same proof to match the access token's `cnf.jkt`, which was bound to the authorization-server-scoped key at issuance.\n\nThose two keys differ by construction under this profile's own MUST, and there is only one proof. The request cannot be formed.\n\n## Escapes that exist today\n\n- An administrative agreement defining one scope spanning both Receivers, which Receiver Scope already permits for the enterprise case. This is the non-default.\n- Non-combined DPoP, with a DPoP key independent of the Client Instance Key. This is what the Privacy section already recommends for unlinkability.\n\n## What the draft should say\n\nEither state that a Receiver-scoped resource server forces non-combined mode, or reconsider whether resource servers should be separate Receiver scopes by default. Note that the non-combined path interacts with the instance-unique binding key requirement added in #14, since the independent DPoP key then becomes the key that must be instance-unique.\n",
+      "createdAt": "2026-09-22T04:44:32Z",
+      "updatedAt": "2026-09-22T04:55:52Z",
+      "closedAt": "2026-09-22T04:55:52Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Fixed in #21, commit 36a0ecf, as a clarification. No design change.\n\nThe constraint is real. Requiring distinct Client Instance Keys per Receiver scope makes DPoP combined mode unsatisfiable at a resource server that is its own scope: combined mode reuses the Client Instance Key as the DPoP key, but the access token was bound to `cnf.jkt` under the authorization server's scope, so one proof cannot match both that and the resource server's attestation.\n\nReceiver Scope now says so. The privacy section already recommended avoiding combined mode for unlinkability between Context Consumers; this states the harder constraint at the point where the distinct-keys requirement is made, so an implementer meets it before reaching the privacy discussion.\n\n**Deliberately not done:** relaxing the distinct-keys requirement to make combined mode work across scopes. A shared key links attestations regardless of their identifiers, which defeats the scoping the profile exists to provide. Deployments that want combined mode across both Receivers configure one scope spanning them, which the text already permits.",
+          "createdAt": "2026-09-22T04:55:51Z",
+          "updatedAt": "2026-09-22T04:55:51Z"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "id": "I_kwDOUbZuvs8AAAABSe9cXA",
+      "title": "Context carries no provenance, so consumers cannot verify an issuer's preservation obligations",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/17",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "Two findings with one root cause. Both came from the OAuth review.\n\n## Confused deputy\n\nPreservation and Authorization binds the **issuer**: it must not name an upstream Instance Context Authority unless it has authenticated that the named authority assigned the context and that the context refers to the instance the input token represents.\n\nContext Consumer Processing binds the **consumer** only to accept an authority that is the token issuer or an upstream token issuer explicitly trusted for that issuer and consumer.\n\nBecause the object carries no forwarding history, the consumer cannot check that the issuer met its obligations. Any issuer a consumer accepts can therefore emit `{\"iss\": \"<trusted upstream>\", \"id\": \"<another instance's id at this consumer>\"}`. Every check in Context Consumer Processing passes, and the request is attributed to an instance the emitting issuer never authenticated and the named authority never asserted.\n\nIn practice \"explicitly trusted upstream issuer\" means trusting every intermediary in the set. The privacy default that removed forwarding history and the verifiability the consumer needs are in direct conflict.\n\n## Token exchange has no conformant path\n\nPreservation and Authorization requires an exchange issuing Instance Context to use a consuming profile that defines four things. No such profile exists, so a plain RFC 8693 authorization server cannot conformantly emit the claim this document registers.\n\nThe escape hatch in Context Consumer Processing, where trusted configuration establishes that a token issuer conveys context only from direct Client Attestation validation, is issuer-wide rather than per-token. Any authorization server doing both direct issuance and token exchange makes that configuration statement false, so a consumer must either reject all context from it or trust unsoundly.\n\n## Candidate fixes\n\n- Add a provenance member to `client_instance` distinguishing directly issued context from preserved or remapped context. This closes both: a consumer can refuse preserved context it cannot verify, and the direct-issuance escape becomes per-token rather than issuer-wide.\n- Or define the exchange rules in this document rather than deferring to a profile that does not exist.\n- Or require preserved context to carry authenticated provenance, which the current text already contemplates as the condition for deeper preservation.\n\nNote the tension with the pairwise-privacy default: provenance is precisely the forwarding history the current design removes deliberately. This is the trade to put to the working group.\n",
+      "createdAt": "2026-09-22T04:44:52Z",
+      "updatedAt": "2026-09-22T04:58:31Z",
+      "closedAt": "2026-09-22T04:56:08Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Partially fixed in #21, commits f1c2480 and 2aec872. The remaining structural decision is tracked in #22.\n\n**What is fixed.** A consumer must not attribute a request to an instance named in context that an issuer preserved from an input token, unless the consuming profile defines how that provenance is authenticated. The object carries no such record, so absent a profile that supplies one, the consumer refuses attribution and falls back to treating context as evidence of participation.\n\nThe direct-issuance escape hatch is also repaired. It let a consumer treat this document as the consuming profile when trusted configuration established that the issuer conveys context only from direct Client Attestation validation. The text now says that configuration describes the issuer, not the token, so it does not apply at an issuer that also preserves context from input tokens.\n\nNet effect is fail-closed. A consumer that cannot establish provenance does not attribute.\n\n**Deliberately not done:** adding a provenance member to `client_instance`. That is the structural answer, and it is a wire change that belongs to the working group, not to a pre-submission fix. It also sits in real tension with the pairwise-privacy default: an issuance-method label or hop count is a cross-consumer signal of exactly the kind Consumer Scope is designed to suppress. Tracked in #22 with the options laid out.\n\nThe practical cost of deferring: an issuer that does both direct issuance and token exchange cannot express the difference on the wire, so consumers needing the distinction must get it from out-of-band configuration or go without attribution.",
+          "createdAt": "2026-09-22T04:56:07Z",
+          "updatedAt": "2026-09-22T04:56:07Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Follow-up in #23, editorial only. The fix here added a provenance MUST NOT beside the existing attribution MUST NOT, and the two read as competing gates rather than stacking. Provenance is now a condition on establishing the association, so there is one place that says when attribution is forbidden. No change in what is required. The deferred wire-level decision stays in #22.",
+          "createdAt": "2026-09-22T04:58:31Z",
+          "updatedAt": "2026-09-22T04:58:31Z"
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "id": "I_kwDOUbZuvs8AAAABSe9cwA",
+      "title": "Consumer Scope is never tied to the introspecting caller or the audience",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/18",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "Format and Mapping requires an issuer to scope `id` to a Consumer Scope. Nothing says how the issuer **selects** which mapping to emit for a given request.\n\n## Two ways pairwise scoping is defeated with no misbehavior\n\n**Introspection.** An authorization server that stores one context per token and returns it to any authorized introspector hands the first resource server's pairwise identifier to the second. Nothing in the context sections says the issuer selects the mapping by the authenticated introspecting caller.\n\n**Multi-audience access tokens.** Consumer Scope is never tied to `aud`. A token with two audiences carries one `client_instance`, so both audiences receive the same identifier.\n\nIn both cases every party follows the specification and the pairwise property is lost.\n\n## Candidate fix\n\nState that an issuer selects the mapping by the consumer that will receive it: the authenticated caller for introspection, and the audience for a token. Where a token has several audiences outside one configured Consumer Scope, the issuer either omits context or scopes to the configured set.\n\nThis is a real constraint on issuers, not just wording, because it means context cannot be computed once and stored with the token.\n",
+      "createdAt": "2026-09-22T04:44:53Z",
+      "updatedAt": "2026-09-22T04:56:10Z",
+      "closedAt": "2026-09-22T04:56:10Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Fixed in #21, commit a2c2278.\n\nThe scoping rule said which identifiers may be shared but never said which mapping an issuer should pick for a given response. Consumer Scope was defined without being tied to the caller or the audience, which left the choice underdetermined at exactly the moment it matters.\n\nSelection is now stated: the authenticated caller for an introspection response, the audience for a token. Where a token's audiences fall in different Consumer Scopes, no single `id` is correct for all of them and the issuer must omit `client_instance`.\n\n**Deliberately not done:** allowing per-audience context in a multi-audience token, for example an array of scoped objects. That would let one token carry correct context to several scopes, but it multiplies the object, complicates the claim shape, and needs a story for consumers that see entries not addressed to them. Omission is the conservative default and matches how the rest of the profile fails closed. Worth revisiting if multi-audience deployments turn out to need it.",
+          "createdAt": "2026-09-22T04:56:09Z",
+          "updatedAt": "2026-09-22T04:56:09Z"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "id": "I_kwDOUbZuvs8AAAABSe9kMQ",
+      "title": "Irreversible states create denial of service: fork retirement and lost mappings",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/19",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "Two places where a single event permanently removes an instance's identity, with no recovery path and no rate limit. Both came from the threat-model review.\n\n## The detected-fork row retires the victim too\n\nThe Continuity and Lifecycle table says a detected fork of one enrollment means retire its identifiers, stop issuance, and enroll claimants separately. That is unconditional and it retires **both** claimants. The adjacent row, for continuity that cannot be established, carries a relief clause letting a continuing original keep its own enrollment. The fork row has none.\n\nAttacker: anyone who copies a key once and deliberately presents it where the attester will notice. Gain: the victim loses its identity, its grants and tokens under Suspension and Status, and its refresh tokens under Grant Continuity. Cost to the attacker: one presentation.\n\nCandidate fix: extend the relief clause to the fork row where the attester can tell which claimant is continuing, or require evidence before retirement rather than on detection alone.\n\n## Losing a mapping is permanent and fleet-wide\n\nMapping Stability requires an issuer that no longer holds or can reproduce a mapping to omit `client_instance` rather than assign a replacement. Context Consumer Processing requires a consumer that needs context to reject when it is absent.\n\nTogether, one rotated issuer derivation secret permanently rejects every affected instance at every consumer that requires context. Identifier Generation imposes a reproduce-or-store duty on the **attester**; Format and Mapping and Mapping Stability impose no equivalent on the **issuer**.\n\nThe fail-closed behavior is correct in itself. What is missing is the obligation that makes it survivable: an issuer that intends to include context should be required to retain or reproduce its mappings for as long as it does so, mirroring what the attester already owes.\n",
+      "createdAt": "2026-09-22T04:45:12Z",
+      "updatedAt": "2026-09-22T04:56:29Z",
+      "closedAt": "2026-09-22T04:56:29Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Fixed in #21 as two independent changes, commits 89b41a5 and 8758447.\n\n**The fork row, 89b41a5.** \"Detected fork of one enrollment\" required retiring identifiers and enrolling claimants separately, with no relief, even though the adjacent \"continuity cannot be established\" row already let a continuing original keep its own enrollment. A fork that the attester can resolve was treated worse than one it cannot. The row now allows the claimant that authenticated evidence shows to be the continuation to retain the identifiers. Retirement remains the default when no claimant can be distinguished.\n\n**The issuer secret rotation, 8758447.** This turned out to be a different defect than the issue described, and the fix is not the one first considered.\n\nThe issue read as a mismatch between the retention MUST, which covers the life of issued tokens, and the Derived/Random table, which says a Random mapping is retained for as long as the issuer intends to include context. Aligning those would have meant re-broadening a requirement that was narrowed earlier on review advice, and \"as long as the issuer intends\" is not observable by another party, so it fails the normative test the audit round applied.\n\nThe real asymmetry is elsewhere. Section 6.1 requires an attester that changes its derivation inputs or secrets to still produce values already assigned within a continuing enrollment. Issuers had no equivalent, while the Derived row of the same section leans on the derivation secret remaining available. Rotating one issuer secret therefore stripped context permanently from every instance mapped under it, with no requirement violated, since non-reassignment forbids inventing a replacement.\n\nIssuers now carry the same reproduce-or-store obligation across derivation changes that attesters carry. Storing the values satisfies it. This is a new requirement mirroring the attester rule, not a change to the token-lifetime retention MUST, which stands as it was.\n\n**Deliberately not done:** adding a recovery path that lets an issuer assign a replacement identifier after losing a mapping. Non-reassignment is what makes an `id` meaningful to a consumer over time, and the fail-closed consequence, omit the claim and let a consumer requiring context reject, is the behavior the design intends.",
+          "createdAt": "2026-09-22T04:56:28Z",
+          "updatedAt": "2026-09-22T04:56:28Z"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "id": "I_kwDOUbZuvs8AAAABSe9kvg",
+      "title": "Artifact binding is required in additional-signal mode where the base spec scopes it out",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/20",
+      "state": "CLOSED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "bug"
+      ],
+      "body": "Grant Continuity requires an authorization server to enforce a previously established instance binding at redemption, \"whether the attestation is the client authentication method or an additional security signal\".\n\n[ATTEST] Section 10.4 explicitly scopes artifact binding to the client-authentication mode: \"Note that this only applies if Attestation-Based Client Authentication is used as Client Authentication.\" Section 7.6 makes presenting the attestation OPTIONAL when the authorization server does not advertise attestation proof methods.\n\n## The failure\n\nA code is bound to an instance at the pushed authorization request. In additional-signal mode the client legitimately omits the attestation at the token endpoint. The authorization server is nonetheless required to enforce the binding, so redemption fails with `invalid_grant`, and nothing in the response tells the client that an attestation was needed.\n\n## Context\n\nThis sentence is mine, added while fixing an unrelated cross-reference defect. The intent was to stop a binding that policy had established from being silently dropped in the mode the base specification does not cover. The intent is still right; the requirement as written is unsatisfiable for a conforming client.\n\n## Candidate fixes\n\n- Keep the enforcement MUST, and add that an authorization server enforcing an instance-bound artifact in additional-signal mode MUST require the attestation at redemption. This makes the obligation reachable.\n- Or scope the enforcement to the client-authentication mode, matching the base specification, and say that instance-bound artifacts are not defined for the signal mode.\n",
+      "createdAt": "2026-09-22T04:45:14Z",
+      "updatedAt": "2026-09-22T04:56:31Z",
+      "closedAt": "2026-09-22T04:56:30Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Fixed in #21, commit 1a78397.\n\nThis was our own sentence, not an inherited gap. The profile requires an AS to enforce an instance binding on a code or artifact at redemption \"whether the attestation is the client authentication method or an additional security signal.\" But presenting the attestation is optional in that second mode, so a conforming client could omit it at redemption and the AS would have nothing to check the binding against. The requirement was unreachable.\n\nThe AS must now require the attestation when artifacts bound to instances are redeemed.\n\n**Deliberately not done:** scoping the enforcement MUST to client-authentication mode only, which was the other way to make it consistent. Kept the broader form because the underlying intent is right: an AS that established a binding policy at authorization should not silently drop it at redemption because of which authentication mode is in use. Requiring the attestation where the binding exists preserves that intent and puts the obligation on the deployment that chose to bind.",
+          "createdAt": "2026-09-22T04:56:30Z",
+          "updatedAt": "2026-09-22T04:56:30Z"
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "id": "I_kwDOUbZuvs8AAAABSfA8MA",
+      "title": "Decide whether client_instance should carry provenance",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/issues/22",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "Successor to the deferred half of #17. PR #21 fixed what could be fixed without a wire change; this is the structural decision left for the working group.\n\n## The gap\n\n`client_instance` records who the instance is. It records nothing about how the issuer came to know that. A consumer receiving an access token cannot tell whether the issuer validated a Client Attestation directly or preserved the object from an input token in a token exchange.\n\nThose two cases warrant different trust. Direct validation means the issuer authenticated the instance itself. Preservation means the issuer is repeating an upstream claim whose own validation the consumer cannot inspect.\n\n## What PR #21 did instead\n\nA consumer must not attribute a request to an instance named in preserved context unless its consuming profile defines how that provenance is authenticated. The direct-issuance escape hatch is now explicitly a property of the issuer rather than the token, so it does not apply at an issuer that does both.\n\nThat is fail-closed and correct, but it pushes the distinction into out-of-band configuration. An issuer that does both direct issuance and exchange cannot express the difference on the wire at all.\n\n## Why it is not obvious\n\nA provenance member is in tension with the pairwise-privacy default. It tells every consumer something about the issuance path, which is exactly the kind of cross-consumer signal the Consumer Scope design works to suppress. A hop count or an issuance-method label may be more correlatable than it first appears.\n\nOptions worth weighing:\n\n- A member on the object, naming the issuance method.\n- A separate claim outside `client_instance`, so the context object stays purely about identity.\n- Leave it to consuming profiles, accepting that a mixed-mode issuer cannot serve consumers that need the distinction.\n- Forbid mixed-mode issuance, which is clean but likely unenforceable.\n\n## Suggested handling\n\nRaise at the working group rather than resolving in -00. The current text is safe: a consumer that cannot establish provenance refuses attribution.",
+      "createdAt": "2026-09-22T04:55:09Z",
+      "updatedAt": "2026-09-22T04:56:39Z",
       "closedAt": null,
       "comments": []
     }
@@ -377,6 +566,202 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "551aab0fcfb29e7c180554a5890c0e2825bf74fd"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 14,
+      "id": "PR_kwDOUbZuvs8AAAABEhhLtw",
+      "title": "Close the soundness gaps found by OAuth review",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/14",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Two cold OAuth reviewers, one reading it as protocol and one as a threat model, converged independently on the same top finding. This closes it and three smaller ones. Nothing is removed: the normative diff shows three added requirements and no deletions, keyword count 66 to 69.\n\n## The finding both reviewers ranked first\n\n**Presenter attribution was forgeable by a sibling instance.** Outside combined mode, {{ATTEST}} Section 5.2 says the DPoP key need not match the attestation confirmation key, and RFC 8705 certificates are provisioned per client, not per instance. Two instances could therefore hold distinct Client Instance Keys, satisfying Receiver Scope, while sharing one binding key. A token issued to the first carried its context and the shared thumbprint; the second presented it with a valid proof and a conforming consumer attributed the request to the first.\n\nNothing in the draft required the constraining key to be unique to the instance. The only key-distinctness rules were across Receiver scopes and across Consumer Scopes, and the latter fires only where unlinkability is required, which is a privacy trigger rather than a soundness one.\n\n`8f264f8` requires the constraining key to be unique to the instance at the configured granularity, says why a shared key establishes nothing, and requires an issuer that cannot bind such a key to omit the context.\n\n## Cross-attester confusion\n\n`694c7ff` adds a processing-time check. The Receiver already had to bind each approved Attester Issuer to its validation keys, but that was a configuration duty with no per-request consequence. All three key-resolution mechanisms in {{ATTEST}} Section 10.8 select a key from JOSE header parameters and never from `iss`, so a trust anchor certifying several attesters would accept one attester's chain over a payload asserting another's identity. The step now requires the verifying key to be one bound to the asserted `iss`, and says why.\n\n## Error contract\n\n`7eb75c5` does **not** change the mandated code. On review of {{ATTEST}} Section 7.4 the objection I raised initially was wrong: that section defers situations it does not describe to extensions, and this profile is such an extension, so mapping instance-policy rejection onto `invalid_client_attestation` is conformant. What was missing is the reasoning. The text now cites the deferral, and states the real consequence, which is that the response does not distinguish a transient verification failure from a durable policy decision, so a client cannot tell whether retrying with a fresh attestation will help.\n\n`8a871a6` addresses that hazard on the resource-server side. RFC 6750 Section 3.1 tells a client receiving `invalid_token` that it may request a new token and retry, which does not help when the rejection was for a missing sender constraint. A resource server rejecting for that reason should now include the challenge for the binding mechanism it requires, such as the DPoP scheme in RFC 9449 Section 7.1.\n\n## Verified and left alone\n\nToken exchange error usage matches RFC 8693 Section 2.2.2. Introspection uses the `iss` member RFC 7662 defines, for the meaning it defines. Both IANA registrations collide with nothing in the live registries.\n\nTwo reviewer objections do not hold. Strengthening {{ATTEST}} Section 11.1 from RECOMMENDED to MUST is not a profiling violation, since doing the recommended thing more strictly is compatible. And the absence of discovery is explicitly permitted, because the profiling section allows an out-of-band mechanism for determining that a profile applies.\n\n## Tracked separately\n\nSeven findings that change a design decision or need working group input are filed as issues rather than fixed here.\n\nLint silent, build clean, versioned -00 renders, all citations resolve, idnits unchanged.\n",
+      "createdAt": "2026-09-22T04:44:13Z",
+      "updatedAt": "2026-09-22T04:46:49Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "551aab0fcfb29e7c180554a5890c0e2825bf74fd",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "oauth-review-fixes",
+      "headRefOid": "8a871a6fd8d20a0a2612b189560a15ea7e12bd9d",
+      "closedAt": "2026-09-22T04:46:47Z",
+      "mergedAt": "2026-09-22T04:46:47Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "c7467230d3404f248461b47d60c23d8b33a7924c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 21,
+      "id": "PR_kwDOUbZuvs8AAAABEhkFGg",
+      "title": "Close review bugs #15-#20",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/21",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Resolves the six bug-labeled issues from the OAuth expert review. One commit per issue.\n\n| Issue | Commit | Decision |\n|---|---|---|\n| #15 | `b30d511` | Narrow the claim instead of adding grant portability |\n| #16 | `36a0ecf` | State the constraint; no design change |\n| #17 | `f1c2480`, `2aec872` | Fix attribution; defer the wire-level provenance member |\n| #18 | `a2c2278` | Tie mapping selection to the receiving consumer |\n| #19 | `89b41a5`, `8758447` | Add relief to the fork row; add the issuer reproduce-or-store rule |\n| #20 | `1a78397` | Keep the enforcement MUST reachable |\n\n**#15 \u2014 key-change continuity.** The Abstract is accurate: the identifier does survive a verified key change. The overclaim was local to Grant Continuity, which said the binding \"detects a copied key presented with a different identity.\" A copier holds the attestation too, since ATTEST Section 10.2 makes attestations reusable and stored beside the key, so that detection is not delivered. The text now states the property that is delivered, that later grants correlate with the same instance, and says plainly that the refresh token stays bound to the key ATTEST bound it to. Also repaired a dangling reference: the invariant cited \"any applicable rebinding profile under Section 13,\" a category that section does not define. It now points at a profile that has actually redefined the binding.\n\nDeliberately not done: taking the Section 13 hook to make grants portable across key change. Identifier survival is the delivered property. Redefining what a refresh token binds to is a separate feature, larger than this finding warrants.\n\n**#16 \u2014 combined mode.** Requiring distinct Client Instance Keys per Receiver scope makes DPoP combined mode unsatisfiable at a separately scoped resource server, because one proof cannot match both the token's `cnf.jkt` from the authorization server's scope and the resource server's attestation. The privacy section already recommended avoiding combined mode for unlinkability. This states the harder constraint where the keys requirement is made.\n\n**#17 \u2014 provenance.** Partially resolved. A consumer now must not attribute a request to an instance named in context that an issuer preserved from an input token, unless the consuming profile defines how that provenance is authenticated. The direct-issuance escape hatch is marked as a property of the issuer, not the token, so it does not apply at an issuer that does both.\n\nNot done: adding a provenance member to `client_instance`. That is the structural answer and it is a wire change for the working group. Tracking issue to follow.\n\n**#18 \u2014 Consumer Scope.** The scoping rule said which identifiers may be shared but never said which mapping to pick. Selection is now by the consumer that receives the context: the authenticated caller for introspection, the audience for a token. Multi-audience tokens spanning scopes omit the claim.\n\n**#19 \u2014 irreversible states.** Two independent fixes. The fork row now lets a distinguishable continuing original keep its enrollment, matching the relief the \"continuity cannot be established\" row already had. Separately, issuers now carry the same reproduce-or-store obligation across derivation-secret changes that attesters carry under Section 6.1. Without it, rotating one secret permanently stripped context from every instance mapped under it. This is a new requirement mirroring the attester rule, not a change to the existing token-lifetime retention MUST.\n\n**#20 \u2014 artifact binding in signal mode.** The enforcement MUST spans both authentication modes, but presenting the attestation is optional in additional-signal mode, so a conforming client could not supply what the AS must check. The AS now must require the attestation when instance-bound artifacts are redeemed. Kept the MUST reachable rather than scoping it out, since not silently dropping an established binding policy is still the right intent.\n\n## Verification\n\nWords 5663 to 5992. BCP 14 keywords 69 to 73, the four additions being the attribution refusal, the multi-audience omission, the issuer reproduce-or-store rule, and the redemption requirement.\n\n`normative_diff.py` against main shows every removed keyword sentence has a matching replacement. That tool does not see list items or table cells, so the fork table row and the mapping bullet list were checked by hand in the rendered text.\n\n`make` builds clean. idnits reports the same two errors, two warnings, and one comment as the prior idnits round. All are kramdown-rfc and i-d-template output artifacts: the references section name, the line processing instructions, non-ASCII review, and a text-document reference inside a fetched reference's own abstract. None are in text this PR changes.",
+      "createdAt": "2026-09-22T04:54:34Z",
+      "updatedAt": "2026-09-22T04:55:31Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "c7467230d3404f248461b47d60c23d8b33a7924c",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "close-review-bugs",
+      "headRefOid": "1a783976eeabf257850b5e9cfd37f29ba68e00ec",
+      "closedAt": "2026-09-22T04:55:29Z",
+      "mergedAt": "2026-09-22T04:55:29Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "f84d969f183171650b7e042442f8a09e865c1d3c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDOUbZuvs8AAAABEhlIOg",
+      "title": "Make provenance part of establishing association",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/23",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Follow-up to #21. Editorial correction to the attribution path, no change in what is required.\n\nPR #21 closed #17 by adding a second requirement next to the existing one:\n\n- Existing: if the association is not established, the consumer MUST NOT attribute the request to that instance.\n- Added: the consumer MUST NOT attribute a request to an instance named in preserved context unless the consuming profile authenticates provenance.\n\nRead together those parse as competing gates. The second one's \"unless\" invites a reader to treat authenticated provenance as sufficient for attribution, which would make it an exception to the first rather than an addition to it. That is the same shape as the migration-exception defect fixed earlier in this draft, where two adjacent statements parsed as a permission that was never intended.\n\nProvenance is now a condition on establishing the association rather than a parallel test. Where an issuer may have preserved context from an input token, the association is established only if the consuming profile also defines how provenance is authenticated. The existing refusal then carries the enforcement, so there is exactly one place that says when attribution is forbidden.\n\nBCP 14 keywords 73 to 72. The removed keyword is the duplicate MUST NOT; the obligation now lives inside the establish requirement. Words 5992 to 5987. Builds clean.\n\nIssue #17 stays closed. The deferred wire-level decision remains in #22.",
+      "createdAt": "2026-09-22T04:58:20Z",
+      "updatedAt": "2026-09-22T04:59:40Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "f84d969f183171650b7e042442f8a09e865c1d3c",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "provenance-single-gate",
+      "headRefOid": "e15ed477f9c321a9bb5fabc02cc925c897062ab9",
+      "closedAt": "2026-09-22T04:59:38Z",
+      "mergedAt": "2026-09-22T04:59:38Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "7bfaacfd61b17a3367a210846eb7e4b66c68410d"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 24,
+      "id": "PR_kwDOUbZuvs8AAAABEmRtSQ",
+      "title": "Editorial review: pronouns, anchors, and one name per concept",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/24",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Fresh-eyes editorial pass by two independent readers with no prior context on the draft, one on prose and copy editing, one on terminology and cross-reference consistency. 47 findings. 45 applied, 2 declined. Ten commits grouped by defect class.\n\n**BCP 14 keyword delta is exactly zero.** Every keyword count is unchanged: 49 MUST, 13 MUST NOT, 3 REQUIRED, 4 SHOULD, 2 MAY, 1 SHOULD NOT. This is the sharpest check for an editorial pass, since any change here would mean a fix altered a requirement. The sentence-level diff shows eleven keyword sentences rewritten and eleven replacements, with no requirement added or dropped.\n\n## The two that would have misled an implementer\n\n**A pronoun that inverted a rule.** Presenter Attribution required a constraining key unique to the instance, then said an issuer \"that cannot bind such a key MUST omit `client_instance`.\" The nearest antecedent to \"such a key\" was the *shared* key described in the intervening sentence, so the literal reading required omission exactly when the key was shared, which is backwards. Now names the unique key explicitly.\n\n**A requirement with no subject.** Item 3 of the Context Consumer list read \"Accept its authority only when it is the token issuer...\" with no antecedent for \"its\" inside the item and a shift of referent at \"it\". Now uses Instance Context Authority, which section 2 already defines.\n\n## Anchors\n\nTwo anchors were swapped against their headings. Section 6 is titled \"Attester Requirements\" but carried `{#lifetime}`, while `{#attester-requirements}` sat on section 6.1 \"Identifier Generation\". Every reference resolved correctly, so the rendered document was never wrong, but anyone writing `{{attester-requirements}}` would reasonably expect section 6 and send readers to 6.1.\n\nThree further anchors named topics their headings no longer used. I originally planned to leave these as cosmetic, then reversed: the draft already contains one defect caused by exactly this, `{{claims}}` used where the section 4.2 example was meant, which pointed readers at section 4 instead. Renaming is mechanical and the build validates every reference, so all four were done together.\n\nSection 7.5 \"Context Consumer Processing\" had no anchor at all and so could not be referenced. It is the only section written for the Context Consumer role and the only one enumerating its obligations, yet the conformance table sent that role to sections 7.1 and 7.6 instead. It now has an anchor and the table points at it.\n\n## One name per concept\n\nApplied across the body and appendices: consuming profile (was also \"consuming exchange profile\" and \"exchange profile\"), token-binding key (was also \"binding key\" and \"Binding-key\", where both odd spellings cross-referenced a section whose own label used the third), instance policy, trust agreement, Attester Issuer, Receiver Scope, Instance Identifier.\n\nReceiver Scope and Consumer Scope are parallel concepts, but only Consumer Scope was defined in section 2, while section 2's own Instance Identifier entry forward-referenced \"Receiver scope\". Receiver Scope now has a definition alongside its counterpart. `Enrollment` was the single defined term capitalized in its definition and lowercase in all 25 body uses; the definition head is now lowercase to match how the document actually uses it. That closes #12.\n\n## Declined\n\n**The section 7 shorthand.** One reviewer proposed a sentence at the head of section 7 declaring that within that section \"issuer\" and \"consumer\" mean the two Title-Case roles. That creates a second definition for terms section 2 already defines, in prose, and makes the section depend on a sentence a reader may skip. Every normative round on this draft pushed toward one home per definition. Left alone.\n\n**The IANA claim description.** \"Issuer-scoped client instance identifier\" uses a scoping word found nowhere else, and the abstract says \"attester-qualified\". Both readers flagged it and both hesitated. They are not synonyms: one says which namespace the identifier lives in, the other says who vouched for it. Changing registry text is a substantive choice about what the entry claims, not copy editing. Left for the author to settle.\n\n## Verification\n\nWords 5987 to 6059. Zero keyword delta. All 26 internal anchors resolve; no unresolved or uncited references; no duplicate anchors; no overlong lines. `make` builds clean.\n\nidnits reports the same five nits as the prior run, all pre-existing: the references section name and line processing instructions from kramdown-rfc, a text-document reference inside a fetched reference's own abstract, non-ASCII review, and a possible downref because the ATTEST draft's status cannot be fetched. None are in text this PR changes.\n\nIndependent of the findings, I recomputed the RFC 7638 thumbprint of the example JWK. It matches the `cnf.jkt` in both the access-token and introspection examples exactly, and the point is on P-256.",
+      "createdAt": "2026-09-22T14:53:37Z",
+      "updatedAt": "2026-09-22T14:57:19Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "7bfaacfd61b17a3367a210846eb7e4b66c68410d",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "editorial-review",
+      "headRefOid": "fc74b992875486b2ed9abe5af1bad6783b6094f8",
+      "closedAt": "2026-09-22T14:57:17Z",
+      "mergedAt": "2026-09-22T14:57:17Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "182e9db9fe115e33a2c53364954f1d503c76d107"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDOUbZuvs8AAAABEmVEoA",
+      "title": "Apply the two editorial findings previously declined",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/25",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Follow-up to #24. Applies the two recommendations I had set aside there. BCP 14 keyword delta is again exactly zero.\n\n## Naming the Context Consumer role\n\nThe finding was that Table 2 assigns conformance by Title-Case role names, but section 7 attaches the Context Consumer's requirements to a bare \"consumer\", so an implementer auditing what that role must do cannot find them by searching the role name.\n\nI applied the intent by naming the role at each site, not by the mechanism the reviewer proposed. The original suggestion was a sentence at the head of section 7 declaring that \"consumer\" means a Context Consumer within that section. That would put a second definition of a section 2 term into section 7 prose and make the reading depend on a sentence a reader may skip, against the one-home principle every normative round on this draft enforced. Naming the role directly gets the same result with no second definition.\n\nFour sites now say Context Consumer:\n\n- The attribution requirement in Presenter Attribution, where the profile must require and the consumer must validate a presenter-association mechanism.\n- The rejection that follows a dropped mapping in Mapping Stability.\n- The rejection of a token with no sender constraint.\n- Both refusals in Context Consumer Processing, covering attribution and the configured-requirement case.\n\nThree bare uses remain and are correct as they stand. Each carries a requirement on the *issuer* rather than on the consumer: the derived-mapping separation rule, the preservation permission, and the remap-or-omit obligation. In all three the consumer is the recipient, not the party bound.\n\nI did not capitalize bare \"issuer\" in section 7. There is no defined term to capitalize it to. \"Token issuer conveying context\" is a role label in Table 2, not a section 2 definition, and adding one would be the structural change avoided above. Table 2 already routes that role to section 7, whose title names the activity.\n\n## The IANA claim description\n\n`client_instance_id` was described in the registry table as an \"Issuer-scoped client instance identifier\". That is the only use of \"issuer-scoped\" in the document, and a reader arriving from Receiver Scope or Consumer Scope reads it as a third scoping notion. Worse, \"issuer\" there means the Attester Issuer, while everywhere else in a context-carrying document \"issuer\" tends to read as the token issuer.\n\nIt now reads \"Attester-qualified client instance identifier\", matching the abstract. This is the wording I had flagged for you rather than changed, because registry text states what the entry claims rather than how it reads.\n\n## Verification\n\nWords 6059 to 6064. Keyword delta zero: 49 MUST, 13 MUST NOT, 3 REQUIRED, 4 SHOULD, 2 MAY, 1 SHOULD NOT, unchanged. All references resolve, no duplicate anchors, no overlong lines, `make` builds clean.",
+      "createdAt": "2026-09-22T14:59:12Z",
+      "updatedAt": "2026-09-22T15:00:03Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "182e9db9fe115e33a2c53364954f1d503c76d107",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "apply-declined",
+      "headRefOid": "331429167d8d576da5a53a24389d2bbc0243a1d1",
+      "closedAt": "2026-09-22T15:00:00Z",
+      "mergedAt": "2026-09-22T15:00:00Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "64ccbe8c775de31651cbc8ad0316725367e8d3e8"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 26,
+      "id": "PR_kwDOUbZuvs8AAAABEnHJ8Q",
+      "title": "Resolve the two P2 review findings and the status-channel wording",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/26",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Resolves all three findings from the review of `64ccbe8` against ATTEST-11. BCP 14 keyword delta is zero: 49 MUST, 13 MUST NOT, 3 REQUIRED, 4 SHOULD, 2 MAY, 1 SHOULD NOT, unchanged.\n\n## 1. Combined mode, `02a3169`\n\nThe finding is correct and the old sentence was simply wrong. I had written that separating a resource server into its own scope rules out combined mode there, full stop. That assumed combined mode was also used at the authorization server.\n\nATTEST Section 5.2 says the opposite for normal mode: \"the DPoP proof is validated according to RFC 9449 independently of this specification and its public key is not required to match the key in the cnf claim of the Client Attestation JWT.\" So a client can authenticate to the authorization server in normal mode, present the resource-server-scoped key as its DPoP key at issuance, and then use combined mode at the resource server. One proof matches both the token binding and that resource server's attestation, and the two Client Instance Keys stay distinct.\n\nThe restriction is now qualified to tokens issued in combined mode, and the working alternative is stated.\n\nAdded beyond the finding: in that configuration the authorization server also sees the resource-server-scoped key, so the two Receivers can correlate through its thumbprint even though their identifiers and Client Instance Keys differ. The configuration is conformant, but it gives back part of what scope separation buys, and a reader choosing it should know.\n\n## 2. Mandatory omission, `9b7bdb7` and `374ebef`\n\nThe finding is correct, and the conflict was sharper than reported. It was not a tension between Section 7.3 and the consumer rules. It was a contradiction inside Section 7.3, two paragraphs apart:\n\n- An issuer that cannot bind an instance-unique key MUST omit `client_instance`.\n- A token without sender constraint supports no presenter attribution, and a consumer requiring attribution rejects it.\n\nThe second presupposes a token with no sender constraint that carries the claim. A token with no sender constraint has no constraining key at all, so the first forbids an issuer from ever producing it. The two could not both be satisfied.\n\nThe unique-key requirement is now scoped to attribution. Context conveyed without such a key records only that the instance participated in obtaining the token, which is exactly what Context Consumer Processing already governs.\n\n**A second commit was needed.** My first fix conditioned the issuer's obligation on the receiving consumer being \"configured to require attribution\", but nothing in the draft said the issuer learns that. This was the same defect the earlier normative audit removed elsewhere, a requirement conditioned on a fact invisible to the party bound by it. The obligation now keys off the configured requirement for that Consumer Scope, which the issuer already holds, and Profile Selection and Trust says the consumer configures that requirement, including whether it extends to attribution, with the issuers it accepts context from.\n\n## 3. Status channel, `2fd3d97`\n\nCorrect. The revocation paragraph requires the authorization server to invalidate all tokens on a grant, and two paragraphs later the draft said issued tokens remain valid for their own lifetimes. Both clauses are now scoped to parties that have not learned of the change, which reconciles them.\n\n## Line wrapping, `53cc0ef` and `f3b27e9`\n\nThe review noted nothing here, but my own earlier edits had left eleven paragraphs with ragged mid-paragraph line breaks. All are reflowed. Verified that the reflow changed only whitespace: the document is identical when all runs of whitespace are collapsed.\n\n## Validation\n\nWords 6064 to 6167. Zero keyword delta. Two keyword sentences rewritten, two replacements, nothing added or dropped. All references resolve, no duplicate anchors, no overlong lines, no mid-paragraph short lines, `make` builds clean.\n\nidnits was run against the numbered submission artifact, not the editor's copy. It reports the same five nits as before and all are tool output rather than draft content. The references-naming error lands on kramdown-rfc's outer wrapper element, named \"References\", while the two inner sections are correctly named Normative and Informative. The downref is the base attestation draft, whose status cannot be fetched.",
+      "createdAt": "2026-09-22T16:27:28Z",
+      "updatedAt": "2026-09-22T16:44:35Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "64ccbe8c775de31651cbc8ad0316725367e8d3e8",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "review-p2-fixes",
+      "headRefOid": "f3b27e9236b76d3d102e768ac733e39f02232d41",
+      "closedAt": "2026-09-22T16:44:33Z",
+      "mergedAt": "2026-09-22T16:44:33Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "00f8755189fcf1aae9661a05f55f81d57c1cbf9b"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 27,
+      "id": "PR_kwDOUbZuvs8AAAABEpiLoQ",
+      "title": "Rewrite the introduction to lead with the problem",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/27",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "The introduction described the gap accurately but never made a reader feel it, and it spent two of its six paragraphs arguing against adoption before giving any reason to want the profile. BCP 14 keyword delta is zero; the introduction contains no keywords at all.\n\n## What was wrong\n\n**The problem was abstract.** The only stated consequence was that treating a continuing installation as a new one \"can merge unrelated audit histories and status decisions\". True, but a reader never sees what breaks.\n\n**The caveats came before the value.** Paragraph two was the `software_id` alternative and paragraph four was \"ATTEST alone is sufficient when...\". Both are useful scoping, and both landed before the reader had any reason to care.\n\n**The payoffs were buried.** What `client_instance` is actually for, letting a resource server that never sees the attestation correlate requests with the instance validated at issuance, sat at the tail of a thirty-word clause.\n\n**The audience appeared last**, at the bottom of section 1.1, after every scope negation.\n\n## What changed\n\nA new second paragraph makes the gap concrete and names the audience positively: one Logical Client with many running copies (a harness per managed laptop, a container per replica, an agent runtime per host), every copy presenting a valid attestation for the same `client_id` and distinguishable only by its current key. Once a copy rotates that key, a Receiver cannot tell whether it is the copy it suspended or a new one, and audit history and status decisions tied to the old key do not carry over.\n\nThe paragraph deliberately does not call the copies interchangeable. ATTEST already distinguishes them by key (the draft relies on this in the ATTEST-sufficiency sentence and in the privacy section's `cnf.jkt` note), so the gap is placed at key change, where ATTEST actually loses the instance. The example says \"per host\" rather than \"per user\" so it does not blur the Client Instance with the authorization principal.\n\nTwo failures, not three. An earlier draft of this paragraph listed three parallel \"it cannot X\" clauses, which reads as padding to a working group. It also kept the audit-and-status consequence from the original wording rather than replacing it, since that phrasing has survived several review rounds.\n\nThe two caveats (ATTEST alone is sufficient when..., and the `software_id` alternative) are moved after the scope statement, where they work as a scoping aid rather than a pre-emptive apology. They stay as separate paragraphs; merging them left \"another route\" without an antecedent. Each claim bullet now leads with what it buys: `client_instance_id` lets a Receiver follow each copy across key changes, and `client_instance` reaches a resource server that never sees the attestation.\n\nThe opening two questions are untouched. They are the sharpest sentences in the document and they still sit adjacent to their answer.\n\n## Section 1.1\n\nThe concrete examples in the new paragraph would otherwise have duplicated section 1.1's granularity bullets three hundred words later in different words. The managed-laptop illustration is removed from the Installation bullet, which still defines the mode completely. The Execution bullet keeps its Kubernetes Pod example, because that one grounds \"scheduling unit\", a term of art that needs it at the point of definition.\n\nThe closing paragraph of 1.1 is deliberately untouched. Its \"administratively configured deployments\" sentence anchors three scope negations that read as non sequiturs without it.\n\n## Verification\n\nWords 6167 to 6239. Zero keyword delta. All eight citations in sections 1 and 1.1 survive the rewrite, checked individually rather than relying on the document-wide orphan check: ATTEST, ATTEST sections 7 and 7.6, RFC 7591 section 2, CIMD, and the internal references to profile selection, request processing, and conformance. `make` builds clean, no unresolved or uncited references, no overlong lines.\n",
+      "createdAt": "2026-09-22T21:14:57Z",
+      "updatedAt": "2026-09-23T00:04:44Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "00f8755189fcf1aae9661a05f55f81d57c1cbf9b",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "intro-rewrite",
+      "headRefOid": "d3b05b4d70d11074d8453de6e06523a0eba8752e",
+      "closedAt": "2026-09-23T00:04:43Z",
+      "mergedAt": "2026-09-23T00:04:43Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "48663c33ca08826aa8320b8062fbff54a9d69770"
       },
       "comments": [],
       "reviews": []
