@@ -249,8 +249,8 @@ Conformance is role-specific:
 | Role | Implements | Where |
 |---|---|---|
 | Client Attester | Claim, identifier, continuity, and enrollment requirements | {{claims}}, {{attester-requirements}} |
-| Client | Scoped attestation use and the selected ATTEST proof method | {{receiver-scope}} |
-| Receiver | Trust, validation, and grant-continuity rules | {{configuration}}, {{processing}} |
+| Client | Scoped attestation use, key separation, and the selected ATTEST proof method | {{receiver-scope}}, {{presenter-attribution}}, {{privacy}} |
+| Receiver | Trust, validation, grant-continuity, and revocation rules | {{configuration}}, {{processing}}, {{suspension}} |
 | Token issuer conveying context | Mapping, preservation, and any binding that attribution requires | {{instance-context}} |
 | Context Consumer | Context validation and applicable proof checks | {{presenter-attribution}}, {{context-consumer}}, {{context-errors}} |
 
@@ -624,10 +624,11 @@ presenter with the instance. For tokens issued directly from a
 validated Client Attestation, that mechanism is sender constraint:
 DPoP {{RFC9449}}, mutual TLS {{RFC8705}}, or another mechanism the
 consuming profile defines, with a constraining key that the issuer
-associated with the authenticated instance at issuance. That key MUST
-be unique to the instance at the configured granularity, because a key
-shared by instances inside that boundary establishes no attribution:
-any of them can present the token and satisfy the proof. An issuer that
+associated with the authenticated instance at issuance. The client
+MUST use a constraining key unique to the instance at the configured
+granularity, because a key shared by instances inside that boundary
+establishes no attribution: any of them can present the token and
+satisfy the proof. An issuer that
 cannot bind such a key MUST omit `client_instance` where the configured
 requirement for that Consumer Scope includes attribution. Context
 conveyed without such a key records only that the instance participated
@@ -804,9 +805,9 @@ The security considerations of {{ATTEST}} and {{RFC8725}} apply.
 
 A compromised attester can impersonate instances within its approved
 client associations. Receivers limit those associations and configure
-acceptable evidence assurance; attesters MUST NOT claim stronger
-assurance than their evidence supports, and self-reported,
-platform-verified, and hardware-rooted evidence are not
+acceptable evidence assurance; an attester that represents stronger
+assurance than its evidence supports defeats that configuration, and
+self-reported, platform-verified, and hardware-rooted evidence are not
 interchangeable. Copied keys and enrollment data can be
 indistinguishable from the original without independent platform
 evidence; {{continuity}} governs detected forks, not guaranteed clone
