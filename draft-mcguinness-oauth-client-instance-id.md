@@ -235,10 +235,11 @@ agreement, and no discovery or metadata parameter is added. The error in
 ## Attester Trust {#attester-trust}
 
 The Receiver MUST bind each approved Attester Issuer to its validation
-keys and authorized Logical Clients, using configured associations or,
-at an AS, client endorsements accepted under {{ATTESTER-ENDORSEMENT}}.
-That profile governs acceptance at AS endpoints only; a resource server
-validating attestations directly uses configured associations. A
+keys and authorized Logical Clients through configured associations.
+An AS can derive those associations from client endorsements it
+accepts, for example under {{ATTESTER-ENDORSEMENT}}, which governs AS
+endpoints only; a resource server validating attestations directly
+uses configured associations. A
 credential's `iss`, proof of possession, or client-published metadata
 ({{RFC7591}}, {{CIMD}}) alone does not establish attester authority.
 Key resolution follows {{ATTEST, Section 10.8}}. Local trust
