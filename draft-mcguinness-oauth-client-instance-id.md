@@ -186,7 +186,8 @@ Receiver Scope:
 
 Consumer Scope:
 : The Context Consumer, or explicitly configured set of Context
-  Consumers, to which one mapping of Instance Context is scoped.
+  Consumers, to which one mapping of Instance Context is scoped
+  ({{format-and-mapping}}).
 
 Instance Context Authority:
 : The token issuer identified by `iss` in Instance Context. It assigned
@@ -195,9 +196,9 @@ Instance Context Authority:
   authority for the Source Instance Identity.
 
 Instance Context Identifier:
-: The pair `(iss, id)` in Instance Context: the Instance Context
-  Authority's own pairwise correlator for one Source Instance Identity
-  within a Consumer Scope, like a pairwise subject identifier. `id` need
+: The pair `(iss, id)` in Instance Context. Like a pairwise subject
+  identifier, it is the Instance Context Authority's own correlator for
+  one Source Instance Identity within a Consumer Scope; its `id` need
   not equal `client_instance_id`.
 
 enrollment:
@@ -260,7 +261,8 @@ the rest of the profile.
 
 This profile uses the additional claims permitted by
 {{ATTEST, Section 4}}; all ATTEST requirements apply, including
-`sub=client_id`.
+`typ=oauth-client-attestation+jwt`, `sub=client_id`, required `exp`
+and `cnf`, and optional `iat`.
 
 `iss`:
 : REQUIRED. Exactly matches an approved Attester Issuer
@@ -376,21 +378,21 @@ with the Client Instance Key.
 {{ATTEST, Section 10.3}} binds a refresh token to the Client Instance,
 by default through the Client Instance Key. The refresh token stays
 bound to that key; only a profile acting under {{ATTEST, Section 13}}
-can rebind it. This profile records an identity for the binding that survives a
-verified key change, so later grants correlate with the same instance.
-It adds no instance-bound grants. Under the default binding, a
-refresh after a key change fails on the key alone. The identity check
-below then catches an attestation for the bound key that names a
-different instance; it governs refresh across key changes only under a
-profile that rebinds refresh tokens.
+can rebind it. This profile records an identity for the binding that
+survives a verified key change, so later grants correlate with the same
+instance. It adds no instance-bound grants. Under the default binding, a
+refresh after a key change fails on the key alone. Under that binding,
+the identity check below instead catches an attestation for the bound
+key that names a different instance; it governs refresh across key
+changes only under a profile that rebinds refresh tokens.
 
 For a grant established using a Client Attestation validated under this
 profile, the AS MUST record the Source Instance Identity when issuing a
-refresh token. On refresh, the AS MUST require a validated attestation
-whether it is the client authentication method or an additional security
-signal. This extends {{ATTEST, Section 10.3}}, which requires the
-attestation mechanism when refreshing. The AS MUST also enforce two
-independent invariants:
+refresh token. On refresh of such a grant, the AS MUST require a
+validated attestation whether it is the client authentication method or
+an additional security signal. This extends {{ATTEST, Section 10.3}},
+which requires the attestation mechanism when refreshing. The AS MUST
+also enforce two independent invariants:
 
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one; and
@@ -489,13 +491,13 @@ following outcomes:
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
 | Resume after suspension ({{suspension}}) | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
-| Detected fork of one enrollment | Retire the identifiers and enroll claimants separately, unless authenticated evidence shows which claimant continues the enrollment and keeps them |
+| Detected fork of one enrollment | Retire the identifiers and enroll claimants separately, unless authenticated evidence shows which claimant continues the enrollment; that claimant keeps them |
 
 The attester MUST NOT knowingly retain identifiers for independent
 instances. Concurrent processes within one installation are not by
-themselves a fork. The rule covers only forks the platform can detect
-({{assurance}}). An identifier, expired attestation, or former public
-key alone does not establish continuity.
+themselves a fork. This prohibition covers detected forks, not events
+the platform cannot observe ({{assurance}}). An identifier, expired
+attestation, or former public key alone does not establish continuity.
 
 ## Suspension and Status {#suspension}
 
@@ -523,9 +525,9 @@ Attesters MUST retain enrollment and verification records while
 issuing or renewing attestations, and status while supporting
 resumption. Verification summaries suffice. Deleting continuity
 records requires new enrollment. A validating Receiver need not keep
-an instance allowlist. Local suspension needs instance status.
-Revocation needs token associations. Mapped context needs its mappings
-({{mapping-stability}}). Audit retention is local policy.
+an instance allowlist, but local suspension needs instance status,
+revocation needs token associations, and mapped context needs its
+mappings ({{mapping-stability}}). Audit retention is local policy.
 
 # Conveying Instance Context {#instance-context}
 
@@ -551,10 +553,10 @@ identity is subject to {{grant-continuity}}. Token exchange follows
 {{context-exchange}} instead.
 
 Context MUST refer to validated instance participation; issuers MUST
-NOT copy unvalidated client-supplied context. The issuer MUST map the
-mapping input into its own namespace. The mapping input is the Source
-Instance Identity or, when remapping under {{context-exchange}}, the
-upstream Instance Context Identifier. Each mapping MUST:
+NOT copy unvalidated client-supplied context. The issuer MUST map its
+mapping input (the Source Instance Identity or, when remapping under
+{{context-exchange}}, the upstream Instance Context Identifier) into
+its own namespace. Each mapping MUST:
 
 * keep distinct instances separate unless continuity is established;
 * generate `id` under {{identifier-generation}}, within the same
@@ -567,9 +569,9 @@ Each Consumer Scope is a configured set of audience values. The issuer
 selects the mapping by the token's audience: its `aud` claim or, for an
 opaque token, the audience recorded at issuance. If a token has no
 audience, or its audiences span Consumer Scopes, no single `id` is
-correct and the issuer MUST omit `client_instance`. Introspection
-conveys the same `id` as the token. The issuer MUST omit
-`client_instance` when the authenticated caller is outside that
+correct and the issuer MUST omit `client_instance`. An introspection
+response conveys the `id` the token would carry. The issuer MUST omit
+`client_instance` when the authenticated caller is outside the token's
 Consumer Scope.
 
 For derived mappings, the mapping input supplies the enrollment-specific
@@ -590,8 +592,8 @@ For one mapping input and Consumer Scope, an issuer:
   requiring context then rejects under {{context-errors}}.
 
 An issuer that changes its derivation inputs or secrets MUST still
-produce the identifiers already assigned for any input and scope it
-still includes context for, as attesters must under
+produce the identifiers already assigned for any input and scope for
+which it continues to include context, as attesters must under
 {{identifier-generation}}. Storing those values suffices. Otherwise,
 rotating one secret would silently and permanently strip context from
 every instance mapped under it.
@@ -614,7 +616,8 @@ instance that participated in obtaining the token.
 When a Context Consumer uses context to attribute the current token
 presentation to that instance, the applicable consuming profile MUST
 require a mechanism associating the token presenter with the instance.
-The Context Consumer MUST validate that mechanism. For tokens issued
+When it does, the Context Consumer MUST validate that mechanism. For
+tokens issued
 directly from a validated Client Attestation, the mechanism is sender
 constraint: DPoP {{RFC9449}}, mutual TLS {{RFC8705}}, or another the
 consuming profile defines, using a key the issuer associated with the
@@ -627,20 +630,22 @@ and satisfy the proof.
 
 Where the configured requirement for a Consumer Scope includes
 attribution, an issuer that cannot bind such a key MUST omit
-`client_instance`. Context conveyed without such a key, including
-through introspection alone, records only participation
-({{context-consumer}}).
+`client_instance`. Context conveyed without such a key records only
+participation ({{context-consumer}}), including when it is conveyed
+only through introspection.
 
-A Context Consumer requiring attribution rejects a token without
-sender constraint ({{context-errors}}). The HTTP `Bearer` scheme does
+A token without sender constraint supports no presenter attribution,
+and a Context Consumer requiring attribution rejects it
+({{context-errors}}). The HTTP `Bearer` scheme does
 not indicate an unbound token; certificate-bound tokens {{RFC8705}}
 also use it.
 
 All validation requirements of the token-binding mechanism apply
 whether or not context is used for attribution, including rejection of
 a bound token presented without its proof ({{RFC9449, Section 7.2}}).
-The binding authenticates the presenter, not that the presenter is an
-instance named in context derived from an upstream token. Any
+The binding authenticates the presenter; it does not establish that the
+presenter is the instance named in context derived from an upstream
+token. Any
 presenter or key change during exchange requires authorization under
 the consuming profile. Unlinkability between Context Consumers also
 requires distinct token-binding keys ({{privacy}}).
@@ -671,12 +676,12 @@ An issuer MUST NOT name an upstream Instance Context Authority in
 2. that the context refers to the instance the input token represents.
 
 Validating the input token authenticates only its issuer's assertions.
-So by default an issuer MUST limit preservation to context whose `iss`
-equals the authenticated input-token issuer, and MUST remap or omit
-context that an intermediary itself preserved. The object carries no
-forwarding history, so deeper preservation needs a consuming profile
-that specifies authenticated provenance and its enforcement. Shallow
-preservation is also a privacy default.
+By default, therefore, an issuer MUST limit preservation to context
+whose `iss` equals the authenticated input-token issuer, and MUST remap
+or omit context that an intermediary itself preserved. A consuming
+profile that specifies authenticated provenance and its enforcement can
+permit deeper preservation; the object carries no forwarding history,
+and shallow preservation is also a privacy default.
 
 Context identifies one instance, not a chain, and MUST NOT be treated
 as a separate token or delegated actor. Remapping changes the Instance
@@ -718,9 +723,10 @@ context only from direct Client Attestation validation, this document
 is the consuming profile. Context then identifies the authenticated
 presenting instance ({{format-and-mapping}}), and validating the
 token's sender constraint ({{presenter-attribution}}) establishes the
-association. That configuration describes the issuer, not the token.
-At an issuer that also preserves context from input tokens, only a
-consuming profile carrying provenance can tell the two apart.
+association. That configuration describes the issuer, not the token,
+so it does not apply at an issuer that also preserves context from
+input tokens. There, only a consuming profile carrying provenance can
+distinguish directly validated context from preserved context.
 
 If the association is not established, the Context Consumer MUST treat
 context only as evidence of instance participation and MUST NOT
@@ -783,21 +789,22 @@ installations ({{cimd-example}}). CIMD removes per-AS registration of
 client metadata but not this profile's trust agreement
 ({{configuration}}). {{ATTESTER-ENDORSEMENT}} lets a client endorse
 attesters through `client_attesters` metadata, subject to AS policy.
-That endorsement does not select this profile or its continuity and
-privacy policy.
+That endorsement establishes the attester-to-client association but
+does not select this profile or its continuity and privacy policy.
 
 ## Workload and Agent Credentials
 
-A shared workload identity does not identify an individual instance;
-the attester needs instance-level evidence under {{continuity}}.
-Direct SPIFFE Verifiable Identity Document (SVID) authentication and
-client mappings follow {{SPIFFE-OAUTH}}. An AAuth Agent Provider
-{{AAUTH}} or workload attester can instead issue a Client Attestation
-under this profile when it holds the required enrollment evidence.
-Native credentials with different `sub` or `typ` semantics require a
-separate carrier profile and convey no Instance Context under this one
-({{format-and-mapping}}). {{deployment-examples}} illustrates these
-boundaries.
+A shared workload identity does not identify an individual instance; the
+attester needs instance-level evidence under {{continuity}}. Direct
+SPIFFE Verifiable Identity Document (SVID) authentication and client
+mappings follow {{SPIFFE-OAUTH}}. An AAuth Agent Provider {{AAUTH}} or
+workload attester can instead issue a Client Attestation under this
+profile when it holds the required enrollment evidence. Native
+credentials with different `sub` or `typ` semantics require a separate
+carrier profile. A deployment authenticating only with them conveys no
+Instance Context under this profile, which maps context only from a
+validated Client Attestation ({{format-and-mapping}}).
+{{deployment-examples}} illustrates these boundaries.
 
 # Security Considerations
 
@@ -840,8 +847,8 @@ evaluated evidence.
   scoping does not permit changing a refresh token's bound key
   ({{grant-continuity}}).
 * **Attester visibility:** the attester learns any Receiver Scope the
-  client supplies; {{receiver-scope}} describes the trade-off and the
-  deployment-wide scope that limits it.
+  client supplies; {{receiver-scope}} describes the trade-off and how a
+  single Receiver Scope spanning those Receivers limits it.
 * **Disclosure:** error responses SHOULD NOT reveal unrelated instance
   identities. Status non-disclosure follows {{errors}}; retention
   follows {{state}} and {{mapping-stability}}. Unpredictable
@@ -880,8 +887,8 @@ or actor profile values.
 
 These examples are informative. The first two use the managed-device
 flow ({{managed-device-example}}): the user is the authorization
-subject, and the installation is context. The AS maps the attester's
-identifier to a value scoped to `https://api.example`.
+subject, and the installation appears as Instance Context. The AS maps
+the attester's identifier to a value scoped to `https://api.example`.
 
 ## Access Token Payload
 {:numbered="false"}
