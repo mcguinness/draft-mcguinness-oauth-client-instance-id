@@ -476,7 +476,7 @@ evidence on its own. Before retaining an identifier, the attester MUST
 verify and record:
 
 1. an active enrollment binding the instance, Logical Client, Receiver
-   scope, granularity, and previously verified keys;
+   Scope, granularity, and previously verified keys;
 2. fresh possession of the current key and authenticated evidence
    binding it to that enrollment, including an authorized custody
    transition when the key changes; and
