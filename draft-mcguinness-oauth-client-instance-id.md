@@ -419,8 +419,9 @@ attestation is the client authentication method.
 
 ## Attestation Errors {#errors}
 
-Missing or invalid required instance claims and rejection by instance
-policy MUST produce `invalid_client_attestation`. This profile
+Missing or invalid required instance claims and rejection by the
+Receiver's local policy for the instance ({{processing}}) MUST produce
+`invalid_client_attestation`. This profile
 deliberately reuses ATTEST's validation error so that responses do not
 disclose whether an instance is unknown, suspended, or retired.
 Receivers SHOULD also avoid distinguishable response timing. {{ATTEST,
@@ -990,7 +991,7 @@ context would have to define its upstream association explicitly.
 {:numbered="false"}
 
 Example token-endpoint response when a required instance claim is
-missing or instance policy rejects the request ({{errors}}). It does
+missing or local policy rejects the instance ({{errors}}). It does
 not disclose whether the instance is unknown, suspended, or retired.
 
 ~~~ http-message
