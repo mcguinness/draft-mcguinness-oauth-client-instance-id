@@ -125,8 +125,9 @@ The deployment chooses the instance granularity:
 
 * **Installation:** one installation, retaining its identity across
   process restarts.
-* **Execution:** one process, container, or scheduling unit such as a
-  Kubernetes Pod, retaining its identity for that unit's lifetime.
+* **Execution:** one unit the deployment names, such as a process, a
+  container, or a Kubernetes Pod, retaining its identity for that
+  unit's lifetime.
 
 Enrollment records that choice and binds the instance to its verified
 keys. Several instances can share one `client_id`.
@@ -483,9 +484,9 @@ verify and record:
    lifecycle events or evidence of independent claimants.
 
 The deployment specifies its evidence, freshness limits, and
-lifecycle boundaries. For example, a container restart can leave its
-Kubernetes Pod intact, but a new Pod is a new scheduling unit. An
-identifier at installation or scheduling-unit granularity does not
+lifecycle boundaries. For example, when the unit is a Kubernetes Pod, a
+container restart within it keeps the identity, but a new Pod is a new
+unit. An identifier at Installation or Execution granularity does not
 identify the individual processes running within that installation or
 unit. The attester MUST apply the following outcomes:
 
@@ -1036,8 +1037,8 @@ At step 1 the workload uses an X.509-SVID from the Workload API for
 mutual TLS. The attester validates its trust domain and runtime evidence
 binding this container to `K1`; a shared SPIFFE ID cannot distinguish
 replicas. Step 2 uses client credentials with the resulting attestation.
-At container granularity, restart requires new enrollment; SVID renewal
-within a continuing container does not.
+With the container as the Execution unit, restart requires new
+enrollment; SVID renewal within a continuing container does not.
 
 ## Managed Device {#managed-device-example}
 {:numbered="false"}
