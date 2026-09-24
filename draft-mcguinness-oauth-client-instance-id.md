@@ -222,7 +222,7 @@ The client and Receiver administratively configure:
   ({{receiver-scope}}).
 
 A Context Consumer that requires context configures that requirement,
-including whether it extends to attribution, and the issuers it accepts
+including whether it extends to attribution, with the issuers it accepts
 context from. Claims MUST NOT select this profile or change
 authentication methods; selection is part of the client-specific trust
 agreement, and this profile adds no discovery or metadata parameter.
