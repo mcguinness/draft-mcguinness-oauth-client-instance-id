@@ -708,8 +708,8 @@ Before using context, the Context Consumer MUST:
 3. Accept the Instance Context Authority only when it is the token
    issuer or an upstream token issuer explicitly trusted for that
    issuer and consumer.
-4. Reject invalid context and, when context is required, also reject
-   the request if context is missing or invalid ({{context-errors}}).
+4. Discard invalid context and, when context is required, reject the
+   request if context is missing or was discarded ({{context-errors}}).
 
 A Context Consumer MUST establish the context's association with the
 subject, actor, or presenter from the applicable consuming profile and
