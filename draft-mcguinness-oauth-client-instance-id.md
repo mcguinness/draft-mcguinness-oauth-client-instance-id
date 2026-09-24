@@ -70,8 +70,9 @@ Attestation-Based Client Authentication {{ATTEST}} answers one
 question: is this an authorized Client Instance in possession of this
 key? This profile adds a second: is this the same Client Instance the
 Receiver previously encountered? A new attestation alone cannot answer
-it, because after a key change a continuing installation is
-indistinguishable from a new one.
+it: {{ATTEST, Section 10.6}} requires one for every new key, and after
+a key change a continuing installation is indistinguishable from a new
+one.
 
 The gap opens wherever one Logical Client has many running copies: a
 harness on each managed laptop, a container per replica, an agent
