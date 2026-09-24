@@ -732,7 +732,10 @@ validating the token's sender constraint ({{presenter-attribution}})
 establishes the association. That configuration describes the issuer,
 not the token, so it does not apply at an issuer that also preserves
 context from input tokens; distinguishing the two there requires a
-consuming profile that carries provenance.
+consuming profile that carries provenance. An issuer that Context
+Consumers are configured to treat this way MUST NOT convey Instance
+Context derived from anything other than a Client Attestation it
+validated for the issuing request.
 
 For introspection, trusted endpoint configuration identifies the
 expected token issuer; a response-level `iss`, if present, MUST match
