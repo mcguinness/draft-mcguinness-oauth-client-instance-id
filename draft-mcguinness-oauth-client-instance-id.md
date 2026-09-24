@@ -231,7 +231,7 @@ authentication methods; selection is part of the client-specific trust
 agreement, and no discovery or metadata parameter is added. The error in
 {{errors}} reports rejection, not profile discovery.
 
-## Attester Trust
+## Attester Trust {#attester-trust}
 
 The Receiver MUST bind each approved Attester Issuer to its validation
 keys and authorized Logical Clients, using configured associations or,
@@ -268,7 +268,7 @@ and `cnf`, and optional `iat`.
 
 `iss`:
 : REQUIRED. Exactly matches an approved Attester Issuer
-  ({{configuration}}).
+  ({{attester-trust}}).
 
 `client_instance_id`:
 : REQUIRED. Nonempty JSON string whose UTF-8 encoding is no longer
