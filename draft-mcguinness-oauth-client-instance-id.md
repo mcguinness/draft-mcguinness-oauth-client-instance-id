@@ -384,9 +384,15 @@ introduce instance-bound grants; it gives that binding a recorded
 identity that survives a verified key change, so later grants correlate
 with the same instance. The refresh token itself does not move: it stays
 bound to the key ATTEST bound it to, and only a profile acting under
-{{ATTEST, Section 13}} can change that. For a grant established using a
-Client Attestation validated under this profile, the AS MUST record the
-Source Instance Identity when issuing a refresh token and, on refresh,
+{{ATTEST, Section 13}} can change that. Under the default binding, a
+refresh after a key change fails on the key alone; the identity check
+below then catches an attestation for the bound key that names a
+different instance, and it governs refresh across key changes only
+under a profile that rebinds refresh tokens. For a grant established
+using a Client Attestation validated under this profile, the AS MUST
+record the Source Instance Identity when issuing a refresh token, MUST
+require a validated attestation on refresh whether the attestation is
+the client authentication method or an additional security signal, and
 MUST enforce two independent invariants:
 
 * the Source Instance Identity in the current validated attestation
