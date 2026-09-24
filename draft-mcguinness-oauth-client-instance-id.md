@@ -86,7 +86,8 @@ The profile adds two claims:
 * `client_instance_id` names one client installation or runtime in its
   Client Attestation, so a Receiver can follow each copy across key
   changes. The attester assigns it, retains it across verified key
-  changes, and scopes it to a Receiver by default.
+  changes, and scopes it to a Receiver by default, which reveals that
+  Receiver to the attester.
 * `client_instance` carries a mapped reference to that instance in a
   token or introspection response, so a resource server that never sees
   the attestation can still correlate requests with the instance
@@ -285,7 +286,18 @@ The attester MUST assign distinct identifiers per Receiver unless an
 administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers; a shared client or trust domain does
 not by itself authorize sharing. The client MUST request and use the
-attestation for that configured scope.
+attestation for that configured scope. A Receiver cannot detect an
+attestation presented outside its scope; the loss falls on that
+client's own unlinkability.
+
+Scoping to a Receiver requires the attester to learn that Receiver.
+That gives up a property {{ATTEST}} states in its abstract: the client
+proves its authenticity without revealing its target audience to the
+attester. This profile trades attester visibility for unlinkability
+between Receivers. A deployment that needs the attester not to learn
+individual Receivers configures one Receiver Scope spanning all of
+them; the attester then learns only that scope, and those Receivers
+can correlate the instance.
 
 The client MUST also use distinct Client Instance Keys across scopes.
 {{ATTEST, Section 11.1}} recommends this across authorization and
@@ -818,8 +830,8 @@ the evaluated evidence.
   not permit changing a refresh token's bound key
   ({{grant-continuity}}).
 * **Attester visibility:** supplying Receiver Scope reveals it to the
-  attester; deployments requiring ATTEST's audience-hiding property
-  should omit this profile.
+  attester; {{receiver-scope}} describes the trade-off and the
+  deployment-wide scope that avoids it.
 * **Disclosure:** status non-disclosure follows {{errors}}, and
   retention follows {{state}} and {{mapping-stability}}. Error
   responses SHOULD NOT reveal unrelated instance identities.
