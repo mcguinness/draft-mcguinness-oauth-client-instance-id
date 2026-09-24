@@ -968,6 +968,7 @@ consuming profile. The relevant output claims are:
 ~~~ json
 {
   "sub": "user-17",
+  "aud": "https://api.example",
   "act": {
     "iss": "https://as.example",
     "sub": "agent-42"
