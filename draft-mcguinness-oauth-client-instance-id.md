@@ -74,8 +74,8 @@ it: {{ATTEST, Section 10.6}} requires one for every new key, and after
 a key change a continuing installation is indistinguishable from a new
 one.
 
-The gap opens wherever one Logical Client has many running copies: a
-harness on each managed laptop, a container per replica, an agent
+The gap opens wherever one Logical Client has many running copies: an
+application on each managed laptop, a container per replica, an agent
 runtime per host. Every copy presents a valid attestation for the same
 `client_id`, distinguishable only by its current key. Once a copy
 rotates that key, a Receiver cannot tell whether it is the copy it
@@ -1048,10 +1048,10 @@ enrollment; SVID renewal within a continuing container does not.
 ## Managed Device {#managed-device-example}
 {:numbered="false"}
 
-At step 1 a management component verifies the installed harness and its
+At step 1 a management component verifies the installed client and its
 platform-protected `K1`, using app-attestation evidence where available.
 Device enrollment or key storage alone does not identify the installation.
-Before step 2, the harness obtains a code through an external browser
+Before step 2, the client obtains a code through an external browser
 {{RFC8252}} with PKCE `S256` {{RFC7636}}, then redeems it directly with
 the code verifier, redirect URI, `C1`, attestation, and DPoP proof. The
 browser receives neither attestation nor proof. Process restarts can
