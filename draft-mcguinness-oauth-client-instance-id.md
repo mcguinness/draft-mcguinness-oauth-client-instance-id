@@ -496,7 +496,7 @@ unit. The attester MUST apply the following outcomes:
 | Renewal, verified key change, process restart at Installation granularity, or in-place update | Retain identifiers when continuity is verified |
 | Reinstall, independent clone, replacement or restart of the unit at Execution granularity, or granularity change | Require new enrollment |
 | Restore or snapshot rollback | Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient |
-| Suspend/resume | Apply continuity checks at the next issuance using available authenticated evidence |
+| Resume after suspension ({{suspension}}) | Apply continuity checks at the next issuance using available authenticated evidence |
 | Continuity cannot be established | Require new enrollment; a continuing original can retain its own enrollment |
 | Detected fork of one enrollment | Retire the identifiers and enroll claimants separately, unless authenticated evidence establishes which claimant continues the enrollment, which then retains them |
 
