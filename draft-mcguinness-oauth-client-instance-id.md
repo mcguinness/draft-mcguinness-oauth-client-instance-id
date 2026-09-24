@@ -615,13 +615,12 @@ instance that participated in obtaining the token.
 
 When a Context Consumer uses context to attribute the current token
 presentation to that instance, the applicable consuming profile MUST
-require a mechanism associating the token presenter with the instance.
-When it does, the Context Consumer MUST validate that mechanism. For
-tokens issued
-directly from a validated Client Attestation, the mechanism is sender
-constraint: DPoP {{RFC9449}}, mutual TLS {{RFC8705}}, or another the
-consuming profile defines, using a key the issuer associated with the
-authenticated instance at issuance.
+require a mechanism associating the token presenter with the instance. A
+Context Consumer attributing a presentation this way MUST validate that
+mechanism. For tokens issued directly from a validated Client
+Attestation, the mechanism is sender constraint: DPoP {{RFC9449}},
+mutual TLS {{RFC8705}}, or another the consuming profile defines, using
+a key the issuer associated with the authenticated instance at issuance.
 
 The client MUST use a constraining key unique to the instance at the
 configured granularity. A key shared by instances inside that boundary
@@ -848,7 +847,8 @@ evaluated evidence.
   ({{grant-continuity}}).
 * **Attester visibility:** the attester learns any Receiver Scope the
   client supplies; {{receiver-scope}} describes the trade-off and how a
-  single Receiver Scope spanning those Receivers limits it.
+  single Receiver Scope spanning every Receiver the client uses limits
+  it.
 * **Disclosure:** error responses SHOULD NOT reveal unrelated instance
   identities. Status non-disclosure follows {{errors}}; retention
   follows {{state}} and {{mapping-stability}}. Unpredictable
