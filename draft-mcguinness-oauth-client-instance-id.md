@@ -290,8 +290,8 @@ administrative agreement explicitly authorizes a shared identifier
 within a named set of Receivers; a shared client or trust domain does
 not by itself authorize sharing. The client MUST request and use the
 attestation for that configured scope. A Receiver cannot detect an
-attestation presented outside its scope; the loss falls on that
-client's own unlinkability.
+attestation presented outside its scope; the resulting correlation
+exposes the end user of that instance ({{ATTEST, Section 11.1}}).
 
 Scoping to a Receiver requires the attester to learn that Receiver.
 That gives up a property {{ATTEST}} states in its abstract: the client
@@ -850,8 +850,8 @@ the evaluated evidence.
   not permit changing a refresh token's bound key
   ({{grant-continuity}}).
 * **Attester visibility:** supplying Receiver Scope reveals it to the
-  attester; {{receiver-scope}} describes the trade-off and the
-  deployment-wide scope that avoids it.
+  attester; {{receiver-scope}} describes the trade-off and how a
+  deployment-wide scope limits it to one named set.
 * **Disclosure:** status non-disclosure follows {{errors}}, and
   retention follows {{state}} and {{mapping-stability}}. Error
   responses SHOULD NOT reveal unrelated instance identities.
