@@ -622,10 +622,11 @@ Attestation, the mechanism is sender constraint: DPoP {{RFC9449}},
 mutual TLS {{RFC8705}}, or another the consuming profile defines, using
 a key the issuer associated with the authenticated instance at issuance.
 
-The client MUST use a constraining key unique to the instance at the
-configured granularity. A key shared by instances inside that boundary
-establishes no attribution, because any of them can present the token
-and satisfy the proof.
+For presenter attribution, the client MUST use a constraining key
+unique to the instance at the configured granularity. A key shared by
+instances inside that boundary
+establishes no attribution, because any of them can present the
+token and satisfy the proof.
 
 Where the configured requirement for a Consumer Scope includes
 attribution, an issuer that cannot bind such a key MUST omit
