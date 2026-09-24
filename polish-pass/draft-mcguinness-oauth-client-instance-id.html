@@ -1553,7 +1553,7 @@ locations by parsing them.<a href="#section-2-4" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-3-3">A Context Consumer that requires context configures that requirement,
-including whether it extends to attribution, and the issuers it accepts
+including whether it extends to attribution, with the issuers it accepts
 context from. Claims <span class="bcp14">MUST NOT</span> select this profile or change
 authentication methods; selection is part of the client-specific trust
 agreement, and this profile adds no discovery or metadata parameter.
@@ -2156,10 +2156,11 @@ mechanism. For tokens issued directly from a validated Client
 Attestation, the mechanism is sender constraint: DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>,
 mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another the consuming profile defines, using
 a key the issuer associated with the authenticated instance at issuance.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
-<p id="section-7.3-3">The client <span class="bcp14">MUST</span> use a constraining key unique to the instance at the
-configured granularity. A key shared by instances inside that boundary
-establishes no attribution, because any of them can present the token
-and satisfy the proof.<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+<p id="section-7.3-3">For presenter attribution, the client <span class="bcp14">MUST</span> use a constraining key
+unique to the instance at the configured granularity. A key shared by
+instances inside that boundary
+establishes no attribution, because any of them can present the
+token and satisfy the proof.<a href="#section-7.3-3" class="pilcrow">¶</a></p>
 <p id="section-7.3-4">Where the configured requirement for a Consumer Scope includes
 attribution, an issuer that cannot bind such a key <span class="bcp14">MUST</span> omit
 <code>client_instance</code>. Context conveyed without such a key records only
