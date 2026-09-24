@@ -395,8 +395,10 @@ under a profile that rebinds refresh tokens. For a grant established
 using a Client Attestation validated under this profile, the AS MUST
 record the Source Instance Identity when issuing a refresh token, MUST
 require a validated attestation on refresh whether the attestation is
-the client authentication method or an additional security signal, and
-MUST enforce two independent invariants:
+the client authentication method or an additional security signal
+(extending {{ATTEST, Section 10.3}}, which requires the attestation
+mechanism when refreshing), and MUST enforce two independent
+invariants:
 
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one; and
