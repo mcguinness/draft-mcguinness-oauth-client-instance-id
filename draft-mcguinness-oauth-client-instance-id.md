@@ -705,8 +705,9 @@ Before using context, the Context Consumer MUST:
 
 1. Validate the enclosing token or authenticated introspection
    response.
-2. Validate the context members, rejecting `id` values over the length
-   bound in {{format-and-mapping}} and ignoring unrecognized members.
+2. Validate the context members, treating `id` values over the length
+   bound in {{format-and-mapping}} as invalid and ignoring unrecognized
+   members.
 3. Accept the Instance Context Authority only when it is the token
    issuer or an upstream token issuer explicitly trusted for that
    issuer and consumer.
