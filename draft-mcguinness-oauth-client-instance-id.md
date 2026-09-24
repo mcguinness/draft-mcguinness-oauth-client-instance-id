@@ -357,8 +357,9 @@ The Receiver MUST:
    parameters, not from `iss`, so a trust anchor covering several
    attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
-   validated Client Instance Key, then apply instance policy
-   ({{errors}}).
+   validated Client Instance Key, then apply the Receiver's local
+   policy for that instance, such as suspension or required prior
+   enrollment, reporting rejection under {{errors}}.
 
 The Receiver MUST NOT:
 
@@ -414,9 +415,12 @@ policy MUST produce `invalid_client_attestation`. This profile
 deliberately reuses ATTEST's validation error so that responses do not
 disclose whether an instance is unknown, suspended, or retired.
 Receivers SHOULD also avoid distinguishable response timing. {{ATTEST,
-Section 7.4}} defines that code for attestation verification failures
-and defers situations it does not describe to extensions such as this
-profile. A consequence is that the response does not distinguish a
+Section 7.4}} defines that code for failures to verify the attestation
+or its proof; extending it to instance claims and policy is this
+profile's choice. Responses use the format ATTEST specifies for the
+code: an error response under {{RFC6749, Section 5.2}} at the AS, or
+under {{RFC6750, Section 3}} at a resource server. A consequence is
+that the response does not distinguish a
 transient verification failure from a durable policy decision, so a
 client cannot tell whether retrying with a fresh attestation will help.
 Unknown instances are rejected only when local policy requires prior
