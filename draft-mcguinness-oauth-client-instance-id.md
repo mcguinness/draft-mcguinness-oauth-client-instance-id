@@ -919,7 +919,6 @@ or actor profile values.
 --- back
 
 # Wire Examples {#wire-examples}
-{:numbered="false"}
 
 These examples are informative. The first two use the managed-device
 flow ({{managed-device-example}}): the user is the authorization
@@ -928,7 +927,6 @@ authorization server maps the attester's identifier to a value scoped to
 `https://api.example`.
 
 ## Access Token Payload
-{:numbered="false"}
 
 The following example shows a decoded {{RFC9068}} access token
 payload; its JOSE header contains a `typ` value of `at+jwt`. The `jkt`
@@ -956,7 +954,6 @@ member of the `cnf` claim identifies the public key in
 ~~~
 
 ## Introspection Response
-{:numbered="false"}
 
 The following example shows an authenticated introspection response
 conveying the same context for an opaque access token. The
@@ -989,7 +986,6 @@ Cache-Control: no-store
 ~~~
 
 ## Governed Actor and Instance Context
-{:numbered="false"}
 
 A consuming profile can authorize instance `B` to continue work that
 instance `A` began for the same governed agent. Here that profile
@@ -1021,7 +1017,6 @@ alone authorizes this exchange. A profile that instead preserved `A`'s
 context would have to define that upstream association explicitly.
 
 ## Attestation Rejection
-{:numbered="false"}
 
 The following example shows a token endpoint response when a required
 instance claim is missing or local policy rejects the instance
@@ -1039,7 +1034,6 @@ Cache-Control: no-store
 ~~~
 
 # Deployment Examples {#deployment-examples}
-{:numbered="false"}
 
 The following informative examples share three steps. `C1` is the
 Logical Client; `I1` and `K1` are an Instance Identifier and key scoped
@@ -1056,7 +1050,6 @@ to the authorization server.
    evidence.
 
 ## CIMD Client {#cimd-example}
-{:numbered="false"}
 
 Let `C1` be `https://platform.example/oauth-client`, whose CIMD declares
 `attest_jwt_client_auth_dpop` ({{ATTESTER-ENDORSEMENT}} has a metadata
@@ -1066,7 +1059,6 @@ endorsement. Key renewal does not change the CIMD. User-authorized
 access follows {{managed-device-example}}.
 
 ## AAuth Agent Provider {#aauth-example}
-{:numbered="false"}
 
 At step 1, the Agent Provider verifies managed installation evidence
 and issues a Client Attestation. Native `aa-agent+jwt` credentials and
@@ -1075,7 +1067,6 @@ the proof. Step 2 uses a pre-authorized client credentials grant;
 AAuth metadata alone does not establish attester trust.
 
 ## SPIFFE Workload {#spiffe-example}
-{:numbered="false"}
 
 At step 1, the workload uses an X.509-SVID from the Workload API for
 mutual TLS. The attester validates its trust domain and runtime
@@ -1086,7 +1077,6 @@ restart requires new enrollment; SVID renewal within a continuing
 container does not.
 
 ## Managed Device {#managed-device-example}
-{:numbered="false"}
 
 At step 1, a management component verifies the installed client and
 its platform-protected `K1`, using app-attestation evidence where
