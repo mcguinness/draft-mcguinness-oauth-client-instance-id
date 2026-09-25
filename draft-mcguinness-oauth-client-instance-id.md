@@ -594,8 +594,9 @@ values. The issuer selects the mapping by the token's audience: its
 If a token has no audience, or its audiences span Consumer Scopes, no
 single `id` value is correct, and the issuer MUST omit the
 `client_instance` object. An introspection response conveys the `id` the
-token would carry. When the authenticated caller is outside the token's
-Consumer Scope, the issuer MUST omit the `client_instance` object.
+token would carry. When the authenticated introspection caller is
+outside the token's Consumer Scope, the issuer MUST omit the
+`client_instance` object.
 
 For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope. Issuers MUST separate
@@ -617,8 +618,8 @@ For one mapping input and Consumer Scope, an issuer:
 
 An issuer that changes its derivation inputs or secrets MUST still
 produce the identifiers already assigned for any input and scope for
-which it continues to include context, as attesters must under
-{{identifier-generation}}. Storing those values suffices. Otherwise,
+which it continues to include context, as {{identifier-generation}}
+requires of attesters. Storing those values suffices. Otherwise,
 rotating one secret would silently and permanently remove context from
 every instance mapped under it.
 
@@ -1027,9 +1028,9 @@ instance `A` began for the same governed agent. Here that profile
 authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}} and
 selects the authenticated presenting instance for output context. The
 authorization server validates `B`'s attestation and proof, replaces
-`A`'s input context with `B`'s resource-scoped mapping, and binds the
-output token under the consuming profile. The following example shows
-the relevant output claims:
+`A`'s input context with `B`'s mapping for the resource server's
+Consumer Scope, and binds the output token under the consuming profile.
+The following example shows the relevant output claims:
 
 ~~~ json
 {
@@ -1081,7 +1082,7 @@ to the authorization server.
 2. The client presents its grant, attestation, and combined DPoP proof
    using `K1` at the authorization server token endpoint.
 3. The authorization server validates them and issues a DPoP-bound token
-   with mapped context `M1`, scoped to the resource. The resource
+   with mapped context `M1`, scoped to the resource. The resource server
    validates the token, proof, and context without seeing the enrollment
    evidence.
 
