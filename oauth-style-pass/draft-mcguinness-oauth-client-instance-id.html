@@ -1821,11 +1821,10 @@ bound to that key; only a profile acting under <span><a href="https://datatracke
 can rebind it. This profile records an identity for the binding that
 persists across a verified key change, so later grants correlate with
 the same instance. It adds no instance-bound grants. Under the default
-binding, a refresh after a key change fails key-binding validation;
-the identity check below then detects an
-attestation for the bound key that names a different instance; the
-check governs refresh across key changes only under a profile that
-rebinds refresh tokens.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+binding, a refresh after a key change fails key-binding validation. With
+the original bound key, the identity check below detects an attestation
+that names a different instance; the check governs refresh across key
+changes only under a profile that rebinds refresh tokens.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">For a grant established using a Client Attestation validated under this
 profile, the authorization server <span class="bcp14">MUST</span> record the Source Instance
 Identity when issuing a refresh token. On refresh of such a grant, the

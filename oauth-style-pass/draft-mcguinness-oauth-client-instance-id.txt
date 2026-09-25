@@ -486,10 +486,10 @@ Table of Contents
    identity for the binding that persists across a verified key change,
    so later grants correlate with the same instance.  It adds no
    instance-bound grants.  Under the default binding, a refresh after a
-   key change fails key-binding validation; the identity check below
-   then detects an attestation for the bound key that names a different
-   instance; the check governs refresh across key changes only under a
-   profile that rebinds refresh tokens.
+   key change fails key-binding validation.  With the original bound
+   key, the identity check below detects an attestation that names a
+   different instance; the check governs refresh across key changes only
+   under a profile that rebinds refresh tokens.
 
    For a grant established using a Client Attestation validated under
    this profile, the authorization server MUST record the Source
