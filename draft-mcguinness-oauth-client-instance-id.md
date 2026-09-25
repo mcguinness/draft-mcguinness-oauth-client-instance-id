@@ -86,10 +86,10 @@ decisions tied to the old key do not carry over.
 This specification defines two claims:
 
 * The `client_instance_id` claim allows a Receiver to recognize a Client
-  Instance across key changes. It identifies one installation or
-  runtime in its Client Attestation. The attester assigns it, retains
-  it across verified key changes, and by default scopes it to one
-  Receiver, which reveals that Receiver to the attester.
+  Instance across key changes. Carried in the Client Attestation, it
+  identifies one installation or runtime. The attester assigns it,
+  retains it across verified key changes, and by default scopes it to
+  one Receiver, which reveals that Receiver to the attester.
 * The `client_instance` claim allows a resource server that does not
   receive the attestation to correlate requests with the instance
   validated at issuance. It carries a mapped reference to that instance
@@ -302,8 +302,8 @@ abstract: the client proves its authenticity without revealing its
 target audience to the attester. This profile trades attester
 visibility for unlinkability between Receivers. A deployment that
 needs the attester not to learn individual Receivers, or that intends
-correlation across them, as an enterprise workload might, configures
-one Receiver Scope spanning them. The attester then learns only that
+correlation across them, configures one Receiver Scope spanning them.
+The attester then learns only that
 scope, those Receivers can correlate the instance, and one identifier
 and key suffice.
 
@@ -391,8 +391,8 @@ bound to that key; only a profile acting under {{Section 13 of ATTEST}}
 can rebind it. This profile records an identity for the binding that
 persists across a verified key change, so later grants correlate with
 the same instance. It adds no instance-bound grants. Under the default
-binding, a refresh after a key change fails on the key alone.
-Under that binding, the identity check below instead detects an
+binding, a refresh after a key change fails key-binding validation;
+the identity check below then detects an
 attestation for the bound key that names a different instance; the
 check governs refresh across key changes only under a profile that
 rebinds refresh tokens.
@@ -423,28 +423,28 @@ or an additional security signal ({{Section 7.6 of ATTEST}}). Because
 presenting the attestation is optional in that second mode, an
 authorization server that binds artifacts to instances MUST require it
 at their redemption; otherwise a conforming client cannot supply what
-the authorization server must check.
+the authorization server needs to check.
 {{Section 10.4 of ATTEST}} recommends establishing such bindings where
 attestation is the client authentication method.
 
 ## Attestation Errors {#errors}
 
-If required instance claims are missing or invalid, or if the
-Receiver's local policy for the instance ({{processing}}) rejects the
-instance, the Receiver MUST produce the `invalid_client_attestation`
-error code. {{Section 7.4 of ATTEST}} defines that code for failures
-to verify the attestation or its proof. This profile deliberately
-extends it to instance claims and policy, so responses do not disclose
-whether an instance is unknown, suspended, or retired. Receivers SHOULD
-also avoid distinguishable response timing. The cost is that a client
-cannot tell a transient failure from a durable policy decision, or
-whether retrying with a fresh attestation will help. Responses use the
-format ATTEST specifies for the code ({{Section 5.2 of RFC6749}} at the
-authorization server, {{Section 3 of RFC6750}} at a resource server).
-Unknown instances are rejected only when local policy requires prior
-enrollment. If a profile check fails, the Receiver MUST NOT fall back
-to authentication without the required evidence. Grant-binding errors
-follow {{grant-continuity}}; other errors follow ATTEST.
+If required instance claims are missing or invalid, or if the Receiver's
+local policy for the instance ({{processing}}) rejects the instance, the
+Receiver MUST produce the `invalid_client_attestation` error code.
+{{Section 7.4 of ATTEST}} defines that code for failures to verify the
+attestation or its proof. This profile extends it to instance claims and
+policy, so responses do not disclose whether an instance is unknown,
+suspended, or retired. Receivers SHOULD also avoid distinguishable
+response timing. Consequently, a client cannot distinguish a transient
+failure from a durable policy decision, or whether retrying with a fresh
+attestation will help. Responses use the format ATTEST specifies for the
+code ({{Section 5.2 of RFC6749}} at the authorization server,
+{{Section 3 of RFC6750}} at a resource server). Unknown instances are
+rejected only when local policy requires prior enrollment. If a profile
+check fails, the Receiver MUST NOT fall back to authentication without
+the required evidence. Grant-binding errors follow {{grant-continuity}};
+other errors follow ATTEST.
 
 # Attester Requirements {#attester-requirements}
 
@@ -776,8 +776,8 @@ Retrying with a new access token ({{Section 3.1 of RFC6750}}) does not
 resolve a rejection for a missing sender constraint. When a resource
 server rejects a request for that reason, it SHOULD include the
 challenge for the binding mechanism it requires, such as the `DPoP`
-scheme in {{Section 7.1 of RFC9449}}, so the client learns what to
-change.
+scheme in {{Section 7.1 of RFC9449}}, so that the client can
+determine the required binding mechanism.
 
 Other consuming profiles define their own error mapping. Direct Client
 Attestation failures follow {{errors}}.
