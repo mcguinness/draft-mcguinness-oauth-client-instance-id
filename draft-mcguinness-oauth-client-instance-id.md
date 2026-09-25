@@ -512,8 +512,9 @@ attestation, or former public key alone does not establish continuity.
 ## Suspension and Status {#suspension}
 
 The attester MUST stop issuance for suspended or retired enrollments.
-A Receiver suspending an instance SHOULD revoke its grants or report
-their tokens inactive through introspection {{RFC7662}}. Short
+An authorization server that suspends an instance SHOULD revoke the
+instance's grants or report their tokens inactive through introspection
+{{RFC7662}}. Short
 attestation lifetimes limit how long a suspended instance remains
 acceptable.
 
