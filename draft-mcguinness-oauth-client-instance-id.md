@@ -102,7 +102,7 @@ can use validated instance identity or Instance Context as a policy
 input, subject to the prohibitions in {{processing}}.
 
 {{ATTEST}} alone suffices when correlation is needed only for the
-current key or within one system.
+current key.
 
 Assigning each instance its own `client_id` with a shared `software_id`
 client metadata value ({{Section 2 of RFC7591}}) is an alternative.
