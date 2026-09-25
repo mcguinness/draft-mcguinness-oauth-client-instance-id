@@ -425,7 +425,7 @@ If authorization-time policy bound a code or other artifact to an
 instance, the authorization server MUST enforce that binding at
 redemption, whether the attestation is the client authentication method
 or an additional security signal ({{Section 7.6 of ATTEST}}). Because
-presenting the attestation is optional in that second mode, an
+presenting the attestation can be optional in that second mode, an
 authorization server that binds artifacts to instances MUST require it
 at their redemption; otherwise a conforming client cannot supply what
 the authorization server needs to check.
