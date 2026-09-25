@@ -34,6 +34,7 @@ normative:
   RFC8725:
   RFC9449:
 informative:
+  AAUTH: I-D.hardt-oauth-aauth-protocol
   ACTOR-PROFILE: I-D.mcguinness-oauth-actor-profile
   ATTESTER-ENDORSEMENT:
     title: "OAuth 2.0 Client Attester Endorsement"
@@ -41,17 +42,16 @@ informative:
     author:
       - fullname: Karl McGuinness
     date: 2026-09-14
-  AAUTH: I-D.hardt-oauth-aauth-protocol
-  RFC2104:
   CIMD: I-D.ietf-oauth-client-id-metadata-document
+  RFC2104:
   RFC7591:
   RFC7636:
   RFC8252:
-  SPIFFE-OAUTH: I-D.ietf-oauth-spiffe-client-auth
   RFC8417:
   RFC8935:
   RFC9068:
   RFC9421:
+  SPIFFE-OAUTH: I-D.ietf-oauth-spiffe-client-auth
 --- abstract
 
 This specification defines an optional claims profile of OAuth 2.0
