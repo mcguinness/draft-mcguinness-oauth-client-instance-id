@@ -1,0 +1,3023 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Client Instance Identification for Attestation-Based Client Authentication</title>
+<meta content="Karl McGuinness" name="author">
+<meta content="
+       This specification defines an optional claims profile of OAuth 2.0
+Attestation-Based Client Authentication. When selected, the profile
+requires an attester-assigned client instance identifier, scoped by default to the server that validates it, that remains stable across verified key
+changes, and adds continuity and privacy
+rules for that identifier. Conveying instance context in tokens and
+introspection responses remains optional within the profile.
+Authentication and proof methods follow the base specification. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="OAuth" name="keyword">
+<meta content="client attestation" name="keyword">
+<meta content="instance identity" name="keyword">
+<meta content="draft-mcguinness-oauth-client-instance-id-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.7
+    ConfigArgParse 1.7.7
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.11.10
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.8.4
+-->
+<link href="draft-mcguinness-oauth-client-instance-id.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">Client Instance Identification</td>
+<td class="right">September 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McGuinness</td>
+<td class="center">Expires 29 March 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-mcguinness-oauth-client-instance-id-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-09-25" class="published">25 September 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-03-29">29 March 2027</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">K. McGuinness</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Client Instance Identification for Attestation-Based Client Authentication</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This specification defines an optional claims profile of OAuth 2.0
+Attestation-Based Client Authentication. When selected, the profile
+requires an attester-assigned client instance identifier, scoped by default to the server that validates it, that remains stable across verified key
+changes, and adds continuity and privacy
+rules for that identifier. Conveying instance context in tokens and
+introspection responses remains optional within the profile.
+Authentication and proof methods follow the base specification.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-id/">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-instance-id/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        Web Authorization Protocol Working Group mailing list (<span><a href="mailto:oauth@ietf.org">mailto:oauth@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/oauth/">https://mailarchive.ietf.org/arch/browse/oauth/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/oauth/">https://www.ietf.org/mailman/listinfo/oauth/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id">https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 29 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-identity-and-scope" class="internal xref">Identity and Scope</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-profile-selection-and-trust" class="internal xref">Profile Selection and Trust</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-attester-trust" class="internal xref">Attester Trust</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-conformance" class="internal xref">Conformance</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-client-attestation-claims" class="internal xref">Client Attestation Claims</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-receiver-scope" class="internal xref">Receiver Scope</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-example" class="internal xref">Example</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-request-processing" class="internal xref">Request Processing</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-grant-continuity" class="internal xref">Grant Continuity</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-attestation-errors" class="internal xref">Attestation Errors</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-attester-requirements" class="internal xref">Attester Requirements</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-identifier-generation" class="internal xref">Identifier Generation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-continuity-and-lifecycle" class="internal xref">Continuity and Lifecycle</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-suspension-and-status" class="internal xref">Suspension and Status</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-state-and-retention" class="internal xref">State and Retention</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-conveying-instance-context" class="internal xref">Conveying Instance Context</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-format-and-mapping" class="internal xref">Format and Mapping</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-mapping-stability" class="internal xref">Mapping Stability</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-presenter-attribution" class="internal xref">Presenter Attribution</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-preservation-and-authorizat" class="internal xref">Preservation and Authorization</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
+                <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-context-consumer-processing" class="internal xref">Context Consumer Processing</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
+                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-context-errors" class="internal xref">Context Errors</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-relationship-to-other-ident" class="internal xref">Relationship to Other Identity Systems</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-client-id-metadata-document" class="internal xref">Client ID Metadata Documents</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-workload-and-agent-credenti" class="internal xref">Workload and Agent Credentials</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-attester-compromise-and-ass" class="internal xref">Attester Compromise and Assurance</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-suspension-and-re-enrollmen" class="internal xref">Suspension and Re-enrollment</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-forwarding" class="internal xref">Forwarding</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-correlation-across-receiver" class="internal xref">Correlation Across Receivers</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-token-binding-keys" class="internal xref">Token-Binding Keys</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-attester-visibility" class="internal xref">Attester Visibility</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
+                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-error-disclosure" class="internal xref">Error Disclosure</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-json-web-token-claims" class="internal xref">JSON Web Token Claims</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-oauth-token-introspection-r" class="internal xref">OAuth Token Introspection Response</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-wire-examples" class="internal xref">Wire Examples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
+                <p id="section-toc.1-1.13.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-access-token-payload" class="internal xref">Access Token Payload</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
+                <p id="section-toc.1-1.13.2.2.1"><a href="#appendix-A.2" class="auto internal xref">A.2</a>.  <a href="#name-introspection-response" class="internal xref">Introspection Response</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.3">
+                <p id="section-toc.1-1.13.2.3.1"><a href="#appendix-A.3" class="auto internal xref">A.3</a>.  <a href="#name-governed-actor-and-instance" class="internal xref">Governed Actor and Instance Context</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.4">
+                <p id="section-toc.1-1.13.2.4.1"><a href="#appendix-A.4" class="auto internal xref">A.4</a>.  <a href="#name-attestation-rejection" class="internal xref">Attestation Rejection</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-deployment-examples" class="internal xref">Deployment Examples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#appendix-B.1" class="auto internal xref">B.1</a>.  <a href="#name-cimd-client" class="internal xref">CIMD Client</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#appendix-B.2" class="auto internal xref">B.2</a>.  <a href="#name-aauth-agent-provider" class="internal xref">AAuth Agent Provider</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.3">
+                <p id="section-toc.1-1.14.2.3.1"><a href="#appendix-B.3" class="auto internal xref">B.3</a>.  <a href="#name-spiffe-workload" class="internal xref">SPIFFE Workload</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.4">
+                <p id="section-toc.1-1.14.2.4.1"><a href="#appendix-B.4" class="auto internal xref">B.4</a>.  <a href="#name-managed-device" class="internal xref">Managed Device</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-document-history" class="internal xref">Document History</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Attestation-Based Client Authentication <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> answers one
+question: is this an authorized Client Instance in possession of this
+key? This profile adds a second: is this the same Client Instance the
+Receiver previously encountered? A new attestation alone cannot answer
+it: <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.6" class="relref">Section 10.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> requires one for every new key, and after
+a key change a continuing installation is indistinguishable from a new
+one.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This question arises in deployments where one Logical Client has many
+Client Instances, for example, an application on each managed laptop,
+a container per replica, or an agent runtime per host. Each instance
+presents a valid attestation for the same <code>client_id</code> and is
+distinguishable only by its current key. After an instance rotates
+that key, a Receiver cannot determine whether it is the instance the
+Receiver suspended or a new one, and audit history and status
+decisions tied to the old key do not carry over.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This specification defines two claims:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-4.1">
+          <p id="section-1-4.1.1">The <code>client_instance_id</code> claim allows a Receiver to recognize a Client
+Instance across key changes. Carried in the Client Attestation, it
+identifies one installation or runtime. The attester assigns it,
+retains it across verified key changes, and by default scopes it to
+one Receiver, which reveals that Receiver to the attester.<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.2">
+          <p id="section-1-4.2.1">The <code>client_instance</code> claim, or introspection response member, allows
+a resource server that does not
+receive the attestation to correlate requests with the instance
+validated at issuance. It carries a mapped reference to that instance
+in a token or introspection response.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-5">This specification establishes instance identity and its continuity,
+not authority; instance evidence grants none. Authorization profiles
+can use validated instance identity or Instance Context as a policy
+input, subject to the prohibitions in <a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6"><span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> alone suffices when correlation is needed only for the
+current key.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">Assigning each instance its own <code>client_id</code> with a shared <code>software_id</code>
+client metadata value (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) is an alternative.
+This specification instead targets deployments that share one Logical
+Client, one metadata URL when using <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and authorization server
+policy keyed by that client. The <code>software_id</code> value correlates
+registrations but defines no shared grants or policy across separate
+client identities.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8"><a href="#conformance" class="auto internal xref">Section 3.2</a> lists the five implementing roles and their
+requirements.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<div id="identity-and-scope">
+<section id="section-1.1">
+        <h3 id="name-identity-and-scope">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-identity-and-scope" class="section-name selfRef">Identity and Scope</a>
+        </h3>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Identity</th>
+              <th class="text-left" rowspan="1" colspan="1">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Logical Client (<code>client_id</code>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Identifies the OAuth client</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Authorization principal</td>
+              <td class="text-left" rowspan="1" colspan="1">Identifies the subject or delegated actor</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Client Instance</td>
+              <td class="text-left" rowspan="1" colspan="1">Identifies one installation or one execution of the client software</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-1.1-2">The deployment chooses the instance granularity:<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-3.1">
+            <p id="section-1.1-3.1.1"><strong>Installation:</strong> one installation, retaining its identity across
+process restarts.<a href="#section-1.1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-3.2">
+            <p id="section-1.1-3.2.1"><strong>Execution:</strong> one unit the deployment names, such as a process,
+container, or Kubernetes Pod, retaining its identity for that
+unit's lifetime.<a href="#section-1.1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-1.1-4">Enrollment records that choice.<a href="#section-1.1-4" class="pilcrow">¶</a></p>
+<p id="section-1.1-5">This specification addresses administratively configured deployments
+such as workloads and managed desktop or mobile applications. Its
+identifiers are not general-purpose device or wallet identifiers, and
+it does not define an enrollment, key-rotation, or status-distribution
+protocol. <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
+supplies the authentication and proof methods, including direct
+resource-server presentation (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7" class="relref">Section 7</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). When selected
+under <a href="#configuration" class="auto internal xref">Section 3</a>, this profile applies whether the Client
+Attestation is the client authentication method or an additional
+security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). It does not replace the
+deployment's required client authentication.<a href="#section-1.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in <span>[<a href="#BCP14" class="cite xref">BCP14</a>]</span> (<a href="#RFC2119" class="auto internal xref">RFC2119</a>) (<a href="#RFC8174" class="auto internal xref">RFC8174</a>) when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The terms Client Attestation, Client Attester, Client Instance, and
+Client Instance Key are used as defined in <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-3">
+        <dt id="section-2-3.1">Logical Client:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.2">
+          <p id="section-2-3.2.1">The OAuth client <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> identified by <code>client_id</code>. Several Client
+Instances can authenticate as the same Logical Client.<a href="#section-2-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.3">Attester Issuer:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.4">
+          <p id="section-2-3.4.1">The <code>iss</code> claim value in the Client Attestation, which identifies
+the Client Attester.<a href="#section-2-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.5">Instance Identifier:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.6">
+          <p id="section-2-3.6.1">The <code>client_instance_id</code> claim value, which a Client Attester assigns
+to one Client Instance at the configured granularity and Receiver
+Scope (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-2-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.7">Source Instance Identity:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.8">
+          <p id="section-2-3.8.1">The pair <code>(iss, client_instance_id)</code> from a validated Client
+Attestation, that is, the Attester Issuer and the Instance
+Identifier. This specification keeps it stable across verified key
+changes, and Instance Context is mapped from it.<a href="#section-2-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.9">Instance Context:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.10">
+          <p id="section-2-3.10.1">The <code>client_instance</code> JSON object in a token or introspection
+response. It grants no authority and does not prove current
+possession.<a href="#section-2-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.11">Receiver:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.12">
+          <p id="section-2-3.12.1">A party that validates a Client Attestation under this profile, such
+as an authorization server or resource server. A Receiver that issues
+tokens carrying Instance Context is also a token issuer.<a href="#section-2-3.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.13">Context Consumer:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.14">
+          <p id="section-2-3.14.1">A party that consumes Instance Context from a token or introspection
+response. It need not receive the Client Attestation.<a href="#section-2-3.14.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.15">Receiver Scope:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.16">
+          <p id="section-2-3.16.1">The Receiver, or explicitly configured set of Receivers, to which one
+assignment of <code>client_instance_id</code> is scoped (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-2-3.16.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.17">Consumer Scope:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.18">
+          <p id="section-2-3.18.1">The Context Consumer, or explicitly configured set of Context
+Consumers, to which one mapping of Instance Context is scoped. A
+Consumer Scope is identified by a configured set of audience values
+(<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>).<a href="#section-2-3.18.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.19">Instance Context Authority:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.20">
+          <p id="section-2-3.20.1">The token issuer identified by the <code>iss</code> member of Instance Context.
+It assigned the current <code>id</code> value and is the enclosing token's
+issuer unless the context was preserved from an upstream token. The
+Client Attester remains the authority for the Source Instance
+Identity.<a href="#section-2-3.20.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.21">Instance Context Identifier:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.22">
+          <p id="section-2-3.22.1">The pair <code>(iss, id)</code> in Instance Context. Like a pairwise subject
+identifier, it is the Instance Context Authority's own correlator for
+one Source Instance Identity within a Consumer Scope; its <code>id</code> need
+not equal <code>client_instance_id</code>.<a href="#section-2-3.22.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.23">Consuming profile:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.24">
+          <p id="section-2-3.24.1">A specification or deployment profile that defines how a Context
+Consumer, or an issuer conveying Instance Context through token
+exchange, establishes the association between Instance Context and the
+token's subject, actor, or presenter, and how the provenance of
+preserved context is authenticated (<a href="#context-exchange" class="auto internal xref">Section 7.4</a>,
+<a href="#context-consumer" class="auto internal xref">Section 7.5</a>). This specification acts as the consuming
+profile only in the case described in <a href="#context-consumer" class="auto internal xref">Section 7.5</a>.<a href="#section-2-3.24.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.25">enrollment:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.26">
+          <p id="section-2-3.26.1">An attester-maintained record binding one instance, at the configured
+granularity, to its verified keys and assigned identifiers, separate
+from any user account, device registration, or Logical Client.<a href="#section-2-3.26.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-2-4">Identifier values in this specification are opaque. Implementations <span class="bcp14">MUST</span>
+compare <code>iss</code>, <code>client_instance_id</code>, <code>client_instance.iss</code>, and
+<code>client_instance.id</code> as exact, case-sensitive strings without URI
+normalization, and <span class="bcp14">MUST NOT</span> derive permissions, granularity, or key
+locations by parsing them.<a href="#section-2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="configuration">
+<section id="section-3">
+      <h2 id="name-profile-selection-and-trust">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-profile-selection-and-trust" class="section-name selfRef">Profile Selection and Trust</a>
+      </h2>
+<p id="section-3-1">The client and Receiver administratively configure:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-2.1">
+          <p id="section-3-2.1.1">the Logical Client, authentication method, and attester trust policy;<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.2">
+          <p id="section-3-2.2.1">the instance granularity, continuity evidence, and freshness limits;<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.3">
+          <p id="section-3-2.3.1">the intended Receiver and any explicitly shared Receiver Scope
+(<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-3">A Context Consumer that requires context configures that requirement,
+including whether it extends to attribution, with the issuers it accepts
+context from. Claims <span class="bcp14">MUST NOT</span> select this profile or change
+authentication methods; selection is part of the client-specific trust
+agreement, and this profile adds no discovery or metadata parameter.
+The error in <a href="#errors" class="auto internal xref">Section 5.2</a> reports rejection, not profile discovery.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<div id="attester-trust">
+<section id="section-3.1">
+        <h3 id="name-attester-trust">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-attester-trust" class="section-name selfRef">Attester Trust</a>
+        </h3>
+<p id="section-3.1-1">The Receiver <span class="bcp14">MUST</span> bind each approved Attester Issuer to its validation
+keys and authorized Logical Clients through configured associations. An
+authorization server can derive those associations from client
+endorsements it accepts, for example under <span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>.
+<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> applies only to authorization server endpoints;
+a resource server validating attestations directly uses configured
+associations. A credential's <code>iss</code> claim, proof of possession, or
+client-published metadata (<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) alone does not
+establish attester authority. Key resolution follows
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Local trust withdrawal <span class="bcp14">MUST</span> take effect on
+subsequent authentication.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="conformance">
+<section id="section-3.2">
+        <h3 id="name-conformance">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-conformance" class="section-name selfRef">Conformance</a>
+        </h3>
+<p id="section-3.2-1">Conformance is role-specific:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Role</th>
+              <th class="text-left" rowspan="1" colspan="1">Implements</th>
+              <th class="text-left" rowspan="1" colspan="1">Where</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Client Attester</td>
+              <td class="text-left" rowspan="1" colspan="1">Claim, identifier, continuity, and enrollment requirements</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#claims" class="auto internal xref">Section 4</a>, <a href="#attester-requirements" class="auto internal xref">Section 6</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Client</td>
+              <td class="text-left" rowspan="1" colspan="1">Scoped attestation use, key separation, and the selected ATTEST proof method</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#receiver-scope" class="auto internal xref">Section 4.1</a>, <a href="#presenter-attribution" class="auto internal xref">Section 7.3</a>, <a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Receiver</td>
+              <td class="text-left" rowspan="1" colspan="1">Trust, validation, grant-continuity, and revocation rules</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#configuration" class="auto internal xref">Section 3</a>, <a href="#processing" class="auto internal xref">Section 5</a>, <a href="#suspension" class="auto internal xref">Section 6.3</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Token issuer conveying context</td>
+              <td class="text-left" rowspan="1" colspan="1">Mapping, preservation, and any binding that attribution requires</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#instance-context" class="auto internal xref">Section 7</a>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Context Consumer</td>
+              <td class="text-left" rowspan="1" colspan="1">Context validation and applicable proof checks</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#presenter-attribution" class="auto internal xref">Section 7.3</a>, <a href="#context-consumer" class="auto internal xref">Section 7.5</a>, <a href="#context-errors" class="auto internal xref">Section 7.6</a>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-3.2-3">An implementation serving several roles satisfies each. Conveying
+Instance Context (<a href="#instance-context" class="auto internal xref">Section 7</a>) is optional and independent of
+the rest of this specification.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="claims">
+<section id="section-4">
+      <h2 id="name-client-attestation-claims">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-client-attestation-claims" class="section-name selfRef">Client Attestation Claims</a>
+      </h2>
+<p id="section-4-1">This profile uses the additional claims permitted by
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-4" class="relref">Section 4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. All <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> requirements apply, including a
+<code>typ</code> JOSE header parameter value of <code>oauth-client-attestation+jwt</code>,
+<code>sub</code> equal to <code>client_id</code>, the required <code>exp</code> and <code>cnf</code> claims, and the
+optional <code>iat</code> claim.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-2">
+        <dt id="section-4-2.1">
+<code>iss</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-2.2">
+          <p id="section-4-2.2.1"><span class="bcp14">REQUIRED</span>. Exactly matches an approved Attester Issuer
+(<a href="#attester-trust" class="auto internal xref">Section 3.1</a>).<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-4-2.3">
+<code>client_instance_id</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-2.4">
+          <p id="section-4-2.4.1"><span class="bcp14">REQUIRED</span>. A nonempty JSON string, whose UTF-8 encoding is at most 256
+octets after JSON string decoding, that identifies the instance within
+the attester's namespace. A URI-form value carries no URI semantics.
+Receivers <span class="bcp14">MUST</span> reject longer values. Assignment, scoping, and
+generation follow <a href="#identifier-generation" class="auto internal xref">Section 6.1</a>.<a href="#section-4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<div id="receiver-scope">
+<section id="section-4.1">
+        <h3 id="name-receiver-scope">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-receiver-scope" class="section-name selfRef">Receiver Scope</a>
+        </h3>
+<p id="section-4.1-1">A Receiver Scope is an enrollment or issuance input, not an OAuth
+parameter or attestation audience. A Receiver cannot verify it from the
+identifier alone.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">The attester <span class="bcp14">MUST</span> assign distinct identifiers per Receiver unless an
+administrative agreement explicitly authorizes a shared identifier
+within a named set of Receivers. A shared client or trust domain does
+not by itself authorize sharing. The client <span class="bcp14">MUST</span> request and use the
+attestation for that configured scope. A Receiver cannot detect an
+attestation presented outside its scope; the resulting correlation
+exposes the end user of that instance (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>).<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">Scoping an identifier to a Receiver reveals that Receiver to the
+attester (<a href="#attester-visibility" class="auto internal xref">Section 10.3</a>). A deployment that needs the attester
+not to learn individual Receivers, or that intends correlation across
+them, configures one Receiver Scope spanning them; one identifier and
+key then suffice.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">The client <span class="bcp14">MUST</span> also use distinct Client Instance Keys across scopes.
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends this across authorization and
+resource servers; this profile requires it across the scopes a
+deployment chooses to separate, because a shared key links
+attestations regardless of their identifiers. Token-binding key
+separation between Context Consumers is addressed in
+<a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-5">In combined mode, the Client Instance Key is also the DPoP key. In
+normal mode, the DPoP key is independent of the attestation
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). A token issued in combined mode is bound to
+the authorization server's scoped key. A separately scoped resource
+server's attestation carries a different key. No single proof can
+match both, so combined mode cannot also be used at that resource
+server. Instead, a client authenticating in normal mode can present
+the resource-server-scoped key as its DPoP key at issuance. That
+allows combined mode at the resource server, at a correlation cost
+described in <a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="attestation-example">
+<section id="section-4.2">
+        <h3 id="name-example">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-example" class="section-name selfRef">Example</a>
+        </h3>
+<p id="section-4.2-1">The following example shows a decoded Client Attestation payload with
+the optional <code>iat</code> claim:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-4.2-2">
+<pre>
+{
+  "iss": "https://attester.example/tenant/acme",
+  "sub": "https://platform.example/oauth-client",
+  "client_instance_id": "i-844a2aa37074eed77f3b3e950432f597",
+  "iat": 1789128000,
+  "exp": 1789128300,
+  "cnf": {
+    "jwk": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "VcKVNBZ4IaBAYW3jxM4w3TJFVA7myeUGQyGt-g_yvpQ",
+      "y": "f-E-hYE3TAWKwhVv9pej9NABs9SX9XsNO80x57jFTyU"
+    }
+  }
+}
+</pre><a href="#section-4.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="processing">
+<section id="section-5">
+      <h2 id="name-request-processing">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-request-processing" class="section-name selfRef">Request Processing</a>
+      </h2>
+<p id="section-5-1">The Receiver <span class="bcp14">MUST</span>:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5-2">
+<li id="section-5-2.1">
+          <p id="section-5-2.1.1">Validate the attestation and proof under the configured <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
+method.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.2">
+          <p id="section-5-2.2.1">Validate the claims in <a href="#claims" class="auto internal xref">Section 4</a> and attester authority under
+<a href="#configuration" class="auto internal xref">Section 3</a>, including that the key that verified the
+attestation is bound to the asserted <code>iss</code> claim. Key resolution
+under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> selects a key from JOSE header
+parameters, not from <code>iss</code>, so a trust anchor covering several
+attesters does not by itself establish that association.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-5-2.3">
+          <p id="section-5-2.3.1">Associate the Source Instance Identity with the Logical Client and
+validated Client Instance Key, then apply the Receiver's local
+policy for that instance, such as suspension or required prior
+enrollment, reporting rejection under <a href="#errors" class="auto internal xref">Section 5.2</a>.<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+<p id="section-5-3">The Receiver <span class="bcp14">MUST NOT</span>:<a href="#section-5-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-4.1">
+          <p id="section-5-4.1.1">substitute an identifier for proof of possession or infer it from a
+key thumbprint, certificate serial number, or JWT <code>jti</code> claim;<a href="#section-5-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-4.2">
+          <p id="section-5-4.2.1">infer continuity from equal identifiers or keys across Attester
+Issuers; or<a href="#section-5-4.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-4.3">
+          <p id="section-5-4.3.1">set an access token's <code>sub</code> claim, add an <code>act</code> claim, or extend an
+actor chain solely from instance evidence.<a href="#section-5-4.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-5-5">Migration between Attester Issuers requires a procedure that establishes
+trust in both authorities and continuity evidence; this specification
+does not define one. Key selection follows <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>; when a separate
+token-binding key is used, context identifies the instance associated
+with the Client Instance Key.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<div id="grant-continuity">
+<section id="section-5.1">
+        <h3 id="name-grant-continuity">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-grant-continuity" class="section-name selfRef">Grant Continuity</a>
+        </h3>
+<p id="section-5.1-1"><span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> binds a refresh token to the Client Instance,
+by default through the Client Instance Key. The refresh token remains
+bound to that key; only a profile acting under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
+can rebind it. This profile records an identity for the binding that
+persists across a verified key change, so later grants correlate with
+the same instance. It adds no instance-bound grants. Under the default
+binding, a refresh after a key change fails key-binding validation. With
+the original bound key, the identity check below detects an attestation
+that names a different instance; the check governs refresh across key
+changes only under a profile that rebinds refresh tokens.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">For a grant established using a Client Attestation validated under this
+profile, the authorization server <span class="bcp14">MUST</span> record the Source Instance
+Identity when issuing a refresh token.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">On refresh of such a grant, the authorization server:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.1-4">
+<li id="section-5.1-4.1">
+            <p id="section-5.1-4.1.1"><span class="bcp14">MUST</span> require a validated attestation, whether the attestation is the
+client authentication method or an additional security signal. This
+extends <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, which requires the attestation
+mechanism when refreshing.<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.1-4.2">
+            <p id="section-5.1-4.2.1"><span class="bcp14">MUST</span> enforce two independent invariants: * the Source Instance
+Identity in the current validated attestation <span class="bcp14">MUST</span> match the recorded
+one; and * the proof and key binding <span class="bcp14">MUST</span> satisfy <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, or a
+profile that has redefined refresh-token binding under
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.1-4.3">
+            <p id="section-5.1-4.3.1"><span class="bcp14">MUST</span> produce the <code>invalid_grant</code> error code
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) for a conflict with the recorded
+identity, without disclosing the expected identity.<a href="#section-5.1-4.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-5.1-5">Instance continuity and key-binding continuity are independent.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-6">If authorization-time policy bound a code or other artifact to an
+instance, the authorization server <span class="bcp14">MUST</span> enforce that binding at
+redemption, whether the attestation is the client authentication method
+or an additional security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). Because
+presenting the attestation can be optional in that second mode, an
+authorization server that binds artifacts to instances <span class="bcp14">MUST</span> require it
+at their redemption; otherwise a conforming client cannot supply what
+the authorization server needs to check.
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.4" class="relref">Section 10.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends establishing such bindings where
+attestation is the client authentication method.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="errors">
+<section id="section-5.2">
+        <h3 id="name-attestation-errors">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-attestation-errors" class="section-name selfRef">Attestation Errors</a>
+        </h3>
+<p id="section-5.2-1">If required instance claims are missing or invalid, or if the Receiver's
+local policy for the instance (<a href="#processing" class="auto internal xref">Section 5</a>) rejects the instance, the
+Receiver <span class="bcp14">MUST</span> produce the <code>invalid_client_attestation</code> error code.
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.4" class="relref">Section 7.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> defines that code for failures to verify the
+attestation or its proof. This profile extends it to instance claims and
+policy, so responses do not disclose whether an instance is unknown,
+suspended, or retired. Receivers <span class="bcp14">SHOULD</span> also avoid distinguishable
+response timing. Consequently, a client cannot distinguish a transient
+failure from a durable policy decision, or whether retrying with a fresh
+attestation will help. Responses use the format <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> specifies for
+the code (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization server,
+<span><a href="https://rfc-editor.org/rfc/rfc6750#section-3" class="relref">Section 3</a> of [<a href="#RFC6750" class="cite xref">RFC6750</a>]</span> at a resource server). Unknown instances are
+rejected only when local policy requires prior enrollment. If a profile
+check fails, the Receiver <span class="bcp14">MUST NOT</span> fall back to authentication without
+the required evidence. Grant-binding errors follow <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>;
+other errors follow <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="attester-requirements">
+<section id="section-6">
+      <h2 id="name-attester-requirements">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-attester-requirements" class="section-name selfRef">Attester Requirements</a>
+      </h2>
+<p id="section-6-1">An Instance Identifier's meaning over time depends on the attester:
+how it generates identifiers (<a href="#identifier-generation" class="auto internal xref">Section 6.1</a>), when it may
+retain them (<a href="#continuity" class="auto internal xref">Section 6.2</a>), how it handles suspension
+(<a href="#suspension" class="auto internal xref">Section 6.3</a>), and what records it keeps (<a href="#state" class="auto internal xref">Section 6.4</a>).<a href="#section-6-1" class="pilcrow">¶</a></p>
+<div id="identifier-generation">
+<section id="section-6.1">
+        <h3 id="name-identifier-generation">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-identifier-generation" class="section-name selfRef">Identifier Generation</a>
+        </h3>
+<p id="section-6.1-1">For each enrollment and Receiver Scope (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>), the
+attester <span class="bcp14">MUST</span> assign identifiers that are:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.1-2.1">
+            <p id="section-6.1-2.1.1">distinct, opaque, and never reassigned, including after retirement;<a href="#section-6.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.1-2.2">
+            <p id="section-6.1-2.2.1">generated from at least 128 bits of either cryptographically secure
+randomness or keyed pseudorandom-function output;<a href="#section-6.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.1-2.3">
+            <p id="section-6.1-2.3.1">unpredictable to parties other than the attester; and<a href="#section-6.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.1-2.4">
+            <p id="section-6.1-2.4.1">free of runtime hostnames, user identifiers, and embedded instance
+attributes.<a href="#section-6.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-6.1-3">A URI can name the attester's namespace; its instance-specific portion
+remains opaque. Keyed derivation, such as HMAC <span>[<a href="#RFC2104" class="cite xref">RFC2104</a>]</span>, <span class="bcp14">MUST</span> use a
+secret with at least 128 bits of entropy and unambiguously encode the
+Logical Client, Receiver Scope, and a unique enrollment component; a
+platform-stable input alone would reproduce retired identifiers after
+reinstall. If the attester changes its derivation inputs or secrets,
+it <span class="bcp14">MUST</span> still produce the values already assigned within a continuing
+enrollment. Storing the assigned values suffices.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="continuity">
+<section id="section-6.2">
+        <h3 id="name-continuity-and-lifecycle">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-continuity-and-lifecycle" class="section-name selfRef">Continuity and Lifecycle</a>
+        </h3>
+<p id="section-6.2-1">Continuity is authenticated evidence that shows the attester that a
+claimant is the same enrolled Client Instance at the configured
+granularity. An attester-recorded chain of verified key custody within
+one enrollment is the primary mechanism; platform or hardware-rooted
+identity evidence can supplement that chain or, where the deployment's
+evidence policy permits, replace it. Before retaining an identifier,
+the attester <span class="bcp14">MUST</span> verify and record:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6.2-2">
+<li id="section-6.2-2.1">
+            <p id="section-6.2-2.1.1">an active enrollment binding the instance, Logical Client, Receiver
+Scope, granularity, and previously verified keys;<a href="#section-6.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.2">
+            <p id="section-6.2-2.2.1">fresh possession of the current key and authenticated evidence
+binding it to that enrollment, including an authorized custody
+transition when the key changes; and<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-6.2-2.3">
+            <p id="section-6.2-2.3.1">the configured continuity checks, their freshness, and observed
+lifecycle events or evidence of independent claimants.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-6.2-3">The deployment specifies its evidence, freshness limits, and lifecycle
+boundaries. For example, when the unit is a Kubernetes Pod, a container
+restart keeps the identity, but a new Pod is a new unit. An identifier
+at Installation or Execution granularity does not identify individual
+processes within that installation or unit. The attester <span class="bcp14">MUST</span> apply the
+following outcomes:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Event</th>
+              <th class="text-left" rowspan="1" colspan="1">Required outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Renewal, verified key change, process restart at Installation granularity, or in-place update</td>
+              <td class="text-left" rowspan="1" colspan="1">Retain identifiers when continuity is verified</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Reinstall, independent clone, replacement or restart of the unit at Execution granularity, or granularity change</td>
+              <td class="text-left" rowspan="1" colspan="1">Require new enrollment</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Restore or snapshot rollback</td>
+              <td class="text-left" rowspan="1" colspan="1">Retain only with fresh evidence that the claimant succeeds the prior holder; copied keys and data alone are insufficient</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Resume after suspension (<a href="#suspension" class="auto internal xref">Section 6.3</a>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Apply continuity checks at the next issuance using available authenticated evidence</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Continuity cannot be established</td>
+              <td class="text-left" rowspan="1" colspan="1">Require new enrollment; a continuing original can retain its own enrollment</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Detected fork of one enrollment</td>
+              <td class="text-left" rowspan="1" colspan="1">Retire the identifiers and enroll claimants separately, unless authenticated evidence shows which claimant continues the enrollment; that claimant keeps them</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-6.2-5">The attester <span class="bcp14">MUST NOT</span> knowingly retain identifiers for independent
+instances. Concurrent processes within one installation are not by
+themselves a fork. This prohibition covers detected forks, not events
+the platform cannot observe (<a href="#assurance" class="auto internal xref">Section 9.1</a>). An identifier, expired
+attestation, or former public key alone does not establish continuity.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="suspension">
+<section id="section-6.3">
+        <h3 id="name-suspension-and-status">
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-suspension-and-status" class="section-name selfRef">Suspension and Status</a>
+        </h3>
+<p id="section-6.3-1">The attester <span class="bcp14">MUST</span> stop issuance for suspended or retired enrollments.
+An authorization server that suspends an instance <span class="bcp14">SHOULD</span> revoke the
+instance's grants or report their tokens inactive through introspection
+<span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Short
+attestation lifetimes limit how long a suspended instance remains
+acceptable.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">When an authorization server revokes a grant for instance suspension,
+retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span> revoke all of that
+grant's access and refresh tokens, report them inactive in
+introspection responses, and prevent further refresh issuance.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">Without a status channel, parties unaware of the change face three
+limitations: existing attestations may remain acceptable until
+expiration plus clock skew; issued tokens may still be accepted for
+their own lifetimes; and local revocation does not notify resource
+servers validating tokens offline. Status distribution, for example
+using Security Event Tokens <span>[<a href="#RFC8417" class="cite xref">RFC8417</a>]</span> delivered under <span>[<a href="#RFC8935" class="cite xref">RFC8935</a>]</span>, is
+outside the scope of this specification.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="state">
+<section id="section-6.4">
+        <h3 id="name-state-and-retention">
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-state-and-retention" class="section-name selfRef">State and Retention</a>
+        </h3>
+<p id="section-6.4-1">Attesters <span class="bcp14">MUST</span> retain enrollment and verification records while
+issuing or renewing attestations, and status while supporting
+resumption. Verification summaries suffice. Deleting continuity
+records requires new enrollment. A validating Receiver need not keep
+an instance allowlist, but local suspension needs instance status,
+revocation needs token associations, and mapped context needs its
+mappings (<a href="#mapping-stability" class="auto internal xref">Section 7.2</a>). Audit retention is local policy.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="instance-context">
+<section id="section-7">
+      <h2 id="name-conveying-instance-context">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-conveying-instance-context" class="section-name selfRef">Conveying Instance Context</a>
+      </h2>
+<p id="section-7-1">This section is optional. It defines how a token issuer represents a
+validated instance to downstream consumers (<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>)
+and what a consumer may conclude from it (<a href="#context-consumer" class="auto internal xref">Section 7.5</a>).<a href="#section-7-1" class="pilcrow">¶</a></p>
+<div id="format-and-mapping">
+<section id="section-7.1">
+        <h3 id="name-format-and-mapping">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-format-and-mapping" class="section-name selfRef">Format and Mapping</a>
+        </h3>
+<p id="section-7.1-1">An issuer <span class="bcp14">MAY</span> include the <code>client_instance</code> claim in a token or the
+<code>client_instance</code> member in an introspection response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. The
+<code>client_instance</code> value is a JSON object whose two <span class="bcp14">REQUIRED</span> members
+together form an Instance Context Identifier:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Member</th>
+              <th class="text-left" rowspan="1" colspan="1">Type</th>
+              <th class="text-left" rowspan="1" colspan="1">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>iss</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Nonempty string</td>
+              <td class="text-left" rowspan="1" colspan="1">Instance Context Authority that assigned <code>id</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>id</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Nonempty string, at most 256 octets of UTF-8 after JSON string decoding</td>
+              <td class="text-left" rowspan="1" colspan="1">That authority's representation of the instance</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-7.1-3">For direct issuance from a validated Client Attestation, context <span class="bcp14">MUST</span>
+identify the authenticated presenting instance; on refresh, that
+identity is subject to <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>. Token exchange follows
+<a href="#context-exchange" class="auto internal xref">Section 7.4</a> instead.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+<p id="section-7.1-4">Context <span class="bcp14">MUST</span> refer to validated instance participation; issuers <span class="bcp14">MUST NOT</span> copy unvalidated client-supplied context. The issuer <span class="bcp14">MUST</span> map its
+mapping input (the Source Instance Identity or, when remapping under
+<a href="#context-exchange" class="auto internal xref">Section 7.4</a>, the upstream Instance Context Identifier) into
+its own namespace. Each mapping <span class="bcp14">MUST</span>:<a href="#section-7.1-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.1-5.1">
+            <p id="section-7.1-5.1.1">keep distinct instances separate unless continuity is established;<a href="#section-7.1-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-5.2">
+            <p id="section-7.1-5.2.1">generate the <code>id</code> value under <a href="#identifier-generation" class="auto internal xref">Section 6.1</a>, within the
+same length bound as the <code>client_instance_id</code> claim (<a href="#claims" class="auto internal xref">Section 4</a>), and
+retain it across attestation renewal and verified key changes; and<a href="#section-7.1-5.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-5.3">
+            <p id="section-7.1-5.3.1">scope the <code>id</code> value to a Consumer Scope, allowing sharing only within
+an explicitly configured set.<a href="#section-7.1-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.1-6">Each Consumer Scope is identified by a configured set of audience
+values. The issuer selects the mapping by the token's audience: its
+<code>aud</code> claim or, for an opaque token, the audience recorded at issuance.
+If a token has no audience, or its audiences span Consumer Scopes, no
+single <code>id</code> value is correct, and the issuer <span class="bcp14">MUST</span> omit the
+<code>client_instance</code> object. An introspection response conveys the <code>id</code> the
+token would carry. When the authenticated introspection caller is
+outside the token's Consumer Scope, the issuer <span class="bcp14">MUST</span> omit the
+<code>client_instance</code> object.<a href="#section-7.1-6" class="pilcrow">¶</a></p>
+<p id="section-7.1-7">For derived mappings, the mapping input supplies the enrollment-specific
+component and the consumer supplies the scope. Issuers <span class="bcp14">MUST</span> separate
+this derivation from attester identifiers, for example by a distinct
+key or purpose label. <a href="#wire-examples" class="auto internal xref">Appendix A</a> shows mapped context in an
+access token and an introspection response.<a href="#section-7.1-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="mapping-stability">
+<section id="section-7.2">
+        <h3 id="name-mapping-stability">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-mapping-stability" class="section-name selfRef">Mapping Stability</a>
+        </h3>
+<p id="section-7.2-1">For one mapping input and Consumer Scope, an issuer:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-2.1">
+            <p id="section-7.2-2.1.1"><span class="bcp14">MUST NOT</span> represent that input by more than one <code>id</code>;<a href="#section-7.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.2">
+            <p id="section-7.2-2.2.1"><span class="bcp14">MUST</span> retain the mapping while any token or grant it issued for that
+input remains valid, including clock skew; and<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.3">
+            <p id="section-7.2-2.3.1"><span class="bcp14">MUST</span> omit the <code>client_instance</code> object rather than assign a
+replacement once it no longer holds or can reproduce the mapping. A
+Context Consumer requiring context then rejects the request as
+specified in <a href="#context-errors" class="auto internal xref">Section 7.6</a>.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.2-3">An issuer that changes its derivation inputs or secrets <span class="bcp14">MUST</span> still
+produce the identifiers already assigned for any input and scope for
+which it continues to include context, as <a href="#identifier-generation" class="auto internal xref">Section 6.1</a>
+requires of attesters. Storing those values suffices. Otherwise,
+rotating one secret would silently and permanently remove context from
+every instance mapped under it.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">Attester identifiers are never reassigned, so a new enrollment presents
+a new mapping input and receives a new mapping.<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<p id="section-7.2-5">Storage requirements differ by mapping strategy:<a href="#section-7.2-5" class="pilcrow">¶</a></p>
+<table class="center" id="table-5">
+          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Strategy</th>
+              <th class="text-left" rowspan="1" colspan="1">Records needed</th>
+              <th class="text-left" rowspan="1" colspan="1">Non-reassignment depends on</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Derived</td>
+              <td class="text-left" rowspan="1" colspan="1">None per instance, while the derivation secret and inputs remain available (<a href="#identifier-generation" class="auto internal xref">Section 6.1</a>)</td>
+              <td class="text-left" rowspan="1" colspan="1">Never reusing enrollment inputs</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Random</td>
+              <td class="text-left" rowspan="1" colspan="1">Retained for as long as the issuer intends to include context</td>
+              <td class="text-left" rowspan="1" colspan="1">Probability</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="presenter-attribution">
+<section id="section-7.3">
+        <h3 id="name-presenter-attribution">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-presenter-attribution" class="section-name selfRef">Presenter Attribution</a>
+        </h3>
+<p id="section-7.3-1">Instance Context grants no authority. Alone, it describes only the
+instance that participated in obtaining the token.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">When a Context Consumer uses context to attribute the current token
+presentation to that instance, the applicable consuming profile <span class="bcp14">MUST</span>
+require a mechanism associating the token presenter with the instance. A
+Context Consumer attributing a presentation this way <span class="bcp14">MUST</span> validate that
+mechanism. For tokens issued directly from a validated Client
+Attestation, the mechanism is sender constraint: DPoP <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>,
+mutual TLS <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>, or another mechanism the consuming profile
+defines, using a key the issuer associated with the authenticated
+instance at issuance.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.3-3">For presenter attribution, the client <span class="bcp14">MUST</span> use a constraining key unique
+to the instance at the configured granularity. A key shared by instances
+within that boundary establishes no attribution, because any of them can
+present the token and satisfy the proof.<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+<p id="section-7.3-4">Where the configured requirement for a Consumer Scope includes
+attribution, an issuer that cannot bind such a key <span class="bcp14">MUST</span> omit the
+<code>client_instance</code> object. Context conveyed without such a key indicates
+only participation (<a href="#context-consumer" class="auto internal xref">Section 7.5</a>), including when it is conveyed
+only through introspection.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.3-5">A token without sender constraint supports no presenter attribution,
+and a Context Consumer requiring attribution rejects the request as
+specified in <a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code> scheme does
+not indicate an unbound token; certificate-bound tokens <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>
+also use it.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
+<p id="section-7.3-6">All validation requirements of the token-binding mechanism apply whether
+or not context is used for attribution, including rejection of a bound
+token presented without its proof (<span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.1" class="relref">Section 7.1</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> and
+<span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The binding authenticates the presenter; it
+does not establish that the presenter is the instance named in context
+derived from an upstream token. Any presenter or key change during
+exchange requires authorization under the consuming profile.
+Unlinkability between Context Consumers also requires distinct
+token-binding keys (<a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>).<a href="#section-7.3-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="context-exchange">
+<section id="section-7.4">
+        <h3 id="name-preservation-and-authorizat">
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-preservation-and-authorizat" class="section-name selfRef">Preservation and Authorization</a>
+        </h3>
+<p id="section-7.4-1">An exchange issuing Instance Context <span class="bcp14">MUST</span> use a consuming profile that
+defines:<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.4-2.1">
+            <p id="section-7.4-2.1.1">whether context identifies the authenticated presenting instance or
+an instance represented by validated input-token context;<a href="#section-7.4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.4-2.2">
+            <p id="section-7.4-2.2.1">how its association with the subject, actor, or presenter is
+validated;<a href="#section-7.4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.4-2.3">
+            <p id="section-7.4-2.3.1">when input context is remapped or preserved; and<a href="#section-7.4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.4-2.4">
+            <p id="section-7.4-2.4.1">refresh binding and context continuity, if the exchange issues
+refresh tokens.<a href="#section-7.4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.4-3">Issuers <span class="bcp14">SHOULD</span> remap upstream context into their own namespace, which
+keeps each consumer's view pairwise. An issuer <span class="bcp14">MAY</span> instead preserve a
+validated upstream Instance Context Identifier when configured trust
+and the upstream Consumer Scope authorize its disclosure downstream;
+otherwise it <span class="bcp14">MUST</span> remap or omit the context.<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-4">An issuer <span class="bcp14">MUST NOT</span> name an upstream Instance Context Authority in the
+<code>iss</code> member unless it has authenticated:<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.4-5">
+<li id="section-7.4-5.1">
+            <p id="section-7.4-5.1.1">that the named authority assigned the context; and<a href="#section-7.4-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.4-5.2">
+            <p id="section-7.4-5.2.1">that the context refers to the instance the input token represents.<a href="#section-7.4-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.4-6">Validating the input token authenticates only its issuer's assertions.
+By default, therefore, an issuer <span class="bcp14">MUST</span> limit preservation to context
+whose <code>iss</code> member equals the authenticated input-token issuer, and <span class="bcp14">MUST</span>
+remap or omit context that an intermediary itself preserved. A consuming
+profile that specifies authenticated provenance and its enforcement can
+permit deeper preservation; the object carries no forwarding history,
+and shallow preservation is also a privacy default.<a href="#section-7.4-6" class="pilcrow">¶</a></p>
+<p id="section-7.4-7">Context identifies one instance, not a chain, and <span class="bcp14">MUST NOT</span> be treated
+as a separate token or delegated actor. Remapping changes the Instance
+Context Identifier; like preservation, it leaves the represented
+Source Instance Identity unchanged. An issuer <span class="bcp14">MUST NOT</span> treat upstream
+context as identifying a different presenting instance. The upstream
+identifier does not establish that the issuer validated the original
+Client Attestation.<a href="#section-7.4-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="context-consumer">
+<section id="section-7.5">
+        <h3 id="name-context-consumer-processing">
+<a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-context-consumer-processing" class="section-name selfRef">Context Consumer Processing</a>
+        </h3>
+<p id="section-7.5-1">Before using context, the Context Consumer <span class="bcp14">MUST</span> perform these steps:<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.5-2">
+<li id="section-7.5-2.1">
+            <p id="section-7.5-2.1.1">Validate the enclosing token or authenticated introspection response.<a href="#section-7.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.5-2.2">
+            <p id="section-7.5-2.2.1">Validate the context members, treating an <code>id</code> value that exceeds the
+length bound in <a href="#format-and-mapping" class="auto internal xref">Section 7.1</a> as invalid and ignoring
+unrecognized members.<a href="#section-7.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.5-2.3">
+            <p id="section-7.5-2.3.1">Accept the Instance Context Authority only if it is the token issuer
+or an upstream token issuer explicitly trusted for that issuer and
+consumer.<a href="#section-7.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.5-2.4">
+            <p id="section-7.5-2.4.1">Discard invalid context. If context is required and is missing or was
+discarded, reject the request (<a href="#context-errors" class="auto internal xref">Section 7.6</a>).<a href="#section-7.5-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.5-3">Before using the context's association with the subject, actor, or
+presenter in policy or audit, a Context Consumer <span class="bcp14">MUST</span> establish that
+association from the applicable consuming profile and the validated
+token or trusted introspection configuration.<a href="#section-7.5-3" class="pilcrow">¶</a></p>
+<p id="section-7.5-4">If the issuer might have preserved context from an input token, the
+association is established only if that profile also defines how the
+context's provenance is authenticated, because the object does not
+record how the issuer obtained it. The <code>client_instance</code> object alone,
+including whether its <code>iss</code> member matches the token issuer, establishes
+neither the association nor the provenance.<a href="#section-7.5-4" class="pilcrow">¶</a></p>
+<p id="section-7.5-5">When trusted configuration establishes that the token issuer conveys
+context only from direct Client Attestation validation, this
+specification is the consuming profile. Context then identifies the
+authenticated presenting instance (<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>), and
+validating the token's sender constraint (<a href="#presenter-attribution" class="auto internal xref">Section 7.3</a>)
+establishes the association. That configuration describes the issuer,
+not the token, so it does not apply at an issuer that also preserves
+context from input tokens. There, only a consuming profile carrying
+provenance can distinguish directly validated context from preserved
+context.<a href="#section-7.5-5" class="pilcrow">¶</a></p>
+<p id="section-7.5-6">If the association is not established, the Context Consumer <span class="bcp14">MUST</span> treat
+context only as evidence of instance participation and <span class="bcp14">MUST NOT</span>
+attribute the current request to that instance. In this case, a Context
+Consumer whose configured requirement includes attribution <span class="bcp14">MUST</span> reject
+the request as specified in <a href="#context-errors" class="auto internal xref">Section 7.6</a>.<a href="#section-7.5-6" class="pilcrow">¶</a></p>
+<p id="section-7.5-7">An issuer whose trust agreement with a Context Consumer states that it
+conveys context only from direct Client Attestation validation <span class="bcp14">MUST NOT</span>
+convey to that consumer Instance Context derived from anything other
+than a Client Attestation it validated for the issuing request.<a href="#section-7.5-7" class="pilcrow">¶</a></p>
+<p id="section-7.5-8">For introspection, trusted endpoint configuration identifies the
+expected token issuer. If present, a top-level <code>iss</code> member <span class="bcp14">MUST</span>
+match that issuer; neither the endpoint URL nor the
+<code>client_instance.iss</code> member selects the issuer. Multi-issuer
+introspection requires a consuming profile that authenticates the
+represented issuer. The <code>iss</code> value does not authorize fetching keys
+from that location, and extensions <span class="bcp14">MUST NOT</span> change the meaning of the
+<code>iss</code> or <code>id</code> member.<a href="#section-7.5-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="context-errors">
+<section id="section-7.6">
+        <h3 id="name-context-errors">
+<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-context-errors" class="section-name selfRef">Context Errors</a>
+        </h3>
+<p id="section-7.6-1">When required context is missing or invalid, or required attribution
+cannot be established, the rejection <span class="bcp14">MUST</span> use the <code>invalid_token</code> error
+code at a resource server (<span><a href="https://rfc-editor.org/rfc/rfc6750#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC6750" class="cite xref">RFC6750</a>]</span>) or the
+<code>invalid_request</code> error code for a rejected subject or actor token in an
+exchange (<span><a href="https://rfc-editor.org/rfc/rfc8693#section-2.2.2" class="relref">Section 2.2.2</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-7.6-1" class="pilcrow">¶</a></p>
+<p id="section-7.6-2">Retrying with a new access token (<span><a href="https://rfc-editor.org/rfc/rfc6750#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC6750" class="cite xref">RFC6750</a>]</span>) does not
+resolve a rejection for a missing sender constraint. When a resource
+server rejects a request for that reason, it <span class="bcp14">SHOULD</span> include the
+challenge for the binding mechanism it requires, such as the <code>DPoP</code>
+scheme in <span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.1" class="relref">Section 7.1</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, so that the client can
+determine the required binding mechanism.<a href="#section-7.6-2" class="pilcrow">¶</a></p>
+<p id="section-7.6-3">Other consuming profiles define their own error mapping. Direct Client
+Attestation failures follow <a href="#errors" class="auto internal xref">Section 5.2</a>.<a href="#section-7.6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="relationship-to-other-identity-systems">
+<section id="section-8">
+      <h2 id="name-relationship-to-other-ident">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-relationship-to-other-ident" class="section-name selfRef">Relationship to Other Identity Systems</a>
+      </h2>
+<p id="section-8-1">This section compares this profile with client, workload, and agent
+identity mechanisms; it adds no requirements.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<div id="client-id-metadata-documents">
+<section id="section-8.1">
+        <h3 id="name-client-id-metadata-document">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client-id-metadata-document" class="section-name selfRef">Client ID Metadata Documents</a>
+        </h3>
+<p id="section-8.1-1">With <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, the metadata URL is the Logical Client's <code>client_id</code>,
+and many installations can use it. Retrieving public metadata does not
+prove that a caller is an authorized instance:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-6">
+          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Mechanism</th>
+              <th class="text-left" rowspan="1" colspan="1">Contribution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">CIMD</td>
+              <td class="text-left" rowspan="1" colspan="1">Discovers Logical Client metadata and its authentication method</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">ATTEST</td>
+              <td class="text-left" rowspan="1" colspan="1">Authenticates an attester-approved instance and possession of its key</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">This profile</td>
+              <td class="text-left" rowspan="1" colspan="1">Retains instance identity across verified key changes and conveys optional downstream context</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-8.1-3">One CIMD URL describes the Logical Client, and Instance Identifiers
+belong in attestations, not per-installation metadata. The
+attestation's <code>sub</code> claim is that URL, and the <code>client_instance_id</code>
+claim distinguishes installations (<a href="#cimd-example" class="auto internal xref">Appendix B.1</a>). CIMD removes
+per-authorization-server registration of client metadata but not this
+profile's trust agreement (<a href="#configuration" class="auto internal xref">Section 3</a>).
+<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> allows a client to endorse attesters through
+<code>client_attesters</code> metadata, subject to authorization server policy.
+That endorsement establishes the attester-to-client association but
+does not select this profile or its continuity and privacy policy.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="workload-and-agent-credentials">
+<section id="section-8.2">
+        <h3 id="name-workload-and-agent-credenti">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-workload-and-agent-credenti" class="section-name selfRef">Workload and Agent Credentials</a>
+        </h3>
+<p id="section-8.2-1">A shared workload identity does not identify an individual instance;
+the attester requires instance-level evidence under <a href="#continuity" class="auto internal xref">Section 6.2</a>.
+Direct SPIFFE Verifiable Identity Document (SVID) authentication and
+client mappings are defined by <span>[<a href="#SPIFFE-OAUTH" class="cite xref">SPIFFE-OAUTH</a>]</span>. An AAuth Agent
+Provider <span>[<a href="#AAUTH" class="cite xref">AAUTH</a>]</span> or workload attester can instead issue a Client
+Attestation under this profile when it holds the required enrollment
+evidence. Native credentials with different <code>sub</code> or <code>typ</code> semantics
+require a separate carrier profile. A deployment authenticating only
+with them conveys no Instance Context under this profile, which maps
+context only from a validated Client Attestation
+(<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>). These boundaries are illustrated in
+<a href="#deployment-examples" class="auto internal xref">Appendix B</a>.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-9">
+      <h2 id="name-security-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-9-1">The security considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-12" class="relref">Section 12</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> and <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>
+apply.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<div id="assurance">
+<section id="section-9.1">
+        <h3 id="name-attester-compromise-and-ass">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-attester-compromise-and-ass" class="section-name selfRef">Attester Compromise and Assurance</a>
+        </h3>
+<p id="section-9.1-1">A compromised attester can impersonate instances within its approved
+client associations. Receivers limit those associations and configure
+acceptable evidence assurance. An attester that overstates the
+assurance of its evidence defeats that configuration. Self-reported,
+platform-verified, and hardware-rooted evidence are not
+interchangeable. Without independent platform evidence, copied keys
+and enrollment data can be indistinguishable from the original;
+<a href="#continuity" class="auto internal xref">Section 6.2</a> governs detected forks and does not guarantee clone
+detection. Instance identity proves no software integrity beyond the
+evaluated evidence.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="re-enrollment">
+<section id="section-9.2">
+        <h3 id="name-suspension-and-re-enrollmen">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-suspension-and-re-enrollmen" class="section-name selfRef">Suspension and Re-enrollment</a>
+        </h3>
+<p id="section-9.2-1">Suspension at a Receiver applies to the Source Instance Identity that
+Receiver recorded. An instance can appear under a different identity by
+re-enrolling, which <a href="#continuity" class="auto internal xref">Section 6.2</a> requires after events such as a
+reinstall, or by presenting an attestation scoped to another Receiver,
+which the Receiver cannot detect (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>). Unless the
+Receiver requires prior enrollment (<a href="#errors" class="auto internal xref">Section 5.2</a>) or the attester also
+suspends the enrollment (<a href="#suspension" class="auto internal xref">Section 6.3</a>), such an instance is accepted
+as a new one. A Receiver that relies on suspension for containment
+therefore requires prior enrollment or coordinates suspension with the
+attester.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="forwarding">
+<section id="section-9.3">
+        <h3 id="name-forwarding">
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-forwarding" class="section-name selfRef">Forwarding</a>
+        </h3>
+<p id="section-9.3-1">Forwarding resistance is provided by <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> proof validation,
+freshness, and key possession, not by identifier scope. The Client
+Attestation has no audience; its proof-of-possession JWT identifies
+the Receiver, and combined DPoP binds the HTTP request.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy">
+<section id="section-10">
+      <h2 id="name-privacy-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-10-1">The privacy considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11" class="relref">Section 11</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> apply.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<div id="correlation">
+<section id="section-10.1">
+        <h3 id="name-correlation-across-receiver">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-correlation-across-receiver" class="section-name selfRef">Correlation Across Receivers</a>
+        </h3>
+<p id="section-10.1-1">Separate identifiers and keys per Receiver Scope (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>)
+limit correlation, strengthening the protections of
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Receivers <span class="bcp14">MUST NOT</span> assume that identifiers
+are comparable across scopes; explicitly shared scopes permit
+correlation.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="token-binding-keys">
+<section id="section-10.2">
+        <h3 id="name-token-binding-keys">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-token-binding-keys" class="section-name selfRef">Token-Binding Keys</a>
+        </h3>
+<p id="section-10.2-1">Per-consumer Instance Context Identifiers do not prevent correlation
+through a shared binding key. In DPoP combined mode
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>), the Client Instance Key is the DPoP key,
+so tokens for different Context Consumers can carry different <code>id</code>
+values but the same <code>cnf.jkt</code>. When unlinkability between Context
+Consumers is required, the client <span class="bcp14">MUST</span> use distinct token-binding keys
+across those scopes, for example, DPoP without combined mode or a
+distinct mutual-TLS certificate and key pair per scope. Other claims and
+application data can also correlate requests. Identifier scoping does
+not permit changing a refresh token's bound key (<a href="#grant-continuity" class="auto internal xref">Section 5.1</a>).<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-2">The same applies between an authorization server and a resource server.
+A client that authenticates to the authorization server in normal mode
+and presents a resource-server-scoped key as its DPoP key, so that it
+can use combined mode at that resource server (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>),
+also exposes that key to the authorization server. The two Receivers
+can then correlate through its thumbprint, even though their
+identifiers and Client Instance Keys differ.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="attester-visibility">
+<section id="section-10.3">
+        <h3 id="name-attester-visibility">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-attester-visibility" class="section-name selfRef">Attester Visibility</a>
+        </h3>
+<p id="section-10.3-1">The attester learns any Receiver Scope the client supplies. Scoping an
+identifier to a Receiver (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>) therefore reveals that
+Receiver to the attester. This forgoes a property that <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> states
+in its abstract: the client proves its authenticity without revealing
+its target audience to the attester. This profile trades attester
+visibility for unlinkability between Receivers.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-2">A single Receiver Scope spanning every Receiver the client uses limits
+what the attester learns to that scope, at the cost of allowing those
+Receivers to correlate the instance.<a href="#section-10.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="disclosure">
+<section id="section-10.4">
+        <h3 id="name-error-disclosure">
+<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-error-disclosure" class="section-name selfRef">Error Disclosure</a>
+        </h3>
+<p id="section-10.4-1">Error responses <span class="bcp14">SHOULD NOT</span> reveal unrelated instance identities.
+<a href="#errors" class="auto internal xref">Section 5.2</a> governs status non-disclosure; <a href="#state" class="auto internal xref">Section 6.4</a> and
+<a href="#mapping-stability" class="auto internal xref">Section 7.2</a> govern retention. Unpredictable
+identifiers limit guessing and enumeration but are not authentication.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-11">
+      <h2 id="name-iana-considerations">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="json-web-token-claims">
+<section id="section-11.1">
+        <h3 id="name-json-web-token-claims">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-json-web-token-claims" class="section-name selfRef">JSON Web Token Claims</a>
+        </h3>
+<p id="section-11.1-1">This specification requests registration of the following values in
+the "JSON Web Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-7">
+          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Claim Name</th>
+              <th class="text-left" rowspan="1" colspan="1">Claim Description</th>
+              <th class="text-left" rowspan="1" colspan="1">Change Controller</th>
+              <th class="text-left" rowspan="1" colspan="1">Specification Document(s)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>client_instance_id</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Attester-qualified client instance identifier</td>
+              <td class="text-left" rowspan="1" colspan="1">IETF</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#claims" class="auto internal xref">Section 4</a> of this specification</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>client_instance</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Validated client instance context</td>
+              <td class="text-left" rowspan="1" colspan="1">IETF</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <a href="#instance-context" class="auto internal xref">Section 7</a> of this specification</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="oauth-token-introspection-response">
+<section id="section-11.2">
+        <h3 id="name-oauth-token-introspection-r">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-oauth-token-introspection-r" class="section-name selfRef">OAuth Token Introspection Response</a>
+        </h3>
+<p id="section-11.2-1">This specification requests registration of the following value in the
+"OAuth Token Introspection Response" registry established by
+<span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>:<a href="#section-11.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-11.2-2.1">
+            <p id="section-11.2-2.1.1">Name: <code>client_instance</code><a href="#section-11.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-11.2-2.2">
+            <p id="section-11.2-2.2.1">Description: Validated client instance context<a href="#section-11.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-11.2-2.3">
+            <p id="section-11.2-2.3.1">Change controller: IETF<a href="#section-11.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-11.2-2.4">
+            <p id="section-11.2-2.4.1">Specification document(s): <a href="#instance-context" class="auto internal xref">Section 7</a> of this specification<a href="#section-11.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-11.2-3">These registrations define claims and a response member, not subject
+or actor profile values.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-12">
+      <h2 id="name-references">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-12.1">
+        <h3 id="name-normative-references">
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="ATTEST">[ATTEST]</dt>
+        <dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-11</span>, <time datetime="2026-09-03" class="refDate">3 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6749">[RFC6749]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6750">[RFC6750]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span> and <span class="refAuthor">D. Hardt</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework: Bearer Token Usage"</span>, <span class="seriesInfo">RFC 6750</span>, <span class="seriesInfo">DOI 10.17487/RFC6750</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6750">https://www.rfc-editor.org/rfc/rfc6750</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7519">[RFC7519]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7662">[RFC7662]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refTitle">"OAuth 2.0 Token Introspection"</span>, <span class="seriesInfo">RFC 7662</span>, <span class="seriesInfo">DOI 10.17487/RFC7662</span>, <time datetime="2015-10" class="refDate">October 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7662">https://www.rfc-editor.org/rfc/rfc7662</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8693">[RFC8693]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8705">[RFC8705]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">T. Lodderstedt</span>, <span class="refTitle">"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens"</span>, <span class="seriesInfo">RFC 8705</span>, <span class="seriesInfo">DOI 10.17487/RFC8705</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8705">https://www.rfc-editor.org/rfc/rfc8705</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8725">[RFC8725]</dt>
+        <dd>
+<span class="refAuthor">Sheffer, Y.</span>, <span class="refAuthor">Hardt, D.</span>, and <span class="refAuthor">M. Jones</span>, <span class="refTitle">"JSON Web Token Best Current Practices"</span>, <span class="seriesInfo">BCP 225</span>, <span class="seriesInfo">RFC 8725</span>, <span class="seriesInfo">DOI 10.17487/RFC8725</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8725">https://www.rfc-editor.org/rfc/rfc8725</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9449">[RFC9449]</dt>
+        <dd>
+<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="BCP14">[BCP14]</dt>
+      <dd>
+<div class="refInstance">Best Current Practice 14, <span>&lt;<a href="https://www.rfc-editor.org/info/bcp14">https://www.rfc-editor.org/info/bcp14</a>&gt;</span>.<br><span>At the time of writing, this BCP comprises the following:</span>
+</div>
+<div class="refInstance" id="RFC2119">
+            <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </div>
+<div class="refInstance" id="RFC8174">
+            <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </div>
+</dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-12.2">
+        <h3 id="name-informative-references">
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="AAUTH">[AAUTH]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D.</span>, <span class="refTitle">"AAuth Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-hardt-oauth-aauth-protocol-11</span>, <time datetime="2026-09-25" class="refDate">25 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-11">https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-11</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ACTOR-PROFILE">[ACTOR-PROFILE]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth Actor Profile for Delegation"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-actor-profile-00</span>, <time datetime="2026-04-30" class="refDate">30 April 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ATTESTER-ENDORSEMENT">[ATTESTER-ENDORSEMENT]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <time datetime="2026-09-14" class="refDate">14 September 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CIMD">[CIMD]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2104">[RFC2104]</dt>
+        <dd>
+<span class="refAuthor">Krawczyk, H.</span>, <span class="refAuthor">Bellare, M.</span>, and <span class="refAuthor">R. Canetti</span>, <span class="refTitle">"HMAC: Keyed-Hashing for Message Authentication"</span>, <span class="seriesInfo">RFC 2104</span>, <span class="seriesInfo">DOI 10.17487/RFC2104</span>, <time datetime="1997-02" class="refDate">February 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2104">https://www.rfc-editor.org/rfc/rfc2104</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7591">[RFC7591]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7636">[RFC7636]</dt>
+        <dd>
+<span class="refAuthor">Sakimura, N., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Agarwal</span>, <span class="refTitle">"Proof Key for Code Exchange by OAuth Public Clients"</span>, <span class="seriesInfo">RFC 7636</span>, <span class="seriesInfo">DOI 10.17487/RFC7636</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7636">https://www.rfc-editor.org/rfc/rfc7636</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8252">[RFC8252]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 for Native Apps"</span>, <span class="seriesInfo">BCP 212</span>, <span class="seriesInfo">RFC 8252</span>, <span class="seriesInfo">DOI 10.17487/RFC8252</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8252">https://www.rfc-editor.org/rfc/rfc8252</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8417">[RFC8417]</dt>
+        <dd>
+<span class="refAuthor">Hunt, P., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Denniss, W.</span>, and <span class="refAuthor">M. Ansari</span>, <span class="refTitle">"Security Event Token (SET)"</span>, <span class="seriesInfo">RFC 8417</span>, <span class="seriesInfo">DOI 10.17487/RFC8417</span>, <time datetime="2018-07" class="refDate">July 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8417">https://www.rfc-editor.org/rfc/rfc8417</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8935">[RFC8935]</dt>
+        <dd>
+<span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Jones, M., Ed.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Ansari, M.</span>, and <span class="refAuthor">A. Nadalin</span>, <span class="refTitle">"Push-Based Security Event Token (SET) Delivery Using HTTP"</span>, <span class="seriesInfo">RFC 8935</span>, <span class="seriesInfo">DOI 10.17487/RFC8935</span>, <time datetime="2020-11" class="refDate">November 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8935">https://www.rfc-editor.org/rfc/rfc8935</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9068">[RFC9068]</dt>
+        <dd>
+<span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9421">[RFC9421]</dt>
+        <dd>
+<span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Richer, J., Ed.</span>, and <span class="refAuthor">M. Sporny</span>, <span class="refTitle">"HTTP Message Signatures"</span>, <span class="seriesInfo">RFC 9421</span>, <span class="seriesInfo">DOI 10.17487/RFC9421</span>, <time datetime="2024-02" class="refDate">February 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9421">https://www.rfc-editor.org/rfc/rfc9421</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SPIFFE-OAUTH">[SPIFFE-OAUTH]</dt>
+      <dd>
+<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Rose, S.</span>, <span class="refAuthor">Thorgersen, S.</span>, and <span class="refAuthor">N. Cam-Winget</span>, <span class="refTitle">"OAuth SPIFFE Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-spiffe-client-auth-02</span>, <time datetime="2026-06-15" class="refDate">15 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="wire-examples">
+<section id="appendix-A">
+      <h2 id="name-wire-examples">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-wire-examples" class="section-name selfRef">Wire Examples</a>
+      </h2>
+<p id="appendix-A-1">These examples are informative. The first two use the managed-device
+flow (<a href="#managed-device-example" class="auto internal xref">Appendix B.4</a>): the user is the authorization
+subject, and the installation appears as Instance Context. The
+authorization server maps the attester's identifier to a value scoped to
+<code>https://api.example</code>.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<div id="access-token-payload">
+<section id="appendix-A.1">
+        <h3 id="name-access-token-payload">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-access-token-payload" class="section-name selfRef">Access Token Payload</a>
+        </h3>
+<p id="appendix-A.1-1">The following example shows a decoded <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> access token
+payload; its JOSE header contains a <code>typ</code> value of <code>at+jwt</code>. The <code>jkt</code>
+member of the <code>cnf</code> claim identifies the public key in
+<a href="#attestation-example" class="auto internal xref">Section 4.2</a>.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="appendix-A.1-2">
+<pre>
+{
+  "iss": "https://as.example",
+  "sub": "user-17",
+  "aud": "https://api.example",
+  "client_id": "https://platform.example/oauth-client",
+  "iat": 1789128000,
+  "exp": 1789128300,
+  "jti": "at-95a76b823",
+  "scope": "documents.read",
+  "cnf": {
+    "jkt": "Ak20Cf62SpTybasujYXbaI-Ms655MyvOZCtnnf8y1QU"
+  },
+  "client_instance": {
+    "iss": "https://as.example",
+    "id": "m-95c9f383a07468578c0329a9a660740f"
+  }
+}
+</pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="introspection-response">
+<section id="appendix-A.2">
+        <h3 id="name-introspection-response">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-introspection-response" class="section-name selfRef">Introspection Response</a>
+        </h3>
+<p id="appendix-A.2-1">The following example shows an authenticated introspection response
+conveying the same context for an opaque access token. The
+resource server has configured this endpoint as authoritative for
+<code>https://as.example</code>. The top-level <code>iss</code> member names the token
+issuer, and the nested <code>iss</code> member names the Instance Context
+Authority; here they are the same authorization server.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.2-2">
+<pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  "active": true,
+  "iss": "https://as.example",
+  "sub": "user-17",
+  "aud": "https://api.example",
+  "client_id": "https://platform.example/oauth-client",
+  "scope": "documents.read",
+  "exp": 1789128300,
+  "cnf": {
+    "jkt": "Ak20Cf62SpTybasujYXbaI-Ms655MyvOZCtnnf8y1QU"
+  },
+  "client_instance": {
+    "iss": "https://as.example",
+    "id": "m-95c9f383a07468578c0329a9a660740f"
+  }
+}
+</pre><a href="#appendix-A.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="governed-actor-and-instance-context">
+<section id="appendix-A.3">
+        <h3 id="name-governed-actor-and-instance">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-governed-actor-and-instance" class="section-name selfRef">Governed Actor and Instance Context</a>
+        </h3>
+<p id="appendix-A.3-1">A consuming profile can authorize instance <code>B</code> to continue work that
+instance <code>A</code> began for the same governed agent. Here that profile
+authorizes <code>agent-42</code> to act for <code>user-17</code> under <span>[<a href="#ACTOR-PROFILE" class="cite xref">ACTOR-PROFILE</a>]</span> and
+selects the authenticated presenting instance for output context. The
+authorization server validates <code>B</code>'s attestation and proof, replaces
+<code>A</code>'s input context with <code>B</code>'s mapping for the resource server's
+Consumer Scope, and binds the output token under the consuming profile.
+The following example shows the relevant output claims:<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="appendix-A.3-2">
+<pre>
+{
+  "sub": "user-17",
+  "aud": "https://api.example",
+  "act": {
+    "iss": "https://as.example",
+    "sub": "agent-42"
+  },
+  "client_instance": {
+    "iss": "https://as.example",
+    "id": "m-a524d3cc4ba2df62c17f080e8779794d"
+  }
+}
+</pre><a href="#appendix-A.3-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.3-3">The governed actor remains <code>agent-42</code>; the mapped identifier is <code>B</code>'s.
+Neither <code>B</code>'s authentication nor continuity of the agent identity
+alone authorizes this exchange. A profile that instead preserved <code>A</code>'s
+context would have to define that upstream association explicitly.<a href="#appendix-A.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="attestation-rejection">
+<section id="appendix-A.4">
+        <h3 id="name-attestation-rejection">
+<a href="#appendix-A.4" class="section-number selfRef">A.4. </a><a href="#name-attestation-rejection" class="section-name selfRef">Attestation Rejection</a>
+        </h3>
+<p id="appendix-A.4-1">The following example shows a token endpoint response when a required
+instance claim is missing or local policy rejects the instance
+(<a href="#errors" class="auto internal xref">Section 5.2</a>). It does not reveal whether the instance is unknown,
+suspended, or retired.<a href="#appendix-A.4-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.4-2">
+<pre>
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  "error": "invalid_client_attestation"
+}
+</pre><a href="#appendix-A.4-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="deployment-examples">
+<section id="appendix-B">
+      <h2 id="name-deployment-examples">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-deployment-examples" class="section-name selfRef">Deployment Examples</a>
+      </h2>
+<p id="appendix-B-1">The following informative examples share three steps. <code>C1</code> is the
+Logical Client; <code>I1</code> and <code>K1</code> are an Instance Identifier and key scoped
+to the authorization server.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="appendix-B-2">
+<li id="appendix-B-2.1">
+          <p id="appendix-B-2.1.1">The attester verifies enrollment evidence and possession of <code>K1</code>,
+then issues the attestation in <a href="#claims" class="auto internal xref">Section 4</a>: <code>iss</code> naming the attester,
+<code>sub=C1</code>, <code>client_instance_id=I1</code>, and <code>cnf.jwk</code> holding public key
+<code>K1</code>.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-B-2.2">
+          <p id="appendix-B-2.2.1">The client presents its grant, attestation, and combined DPoP proof
+using <code>K1</code> at the authorization server token endpoint.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-B-2.3">
+          <p id="appendix-B-2.3.1">The authorization server validates them and issues a DPoP-bound token
+with mapped context <code>M1</code>, scoped to the resource. The resource server
+validates the token, proof, and context without seeing the enrollment
+evidence.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+<div id="cimd-example">
+<section id="appendix-B.1">
+        <h3 id="name-cimd-client">
+<a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-cimd-client" class="section-name selfRef">CIMD Client</a>
+        </h3>
+<p id="appendix-B.1-1">Let <code>C1</code> be <code>https://platform.example/oauth-client</code>, whose CIMD declares
+<code>attest_jwt_client_auth_dpop</code> (<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> has a metadata
+example). The authorization server validates the CIMD and trusts the
+attester through configuration or an accepted <code>client_attesters</code>
+endorsement. Key renewal does not change the CIMD. User-authorized
+access follows <a href="#managed-device-example" class="auto internal xref">Appendix B.4</a>.<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="aauth-example">
+<section id="appendix-B.2">
+        <h3 id="name-aauth-agent-provider">
+<a href="#appendix-B.2" class="section-number selfRef">B.2. </a><a href="#name-aauth-agent-provider" class="section-name selfRef">AAuth Agent Provider</a>
+        </h3>
+<p id="appendix-B.2-1">At step 1, the Agent Provider verifies managed installation evidence
+and issues a Client Attestation. Native <code>aa-agent+jwt</code> credentials and
+HTTP Message Signatures <span>[<a href="#RFC9421" class="cite xref">RFC9421</a>]</span> do not replace the attestation or
+the proof. Step 2 uses a pre-authorized client credentials grant;
+AAuth metadata alone does not establish attester trust.<a href="#appendix-B.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="spiffe-example">
+<section id="appendix-B.3">
+        <h3 id="name-spiffe-workload">
+<a href="#appendix-B.3" class="section-number selfRef">B.3. </a><a href="#name-spiffe-workload" class="section-name selfRef">SPIFFE Workload</a>
+        </h3>
+<p id="appendix-B.3-1">At step 1, the workload uses an X.509-SVID from the Workload API for
+mutual TLS. The attester validates its trust domain and runtime
+evidence binding this container to <code>K1</code>; a shared SPIFFE ID cannot
+distinguish replicas. Step 2 uses client credentials with the
+resulting attestation. With the container as the Execution unit, a
+restart requires new enrollment; SVID renewal within a continuing
+container does not.<a href="#appendix-B.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="managed-device-example">
+<section id="appendix-B.4">
+        <h3 id="name-managed-device">
+<a href="#appendix-B.4" class="section-number selfRef">B.4. </a><a href="#name-managed-device" class="section-name selfRef">Managed Device</a>
+        </h3>
+<p id="appendix-B.4-1">At step 1, a management component verifies the installed client and
+its platform-protected <code>K1</code>, using app-attestation evidence where
+available. Device enrollment or key storage alone does not identify
+the installation. Before step 2, the client obtains a code through an
+external browser <span>[<a href="#RFC8252" class="cite xref">RFC8252</a>]</span> with PKCE <code>S256</code> <span>[<a href="#RFC7636" class="cite xref">RFC7636</a>]</span>, then
+redeems it with the code verifier, redirect URI, <code>C1</code>, attestation,
+and DPoP proof. The browser receives neither attestation nor proof.
+Process restarts can retain the installation identity; reinstallation
+requires new enrollment.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="history">
+<section id="appendix-C">
+      <h2 id="name-document-history">
+<a href="#name-document-history" class="section-name selfRef">Document History</a>
+      </h2>
+<p id="appendix-C-1"><em>RFC EDITOR: Remove this section before publication.</em><a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-C-2.1">
+          <p id="appendix-C-2.1.1">Initial draft.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-D">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Karl McGuinness</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:public@karlmcguinness.com" class="email">public@karlmcguinness.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
