@@ -664,15 +664,15 @@ specified in {{context-errors}}. The HTTP `Bearer` scheme does
 not indicate an unbound token; certificate-bound tokens {{RFC8705}}
 also use it.
 
-All validation requirements of the token-binding mechanism apply
-whether or not context is used for attribution, including rejection of
-a bound token presented without its proof ({{Section 7.2 of RFC9449}}).
-The binding authenticates the presenter; it does not establish that the
-presenter is the instance named in context derived from an upstream
-token. Any
-presenter or key change during exchange requires authorization under
-the consuming profile. Unlinkability between Context Consumers also
-requires distinct token-binding keys ({{token-binding-keys}}).
+All validation requirements of the token-binding mechanism apply whether
+or not context is used for attribution, including rejection of a bound
+token presented without its proof ({{Section 7.1 of RFC9449}} and
+{{Section 7.2 of RFC9449}}). The binding authenticates the presenter; it
+does not establish that the presenter is the instance named in context
+derived from an upstream token. Any presenter or key change during
+exchange requires authorization under the consuming profile.
+Unlinkability between Context Consumers also requires distinct
+token-binding keys ({{token-binding-keys}}).
 
 ## Preservation and Authorization {#context-exchange}
 
