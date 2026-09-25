@@ -824,8 +824,8 @@ evidence. Native credentials with different `sub` or `typ` semantics
 require a separate carrier profile. A deployment authenticating only
 with them conveys no Instance Context under this profile, which maps
 context only from a validated Client Attestation
-({{format-and-mapping}}). {{deployment-examples}} illustrates these
-boundaries.
+({{format-and-mapping}}). These boundaries are illustrated in
+{{deployment-examples}}.
 
 # Security Considerations
 
