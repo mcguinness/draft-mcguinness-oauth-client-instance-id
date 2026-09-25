@@ -410,11 +410,12 @@ On refresh of such a grant, the authorization server:
    client authentication method or an additional security signal. This
    extends {{Section 10.3 of ATTEST}}, which requires the attestation
    mechanism when refreshing.
-2. MUST enforce two independent invariants: * the Source Instance
-   Identity in the current validated attestation MUST match the recorded
-   one; and * the proof and key binding MUST satisfy {{ATTEST}}, or a
-   profile that has redefined refresh-token binding under
-   {{Section 13 of ATTEST}}.
+2. MUST enforce two independent invariants:
+   * the Source Instance Identity in the current validated attestation
+     MUST match the recorded one; and
+   * the proof and key binding MUST satisfy {{ATTEST}}, or a profile
+     that has redefined refresh-token binding under
+     {{Section 13 of ATTEST}}.
 3. MUST produce the `invalid_grant` error code
    ({{Section 5.2 of RFC6749}}) for a conflict with the recorded
    identity, without disclosing the expected identity.
