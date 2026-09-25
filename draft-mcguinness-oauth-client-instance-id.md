@@ -298,15 +298,10 @@ attestation presented outside its scope; the resulting correlation
 exposes the end user of that instance ({{Section 11.1 of ATTEST}}).
 
 Scoping an identifier to a Receiver reveals that Receiver to the
-attester. This forgoes a property that {{ATTEST}} states in its
-abstract: the client proves its authenticity without revealing its
-target audience to the attester. This profile trades attester
-visibility for unlinkability between Receivers. A deployment that
-needs the attester not to learn individual Receivers, or that intends
-correlation across them, configures one Receiver Scope spanning them.
-The attester then learns only that
-scope, those Receivers can correlate the instance, and one identifier
-and key suffice.
+attester ({{attester-visibility}}). A deployment that needs the attester
+not to learn individual Receivers, or that intends correlation across
+them, configures one Receiver Scope spanning them; one identifier and
+key then suffice.
 
 The client MUST also use distinct Client Instance Keys across scopes.
 {{Section 11.1 of ATTEST}} recommends this across authorization and
@@ -324,10 +319,8 @@ server's attestation carries a different key. No single proof can
 match both, so combined mode cannot also be used at that resource
 server. Instead, a client authenticating in normal mode can present
 the resource-server-scoped key as its DPoP key at issuance. That
-allows combined mode at the resource server. The authorization server
-then also sees that key. The two Receivers can therefore correlate
-through its thumbprint, even though their identifiers and Client
-Instance Keys differ.
+allows combined mode at the resource server, at a correlation cost
+described in {{token-binding-keys}}.
 
 ## Example {#attestation-example}
 
@@ -878,11 +871,26 @@ distinct mutual-TLS certificate per scope. Other claims and
 application data can also correlate requests. Identifier scoping does
 not permit changing a refresh token's bound key ({{grant-continuity}}).
 
+The same applies between an authorization server and a resource server.
+A client that authenticates to the authorization server in normal mode
+and presents a resource-server-scoped key as its DPoP key, so that it
+can use combined mode at that resource server ({{receiver-scope}}),
+also exposes that key to the authorization server. The two Receivers
+can then correlate through its thumbprint, even though their
+identifiers and Client Instance Keys differ.
+
 ## Attester Visibility {#attester-visibility}
 
-The attester learns any Receiver Scope the client supplies.
-{{receiver-scope}} describes the trade-off and how a single Receiver
-Scope spanning every Receiver the client uses limits it.
+The attester learns any Receiver Scope the client supplies. Scoping an
+identifier to a Receiver ({{receiver-scope}}) therefore reveals that
+Receiver to the attester. This forgoes a property that {{ATTEST}} states
+in its abstract: the client proves its authenticity without revealing
+its target audience to the attester. This profile trades attester
+visibility for unlinkability between Receivers.
+
+A single Receiver Scope spanning every Receiver the client uses limits
+what the attester learns to that scope, at the cost of allowing those
+Receivers to correlate the instance.
 
 ## Error Disclosure {#disclosure}
 
