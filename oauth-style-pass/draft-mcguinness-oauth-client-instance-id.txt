@@ -391,14 +391,10 @@ Table of Contents
    [ATTEST]).
 
    Scoping an identifier to a Receiver reveals that Receiver to the
-   attester.  This forgoes a property that [ATTEST] states in its
-   abstract: the client proves its authenticity without revealing its
-   target audience to the attester.  This profile trades attester
-   visibility for unlinkability between Receivers.  A deployment that
-   needs the attester not to learn individual Receivers, or that intends
-   correlation across them, configures one Receiver Scope spanning them.
-   The attester then learns only that scope, those Receivers can
-   correlate the instance, and one identifier and key suffice.
+   attester (Section 10.3).  A deployment that needs the attester not to
+   learn individual Receivers, or that intends correlation across them,
+   configures one Receiver Scope spanning them; one identifier and key
+   then suffice.
 
    The client MUST also use distinct Client Instance Keys across scopes.
    Section 11.1 of [ATTEST] recommends this across authorization and
@@ -415,10 +411,8 @@ Table of Contents
    proof can match both, so combined mode cannot also be used at that
    resource server.  Instead, a client authenticating in normal mode can
    present the resource-server-scoped key as its DPoP key at issuance.
-   That allows combined mode at the resource server.  The authorization
-   server then also sees that key.  The two Receivers can therefore
-   correlate through its thumbprint, even though their identifiers and
-   Client Instance Keys differ.
+   That allows combined mode at the resource server, at a correlation
+   cost described in Section 10.2.
 
 4.2.  Example
 
@@ -493,24 +487,29 @@ Table of Contents
 
    For a grant established using a Client Attestation validated under
    this profile, the authorization server MUST record the Source
-   Instance Identity when issuing a refresh token.  On refresh of such a
-   grant, the authorization server MUST require a validated attestation
-   whether it is the client authentication method or an additional
-   security signal.  This extends Section 10.3 of [ATTEST], which
-   requires the attestation mechanism when refreshing.  On refresh of
-   such a grant, the authorization server MUST also enforce two
-   independent invariants:
+   Instance Identity when issuing a refresh token.
 
-   *  the Source Instance Identity in the current validated attestation
-      MUST match the recorded one; and
+   On refresh of such a grant, the authorization server:
 
-   *  the proof and key binding MUST satisfy ATTEST, or a profile that
-      has redefined refresh-token binding under Section 13 of [ATTEST].
+   1.  MUST require a validated attestation, whether the attestation is
+       the client authentication method or an additional security
+       signal.  This extends Section 10.3 of [ATTEST], which requires
+       the attestation mechanism when refreshing.
 
-   Instance continuity and key-binding continuity are independent.  On
-   refresh of such a grant, the authorization server MUST produce the
-   invalid_grant error code (Section 5.2 of [RFC6749]) for a conflict
-   with the recorded identity, without disclosing the expected identity.
+   2.  MUST enforce two independent invariants:
+
+       *  the Source Instance Identity in the current validated
+          attestation MUST match the recorded one; and
+
+       *  the proof and key binding MUST satisfy ATTEST, or a profile
+          that has redefined refresh-token binding under Section 13 of
+          [ATTEST].
+
+   3.  MUST produce the invalid_grant error code (Section 5.2 of
+       [RFC6749]) for a conflict with the recorded identity, without
+       disclosing the expected identity.
+
+   Instance continuity and key-binding continuity are independent.
 
    If authorization-time policy bound a code or other artifact to an
    instance, the authorization server MUST enforce that binding at
@@ -1045,11 +1044,26 @@ Table of Contents
    can also correlate requests.  Identifier scoping does not permit
    changing a refresh token's bound key (Section 5.1).
 
+   The same applies between an authorization server and a resource
+   server.  A client that authenticates to the authorization server in
+   normal mode and presents a resource-server-scoped key as its DPoP
+   key, so that it can use combined mode at that resource server
+   (Section 4.1), also exposes that key to the authorization server.
+   The two Receivers can then correlate through its thumbprint, even
+   though their identifiers and Client Instance Keys differ.
+
 10.3.  Attester Visibility
 
-   The attester learns any Receiver Scope the client supplies.
-   Section 4.1 describes the trade-off and how a single Receiver Scope
-   spanning every Receiver the client uses limits it.
+   The attester learns any Receiver Scope the client supplies.  Scoping
+   an identifier to a Receiver (Section 4.1) therefore reveals that
+   Receiver to the attester.  This forgoes a property that [ATTEST]
+   states in its abstract: the client proves its authenticity without
+   revealing its target audience to the attester.  This profile trades
+   attester visibility for unlinkability between Receivers.
+
+   A single Receiver Scope spanning every Receiver the client uses
+   limits what the attester learns to that scope, at the cost of
+   allowing those Receivers to correlate the instance.
 
 10.4.  Error Disclosure
 

@@ -1704,15 +1704,10 @@ attestation for that configured scope. A Receiver cannot detect an
 attestation presented outside its scope; the resulting correlation
 exposes the end user of that instance (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>).<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">Scoping an identifier to a Receiver reveals that Receiver to the
-attester. This forgoes a property that <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> states in its
-abstract: the client proves its authenticity without revealing its
-target audience to the attester. This profile trades attester
-visibility for unlinkability between Receivers. A deployment that
-needs the attester not to learn individual Receivers, or that intends
-correlation across them, configures one Receiver Scope spanning them.
-The attester then learns only that
-scope, those Receivers can correlate the instance, and one identifier
-and key suffice.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+attester (<a href="#attester-visibility" class="auto internal xref">Section 10.3</a>). A deployment that needs the attester
+not to learn individual Receivers, or that intends correlation across
+them, configures one Receiver Scope spanning them; one identifier and
+key then suffice.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <p id="section-4.1-4">The client <span class="bcp14">MUST</span> also use distinct Client Instance Keys across scopes.
 <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends this across authorization and
 resource servers; this profile requires it across the scopes a
@@ -1728,10 +1723,8 @@ server's attestation carries a different key. No single proof can
 match both, so combined mode cannot also be used at that resource
 server. Instead, a client authenticating in normal mode can present
 the resource-server-scoped key as its DPoP key at issuance. That
-allows combined mode at the resource server. The authorization server
-then also sees that key. The two Receivers can therefore correlate
-through its thumbprint, even though their identifiers and Client
-Instance Keys differ.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+allows combined mode at the resource server, at a correlation cost
+described in <a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attestation-example">
@@ -1827,27 +1820,36 @@ that names a different instance; the check governs refresh across key
 changes only under a profile that rebinds refresh tokens.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">For a grant established using a Client Attestation validated under this
 profile, the authorization server <span class="bcp14">MUST</span> record the Source Instance
-Identity when issuing a refresh token. On refresh of such a grant, the
-authorization server <span class="bcp14">MUST</span> require a validated attestation whether it is
-the client authentication method or an additional security signal. This
+Identity when issuing a refresh token.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">On refresh of such a grant, the authorization server:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.1-4">
+<li id="section-5.1-4.1">
+            <p id="section-5.1-4.1.1"><span class="bcp14">MUST</span> require a validated attestation, whether the attestation is the
+client authentication method or an additional security signal. This
 extends <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, which requires the attestation
-mechanism when refreshing. On refresh of such a grant, the
-authorization server <span class="bcp14">MUST</span> also enforce two independent invariants:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+mechanism when refreshing.<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-5.1-4.2">
+            <p id="section-5.1-4.2.1"><span class="bcp14">MUST</span> enforce two independent invariants:<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-3.1">
-            <p id="section-5.1-3.1.1">the Source Instance Identity in the current validated attestation
-<span class="bcp14">MUST</span> match the recorded one; and<a href="#section-5.1-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-4.2.2.1">
+                <p id="section-5.1-4.2.2.1.1">the Source Instance Identity in the current validated attestation
+<span class="bcp14">MUST</span> match the recorded one; and<a href="#section-5.1-4.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.1-3.2">
-            <p id="section-5.1-3.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy ATTEST, or a profile that has
-redefined refresh-token binding under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-3.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-4.2.2.2">
+                <p id="section-5.1-4.2.2.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy ATTEST, or a profile that
+has redefined refresh-token binding under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
-<p id="section-5.1-4">Instance continuity and key-binding continuity are independent. On
-refresh of such a grant, the authorization server <span class="bcp14">MUST</span> produce the
-<code>invalid_grant</code> error code (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) for a conflict
-with the recorded identity, without disclosing the expected identity.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<p id="section-5.1-5">If authorization-time policy bound a code or other artifact to an
+            </ul>
+</li>
+          <li id="section-5.1-4.3">
+            <p id="section-5.1-4.3.1"><span class="bcp14">MUST</span> produce the <code>invalid_grant</code> error code
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) for a conflict with the recorded
+identity, without disclosing the expected identity.<a href="#section-5.1-4.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-5.1-5">Instance continuity and key-binding continuity are independent.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-6">If authorization-time policy bound a code or other artifact to an
 instance, the authorization server <span class="bcp14">MUST</span> enforce that binding at
 redemption, whether the attestation is the client authentication method
 or an additional security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). Because
@@ -1856,7 +1858,7 @@ authorization server that binds artifacts to instances <span class="bcp14">MUST<
 at their redemption; otherwise a conforming client cannot supply what
 the authorization server needs to check.
 <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.4" class="relref">Section 10.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends establishing such bindings where
-attestation is the client authentication method.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+attestation is the client authentication method.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="errors">
@@ -2498,6 +2500,13 @@ across those scopes, for example, DPoP without combined mode or a
 distinct mutual-TLS certificate per scope. Other claims and
 application data can also correlate requests. Identifier scoping does
 not permit changing a refresh token's bound key (<a href="#grant-continuity" class="auto internal xref">Section 5.1</a>).<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-2">The same applies between an authorization server and a resource server.
+A client that authenticates to the authorization server in normal mode
+and presents a resource-server-scoped key as its DPoP key, so that it
+can use combined mode at that resource server (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>),
+also exposes that key to the authorization server. The two Receivers
+can then correlate through its thumbprint, even though their
+identifiers and Client Instance Keys differ.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="attester-visibility">
@@ -2505,9 +2514,15 @@ not permit changing a refresh token's bound key (<a href="#grant-continuity" cla
         <h3 id="name-attester-visibility">
 <a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-attester-visibility" class="section-name selfRef">Attester Visibility</a>
         </h3>
-<p id="section-10.3-1">The attester learns any Receiver Scope the client supplies.
-<a href="#receiver-scope" class="auto internal xref">Section 4.1</a> describes the trade-off and how a single Receiver
-Scope spanning every Receiver the client uses limits it.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-1">The attester learns any Receiver Scope the client supplies. Scoping an
+identifier to a Receiver (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>) therefore reveals that
+Receiver to the attester. This forgoes a property that <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> states
+in its abstract: the client proves its authenticity without revealing
+its target audience to the attester. This profile trades attester
+visibility for unlinkability between Receivers.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-2">A single Receiver Scope spanning every Receiver the client uses limits
+what the attester learns to that scope, at the cost of allowing those
+Receivers to correlate the instance.<a href="#section-10.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="disclosure">
