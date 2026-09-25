@@ -90,7 +90,8 @@ This specification defines two claims:
   identifies one installation or runtime. The attester assigns it,
   retains it across verified key changes, and by default scopes it to
   one Receiver, which reveals that Receiver to the attester.
-* The `client_instance` claim allows a resource server that does not
+* The `client_instance` claim, or introspection response member, allows
+  a resource server that does not
   receive the attestation to correlate requests with the instance
   validated at issuance. It carries a mapped reference to that instance
   in a token or introspection response.
@@ -239,8 +240,8 @@ The Receiver MUST bind each approved Attester Issuer to its validation
 keys and authorized Logical Clients through configured associations. An
 authorization server can derive those associations from client
 endorsements it accepts, for example under {{ATTESTER-ENDORSEMENT}}.
-That specification applies only to authorization server endpoints; a
-resource server validating attestations directly uses configured
+{{ATTESTER-ENDORSEMENT}} applies only to authorization server endpoints;
+a resource server validating attestations directly uses configured
 associations. A credential's `iss` claim, proof of possession, or
 client-published metadata ({{RFC7591}}, {{CIMD}}) alone does not
 establish attester authority. Key resolution follows
@@ -267,9 +268,9 @@ the rest of this specification.
 
 This profile uses the additional claims permitted by
 {{Section 4 of ATTEST}}. All ATTEST requirements apply, including a
-`typ` value of `oauth-client-attestation+jwt`, `sub` equal to
-`client_id`, the required `exp` and `cnf` claims, and the optional
-`iat` claim.
+`typ` JOSE header parameter value of `oauth-client-attestation+jwt`,
+`sub` equal to `client_id`, the required `exp` and `cnf` claims, and the
+optional `iat` claim.
 
 `iss`:
 : REQUIRED. Exactly matches an approved Attester Issuer
@@ -756,7 +757,7 @@ convey to that consumer Instance Context derived from anything other
 than a Client Attestation it validated for the issuing request.
 
 For introspection, trusted endpoint configuration identifies the
-expected token issuer. If present, a response-level `iss` member MUST
+expected token issuer. If present, a top-level `iss` member MUST
 match that issuer; neither the endpoint URL nor the
 `client_instance.iss` member selects the issuer. Multi-issuer
 introspection requires a consuming profile that authenticates the
@@ -929,8 +930,9 @@ authorization server maps the attester's identifier to a value scoped to
 {:numbered="false"}
 
 The following example shows a decoded {{RFC9068}} access token
-payload; its protected header has `typ=at+jwt`. The `cnf.jkt` claim
-identifies the public key in {{attestation-example}}.
+payload; its JOSE header contains a `typ` value of `at+jwt`. The `jkt`
+member of the `cnf` claim identifies the public key in
+{{attestation-example}}.
 
 ~~~ json
 {
@@ -957,7 +959,7 @@ identifies the public key in {{attestation-example}}.
 
 The following example shows an authenticated introspection response
 conveying the same context for an opaque access token. The
-resource has configured this endpoint as authoritative for
+resource server has configured this endpoint as authoritative for
 `https://as.example`. The top-level `iss` member names the token
 issuer, and the nested `iss` member names the Instance Context
 Authority; here they are the same authorization server.
