@@ -248,7 +248,7 @@ Conformance is role-specific:
 | Role | Implements | Where |
 |---|---|---|
 | Client Attester | Claim, identifier, continuity, and enrollment requirements | {{claims}}, {{attester-requirements}} |
-| Client | Scoped attestation use, key separation, and the selected ATTEST proof method | {{receiver-scope}}, {{presenter-attribution}}, {{privacy}} |
+| Client | Scoped attestation use, key separation, and the selected ATTEST proof method | {{receiver-scope}}, {{presenter-attribution}}, {{token-binding-keys}} |
 | Receiver | Trust, validation, grant-continuity, and revocation rules | {{configuration}}, {{processing}}, {{suspension}} |
 | Token issuer conveying context | Mapping, preservation, and any binding that attribution requires | {{instance-context}} |
 | Context Consumer | Context validation and applicable proof checks | {{presenter-attribution}}, {{context-consumer}}, {{context-errors}} |
@@ -304,7 +304,7 @@ The client MUST also use distinct Client Instance Keys across scopes.
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
 attestations regardless of their identifiers. Token-binding key
-separation between Context Consumers is addressed in {{privacy}}.
+separation between Context Consumers is addressed in {{token-binding-keys}}.
 
 In combined mode, the Client Instance Key is also the DPoP key. In
 normal mode, the DPoP key is independent of the attestation
@@ -651,7 +651,7 @@ presenter is the instance named in context derived from an upstream
 token. Any
 presenter or key change during exchange requires authorization under
 the consuming profile. Unlinkability between Context Consumers also
-requires distinct token-binding keys ({{privacy}}).
+requires distinct token-binding keys ({{token-binding-keys}}).
 
 ## Preservation and Authorization {#context-exchange}
 
@@ -827,38 +827,49 @@ enrollment data can be indistinguishable from the original;
 detection. Instance identity proves no software integrity beyond the
 evaluated evidence.
 
-## Forwarding and Privacy {#privacy}
+## Forwarding {#forwarding}
 
-* **Proof binding:** forwarding resistance comes from ATTEST proof
-  validation, freshness, and key possession, not identifier scope.
-  The Client Attestation has no audience; its
-  proof-of-possession JWT identifies the Receiver, and combined DPoP
-  binds the HTTP request.
-* **Correlation:** separate identifiers and keys per Receiver Scope
-  ({{receiver-scope}}) limit correlation, strengthening
-  {{Section 11.1 of ATTEST}}. Receivers MUST NOT assume identifiers
-  across scopes are comparable; explicitly shared scopes permit
-  correlation.
-* **Token-binding keys:** per-consumer Instance Context Identifiers do
-  not prevent correlation through a shared binding key. In DPoP
-  combined mode ({{Section 5.2 of ATTEST}}) the Client Instance Key is
-  the DPoP key, so tokens for different consumers can carry different
-  `id` values but the same `cnf.jkt`. Where unlinkability between
-  Context Consumers is required, the client MUST use distinct
-  token-binding keys across those scopes, for example DPoP without
-  combined mode or a distinct mutual-TLS certificate per scope. Other
-  claims and application data can also correlate requests. Identifier
-  scoping does not permit changing a refresh token's bound key
-  ({{grant-continuity}}).
-* **Attester visibility:** the attester learns any Receiver Scope the
-  client supplies; {{receiver-scope}} describes the trade-off and how a
-  single Receiver Scope spanning every Receiver the client uses limits
-  it.
-* **Disclosure:** error responses SHOULD NOT reveal unrelated instance
-  identities. Status non-disclosure follows {{errors}}; retention
-  follows {{state}} and {{mapping-stability}}. Unpredictable
-  identifiers limit guessing and enumeration but are not
-  authentication.
+Forwarding resistance comes from ATTEST proof validation, freshness,
+and key possession, not from identifier scope. The Client Attestation
+has no audience; its proof-of-possession JWT identifies the Receiver,
+and combined DPoP binds the HTTP request.
+
+# Privacy Considerations {#privacy}
+
+The privacy considerations of {{Section 11 of ATTEST}} apply.
+
+## Correlation Across Receivers {#correlation}
+
+Separate identifiers and keys per Receiver Scope ({{receiver-scope}})
+limit correlation, strengthening {{Section 11.1 of ATTEST}}. Receivers
+MUST NOT assume identifiers across scopes are comparable; explicitly
+shared scopes permit correlation.
+
+## Token-Binding Keys {#token-binding-keys}
+
+Per-consumer Instance Context Identifiers do not prevent correlation
+through a shared binding key. In DPoP combined mode
+({{Section 5.2 of ATTEST}}) the Client Instance Key is the DPoP key, so
+tokens for different consumers can carry different `id` values but the
+same `cnf.jkt`. Where unlinkability between Context Consumers is
+required, the client MUST use distinct token-binding keys across those
+scopes, for example DPoP without combined mode or a distinct mutual-TLS
+certificate per scope. Other claims and application data can also
+correlate requests. Identifier scoping does not permit changing a
+refresh token's bound key ({{grant-continuity}}).
+
+## Attester Visibility {#attester-visibility}
+
+The attester learns any Receiver Scope the client supplies.
+{{receiver-scope}} describes the trade-off and how a single Receiver
+Scope spanning every Receiver the client uses limits it.
+
+## Error Disclosure {#disclosure}
+
+Error responses SHOULD NOT reveal unrelated instance identities.
+Status non-disclosure follows {{errors}}; retention follows {{state}}
+and {{mapping-stability}}. Unpredictable identifiers limit guessing and
+enumeration but are not authentication.
 
 # IANA Considerations
 
