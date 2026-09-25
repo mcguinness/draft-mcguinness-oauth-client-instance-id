@@ -399,22 +399,24 @@ changes only under a profile that rebinds refresh tokens.
 
 For a grant established using a Client Attestation validated under this
 profile, the authorization server MUST record the Source Instance
-Identity when issuing a refresh token. On refresh of such a grant, the
-authorization server MUST require a validated attestation whether it is
-the client authentication method or an additional security signal. This
-extends {{Section 10.3 of ATTEST}}, which requires the attestation
-mechanism when refreshing. On refresh of such a grant, the
-authorization server MUST also enforce two independent invariants:
+Identity when issuing a refresh token.
 
-* the Source Instance Identity in the current validated attestation
-  MUST match the recorded one; and
-* the proof and key binding MUST satisfy ATTEST, or a profile that has
-  redefined refresh-token binding under {{Section 13 of ATTEST}}.
+On refresh of such a grant, the authorization server:
 
-Instance continuity and key-binding continuity are independent. On
-refresh of such a grant, the authorization server MUST produce the
-`invalid_grant` error code ({{Section 5.2 of RFC6749}}) for a conflict
-with the recorded identity, without disclosing the expected identity.
+1. MUST require a validated attestation, whether the attestation is the
+   client authentication method or an additional security signal. This
+   extends {{Section 10.3 of ATTEST}}, which requires the attestation
+   mechanism when refreshing.
+2. MUST enforce two independent invariants:
+   * the Source Instance Identity in the current validated attestation
+     MUST match the recorded one; and
+   * the proof and key binding MUST satisfy ATTEST, or a profile that
+     has redefined refresh-token binding under {{Section 13 of ATTEST}}.
+3. MUST produce the `invalid_grant` error code
+   ({{Section 5.2 of RFC6749}}) for a conflict with the recorded
+   identity, without disclosing the expected identity.
+
+Instance continuity and key-binding continuity are independent.
 
 If authorization-time policy bound a code or other artifact to an
 instance, the authorization server MUST enforce that binding at
