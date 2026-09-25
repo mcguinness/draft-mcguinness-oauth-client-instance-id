@@ -56,8 +56,7 @@ informative:
 
 This specification defines an optional claims profile of OAuth 2.0
 Attestation-Based Client Authentication. When selected, the profile
-requires an attester-assigned client instance identifier, scoped by
-default to one Receiver, that remains stable across verified key
+requires an attester-assigned client instance identifier, scoped by default to the server that validates it, that remains stable across verified key
 changes, and adds continuity and privacy
 rules for that identifier. Conveying instance context in tokens and
 introspection responses remains optional within the profile.
