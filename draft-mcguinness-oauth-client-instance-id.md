@@ -102,8 +102,8 @@ not authority; instance evidence grants none. Authorization profiles
 can use validated instance identity or Instance Context as a policy
 input, subject to the prohibitions in {{processing}}.
 
-ATTEST alone suffices when correlation is needed only for the current
-key or within one system.
+{{ATTEST}} alone suffices when correlation is needed only for the
+current key or within one system.
 
 Assigning each instance its own `client_id` with a shared `software_id`
 client metadata value ({{Section 2 of RFC7591}}) is an alternative.
@@ -138,7 +138,7 @@ This specification addresses administratively configured deployments
 such as workloads and managed desktop or mobile applications. Its
 identifiers are not general-purpose device or wallet identifiers, and
 it does not define an enrollment, key-rotation, or status-distribution
-protocol. ATTEST
+protocol. {{ATTEST}}
 supplies the authentication and proof methods, including direct
 resource-server presentation ({{Section 7 of ATTEST}}). When selected
 under {{configuration}}, this profile applies whether the Client
@@ -278,7 +278,7 @@ the rest of this specification.
 # Client Attestation Claims {#claims}
 
 This profile uses the additional claims permitted by
-{{Section 4 of ATTEST}}. All ATTEST requirements apply, including a
+{{Section 4 of ATTEST}}. All {{ATTEST}} requirements apply, including a
 `typ` JOSE header parameter value of `oauth-client-attestation+jwt`,
 `sub` equal to `client_id`, the required `exp` and `cnf` claims, and the
 optional `iat` claim.
@@ -360,7 +360,7 @@ the optional `iat` claim:
 
 The Receiver MUST:
 
-1. Validate the attestation and proof under the configured ATTEST
+1. Validate the attestation and proof under the configured {{ATTEST}}
    method.
 2. Validate the claims in {{claims}} and attester authority under
    {{configuration}}, including that the key that verified the
@@ -382,11 +382,11 @@ The Receiver MUST NOT:
 * set an access token's `sub` claim, add an `act` claim, or extend an
   actor chain solely from instance evidence.
 
-Migration between Attester Issuers requires a procedure that
-establishes trust in both authorities and continuity evidence; this
-specification does not define one. Key selection follows ATTEST; when a
-separate token-binding key is used, context identifies the instance
-associated with the Client Instance Key.
+Migration between Attester Issuers requires a procedure that establishes
+trust in both authorities and continuity evidence; this specification
+does not define one. Key selection follows {{ATTEST}}; when a separate
+token-binding key is used, context identifies the instance associated
+with the Client Instance Key.
 
 ## Grant Continuity {#grant-continuity}
 
@@ -411,11 +411,11 @@ On refresh of such a grant, the authorization server:
    client authentication method or an additional security signal. This
    extends {{Section 10.3 of ATTEST}}, which requires the attestation
    mechanism when refreshing.
-2. MUST enforce two independent invariants:
-   * the Source Instance Identity in the current validated attestation
-     MUST match the recorded one; and
-   * the proof and key binding MUST satisfy ATTEST, or a profile that
-     has redefined refresh-token binding under {{Section 13 of ATTEST}}.
+2. MUST enforce two independent invariants: * the Source Instance
+   Identity in the current validated attestation MUST match the recorded
+   one; and * the proof and key binding MUST satisfy {{ATTEST}}, or a
+   profile that has redefined refresh-token binding under
+   {{Section 13 of ATTEST}}.
 3. MUST produce the `invalid_grant` error code
    ({{Section 5.2 of RFC6749}}) for a conflict with the recorded
    identity, without disclosing the expected identity.
@@ -444,13 +444,13 @@ policy, so responses do not disclose whether an instance is unknown,
 suspended, or retired. Receivers SHOULD also avoid distinguishable
 response timing. Consequently, a client cannot distinguish a transient
 failure from a durable policy decision, or whether retrying with a fresh
-attestation will help. Responses use the format ATTEST specifies for the
-code ({{Section 5.2 of RFC6749}} at the authorization server,
+attestation will help. Responses use the format {{ATTEST}} specifies for
+the code ({{Section 5.2 of RFC6749}} at the authorization server,
 {{Section 3 of RFC6750}} at a resource server). Unknown instances are
 rejected only when local policy requires prior enrollment. If a profile
 check fails, the Receiver MUST NOT fall back to authentication without
 the required evidence. Grant-binding errors follow {{grant-continuity}};
-other errors follow ATTEST.
+other errors follow {{ATTEST}}.
 
 # Attester Requirements {#attester-requirements}
 
@@ -868,7 +868,7 @@ attester.
 
 ## Forwarding {#forwarding}
 
-Forwarding resistance is provided by ATTEST proof validation,
+Forwarding resistance is provided by {{ATTEST}} proof validation,
 freshness, and key possession, not by identifier scope. The Client
 Attestation has no audience; its proof-of-possession JWT identifies
 the Receiver, and combined DPoP binds the HTTP request.
