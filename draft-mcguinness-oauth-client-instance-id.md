@@ -191,7 +191,8 @@ Receiver Scope:
 
 Consumer Scope:
 : The Context Consumer, or explicitly configured set of Context
-  Consumers, to which one mapping of Instance Context is scoped
+  Consumers, to which one mapping of Instance Context is scoped. A
+  Consumer Scope is identified by a configured set of audience values
   ({{format-and-mapping}}).
 
 Instance Context Authority:
@@ -586,14 +587,14 @@ its own namespace. Each mapping MUST:
 * scope the `id` value to a Consumer Scope, allowing sharing only within
   an explicitly configured set.
 
-Each Consumer Scope is a configured set of audience values. The issuer
-selects the mapping by the token's audience: its `aud` claim or, for an
-opaque token, the audience recorded at issuance. If a token has no
-audience, or its audiences span Consumer Scopes, no single `id` value is
-correct, and the issuer MUST omit the `client_instance` object. An
-introspection response conveys the `id` the token would carry. When the
-authenticated caller is outside the token's Consumer Scope, the issuer
-MUST omit the `client_instance` object.
+Each Consumer Scope is identified by a configured set of audience
+values. The issuer selects the mapping by the token's audience: its
+`aud` claim or, for an opaque token, the audience recorded at issuance.
+If a token has no audience, or its audiences span Consumer Scopes, no
+single `id` value is correct, and the issuer MUST omit the
+`client_instance` object. An introspection response conveys the `id` the
+token would carry. When the authenticated caller is outside the token's
+Consumer Scope, the issuer MUST omit the `client_instance` object.
 
 For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope. Issuers MUST separate
