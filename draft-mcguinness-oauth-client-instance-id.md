@@ -1074,8 +1074,9 @@ Logical Client; `I1` and `K1` are an Instance Identifier and key scoped
 to the authorization server.
 
 1. The attester verifies enrollment evidence and possession of `K1`,
-   then issues the attestation in {{claims}}: `sub=C1`,
-   `client_instance_id=I1`, and `cnf.jwk` holding public key `K1`.
+   then issues the attestation in {{claims}}: `iss` naming the attester,
+   `sub=C1`, `client_instance_id=I1`, and `cnf.jwk` holding public key
+   `K1`.
 2. The client presents its grant, attestation, and combined DPoP proof
    using `K1` at the authorization server token endpoint.
 3. The authorization server validates them and issues a DPoP-bound token
