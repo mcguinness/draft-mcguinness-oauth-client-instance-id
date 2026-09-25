@@ -341,7 +341,7 @@ the optional `iat` claim:
 {
   "iss": "https://attester.example/tenant/acme",
   "sub": "https://platform.example/oauth-client",
-  "client_instance_id": "i-7f3d9a2e6c8145b0a923d47e18f602cd",
+  "client_instance_id": "i-844a2aa37074eed77f3b3e950432f597",
   "iat": 1789128000,
   "exp": 1789128300,
   "cnf": {
@@ -982,7 +982,7 @@ member of the `cnf` claim identifies the public key in
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-f61783ea4cb24d098851d34960a274be"
+    "id": "m-95c9f383a07468578c0329a9a660740f"
   }
 }
 ~~~
@@ -1014,7 +1014,7 @@ Cache-Control: no-store
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-f61783ea4cb24d098851d34960a274be"
+    "id": "m-95c9f383a07468578c0329a9a660740f"
   }
 }
 ~~~
@@ -1040,7 +1040,7 @@ the relevant output claims:
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-2b58e0d760954a5a9ce64f3e718d02ac"
+    "id": "m-a524d3cc4ba2df62c17f080e8779794d"
   }
 }
 ~~~
