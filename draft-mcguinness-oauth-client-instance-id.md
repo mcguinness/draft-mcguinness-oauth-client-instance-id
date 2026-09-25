@@ -859,11 +859,16 @@ Receiver recorded. An instance can appear under a different identity by
 re-enrolling, which {{continuity}} requires after events such as a
 reinstall, or by presenting an attestation scoped to another Receiver,
 which the Receiver cannot detect ({{receiver-scope}}). Unless the
-Receiver requires prior enrollment ({{errors}}) or the attester also
-suspends the enrollment ({{suspension}}), such an instance is accepted
-as a new one. A Receiver that relies on suspension for containment
-therefore requires prior enrollment or coordinates suspension with the
-attester.
+Receiver requires prior enrollment ({{errors}}), such an instance is
+accepted as a new one. Suspension at the attester ({{suspension}}) stops
+issuance only for the suspended enrollment: it does not prevent a
+replacement enrollment unless the attester also controls admission of
+new enrollments for that installation, and attestations issued before
+the suspension remain usable until they expire. A Receiver that relies
+on suspension for containment therefore requires prior enrollment, or
+coordinates with the attester both suspension and admission control for
+replacement enrollments, and accepts the window set by outstanding
+attestation lifetimes.
 
 ## Forwarding {#forwarding}
 
