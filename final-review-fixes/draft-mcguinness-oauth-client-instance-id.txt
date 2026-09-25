@@ -507,11 +507,14 @@ Table of Contents
        signal.  This extends Section 10.3 of [ATTEST], which requires
        the attestation mechanism when refreshing.
 
-   2.  MUST enforce two independent invariants: * the Source Instance
-       Identity in the current validated attestation MUST match the
-       recorded one; and * the proof and key binding MUST satisfy
-       [ATTEST], or a profile that has redefined refresh-token binding
-       under Section 13 of [ATTEST].
+   2.  MUST enforce two independent invariants:
+
+       *  the Source Instance Identity in the current validated
+          attestation MUST match the recorded one; and
+
+       *  the proof and key binding MUST satisfy [ATTEST], or a profile
+          that has redefined refresh-token binding under Section 13 of
+          [ATTEST].
 
    3.  MUST produce the invalid_grant error code (Section 5.2 of
        [RFC6749]) for a conflict with the recorded identity, without
@@ -1029,11 +1032,16 @@ Table of Contents
    by re-enrolling, which Section 6.2 requires after events such as a
    reinstall, or by presenting an attestation scoped to another
    Receiver, which the Receiver cannot detect (Section 4.1).  Unless the
-   Receiver requires prior enrollment (Section 5.2) or the attester also
-   suspends the enrollment (Section 6.3), such an instance is accepted
-   as a new one.  A Receiver that relies on suspension for containment
-   therefore requires prior enrollment or coordinates suspension with
-   the attester.
+   Receiver requires prior enrollment (Section 5.2), such an instance is
+   accepted as a new one.  Suspension at the attester (Section 6.3)
+   stops issuance only for the suspended enrollment: it does not prevent
+   a replacement enrollment unless the attester also controls admission
+   of new enrollments for that installation, and attestations issued
+   before the suspension remain usable until they expire.  A Receiver
+   that relies on suspension for containment therefore requires prior
+   enrollment, or coordinates with the attester both suspension and
+   admission control for replacement enrollments, and accepts the window
+   set by outstanding attestation lifetimes.
 
 9.3.  Forwarding
 

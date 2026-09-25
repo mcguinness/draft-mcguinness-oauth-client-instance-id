@@ -1845,11 +1845,18 @@ extends <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-at
 mechanism when refreshing.<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-4.2">
-            <p id="section-5.1-4.2.1"><span class="bcp14">MUST</span> enforce two independent invariants: * the Source Instance
-Identity in the current validated attestation <span class="bcp14">MUST</span> match the recorded
-one; and * the proof and key binding <span class="bcp14">MUST</span> satisfy <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, or a
-profile that has redefined refresh-token binding under
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-4.2.1"><span class="bcp14">MUST</span> enforce two independent invariants:<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.1-4.2.2.1">
+                <p id="section-5.1-4.2.2.1.1">the Source Instance Identity in the current validated attestation
+<span class="bcp14">MUST</span> match the recorded one; and<a href="#section-5.1-4.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.1-4.2.2.2">
+                <p id="section-5.1-4.2.2.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, or a profile
+that has redefined refresh-token binding under
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </li>
           <li id="section-5.1-4.3">
             <p id="section-5.1-4.3.1"><span class="bcp14">MUST</span> produce the <code>invalid_grant</code> error code
@@ -2475,11 +2482,16 @@ Receiver recorded. An instance can appear under a different identity by
 re-enrolling, which <a href="#continuity" class="auto internal xref">Section 6.2</a> requires after events such as a
 reinstall, or by presenting an attestation scoped to another Receiver,
 which the Receiver cannot detect (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>). Unless the
-Receiver requires prior enrollment (<a href="#errors" class="auto internal xref">Section 5.2</a>) or the attester also
-suspends the enrollment (<a href="#suspension" class="auto internal xref">Section 6.3</a>), such an instance is accepted
-as a new one. A Receiver that relies on suspension for containment
-therefore requires prior enrollment or coordinates suspension with the
-attester.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+Receiver requires prior enrollment (<a href="#errors" class="auto internal xref">Section 5.2</a>), such an instance is
+accepted as a new one. Suspension at the attester (<a href="#suspension" class="auto internal xref">Section 6.3</a>) stops
+issuance only for the suspended enrollment: it does not prevent a
+replacement enrollment unless the attester also controls admission of
+new enrollments for that installation, and attestations issued before
+the suspension remain usable until they expire. A Receiver that relies
+on suspension for containment therefore requires prior enrollment, or
+coordinates with the attester both suspension and admission control for
+replacement enrollments, and accepts the window set by outstanding
+attestation lifetimes.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="forwarding">
