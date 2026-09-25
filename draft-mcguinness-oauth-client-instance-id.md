@@ -893,7 +893,7 @@ so tokens for different Context Consumers can carry different `id`
 values but the same `cnf.jkt`. When unlinkability between Context
 Consumers is required, the client MUST use distinct token-binding keys
 across those scopes, for example, DPoP without combined mode or a
-distinct mutual-TLS certificate per scope. Other claims and
+distinct mutual-TLS certificate and key pair per scope. Other claims and
 application data can also correlate requests. Identifier scoping does
 not permit changing a refresh token's bound key ({{grant-continuity}}).
 
