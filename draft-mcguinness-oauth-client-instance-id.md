@@ -120,7 +120,7 @@ requirements.
 |---|---|
 | Logical Client (`client_id`) | Identifies the OAuth client |
 | Authorization principal | Identifies the subject or delegated actor |
-| Client Instance | Identifies one particular installation or running instance of the client software |
+| Client Instance | Identifies one installation or one execution of the client software |
 
 The deployment chooses the instance granularity:
 
@@ -133,9 +133,10 @@ The deployment chooses the instance granularity:
 Enrollment records that choice.
 
 This specification addresses administratively configured deployments
-such as workloads and managed desktop or mobile applications. It does
-not define a general-purpose device or wallet identifier or an
-enrollment, key-rotation, or status-distribution protocol. ATTEST
+such as workloads and managed desktop or mobile applications. Its
+identifiers are not general-purpose device or wallet identifiers, and
+it does not define an enrollment, key-rotation, or status-distribution
+protocol. ATTEST
 supplies the authentication and proof methods, including direct
 resource-server presentation ({{Section 7 of ATTEST}}). When selected
 under {{configuration}}, this profile applies whether the Client
