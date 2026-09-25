@@ -414,8 +414,8 @@ authorization server MUST also enforce two independent invariants:
 
 Instance continuity and key-binding continuity are independent. On
 refresh of such a grant, the authorization server MUST produce the
-`invalid_grant` error code {{RFC6749}} for a conflict with the recorded
-identity, without disclosing the expected identity.
+`invalid_grant` error code ({{Section 5.2 of RFC6749}}) for a conflict
+with the recorded identity, without disclosing the expected identity.
 
 If authorization-time policy bound a code or other artifact to an
 instance, the authorization server MUST enforce that binding at
@@ -531,9 +531,9 @@ Without a status channel, parties unaware of the change face three
 limitations: existing attestations may remain acceptable until
 expiration plus clock skew; issued tokens may still be accepted for
 their own lifetimes; and local revocation does not notify resource
-servers validating tokens offline. Security Event Tokens {{RFC8417}}
-delivered under {{RFC8935}} can support a status integration outside
-the scope of this specification.
+servers validating tokens offline. Status distribution, for example
+using Security Event Tokens {{RFC8417}} delivered under {{RFC8935}}, is
+outside the scope of this specification.
 
 ## State and Retention {#state}
 
@@ -605,8 +605,8 @@ For one mapping input and Consumer Scope, an issuer:
   input remains valid, including clock skew; and
 * MUST omit the `client_instance` object rather than assign a
   replacement once it no longer holds or can reproduce the mapping. A
-  Context Consumer requiring context then rejects under
-  {{context-errors}}.
+  Context Consumer requiring context then rejects the request as
+  specified in {{context-errors}}.
 
 An issuer that changes its derivation inputs or secrets MUST still
 produce the identifiers already assigned for any input and scope for
@@ -652,8 +652,8 @@ only participation ({{context-consumer}}), including when it is conveyed
 only through introspection.
 
 A token without sender constraint supports no presenter attribution,
-and a Context Consumer requiring attribution rejects it
-({{context-errors}}). The HTTP `Bearer` scheme does
+and a Context Consumer requiring attribution rejects the request as
+specified in {{context-errors}}. The HTTP `Bearer` scheme does
 not indicate an unbound token; certificate-bound tokens {{RFC8705}}
 also use it.
 
@@ -749,7 +749,7 @@ If the association is not established, the Context Consumer MUST treat
 context only as evidence of instance participation and MUST NOT
 attribute the current request to that instance. In this case, a Context
 Consumer whose configured requirement includes attribution MUST reject
-under {{context-errors}}.
+the request as specified in {{context-errors}}.
 
 An issuer whose trust agreement with a Context Consumer states that it
 conveys context only from direct Client Attestation validation MUST NOT
@@ -829,7 +829,8 @@ boundaries.
 
 # Security Considerations
 
-The security considerations of {{ATTEST}} and {{RFC8725}} apply.
+The security considerations of {{Section 12 of ATTEST}} and {{RFC8725}}
+apply.
 
 ## Attester Compromise and Assurance {#assurance}
 
@@ -907,12 +908,12 @@ This specification requests registration of the following value in the
 "OAuth Token Introspection Response" registry established by
 {{RFC7662}}:
 
-* Parameter Name: `client_instance`
-* Parameter Description: Validated client instance context
-* Change Controller: IETF
-* Specification Document(s): {{instance-context}} of this specification
+* Name: `client_instance`
+* Description: Validated client instance context
+* Change controller: IETF
+* Specification document(s): {{instance-context}} of this specification
 
-These registrations define claims and a response parameter, not subject
+These registrations define claims and a response member, not subject
 or actor profile values.
 
 --- back
