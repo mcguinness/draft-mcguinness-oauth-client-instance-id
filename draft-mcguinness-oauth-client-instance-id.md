@@ -70,7 +70,7 @@ Attestation-Based Client Authentication {{ATTEST}} answers one
 question: is this an authorized Client Instance in possession of this
 key? This profile adds a second: is this the same Client Instance the
 Receiver previously encountered? A new attestation alone cannot answer
-it: {{ATTEST, Section 10.6}} requires one for every new key, and after
+it: {{Section 10.6 of ATTEST}} requires one for every new key, and after
 a key change a continuing installation is indistinguishable from a new
 one.
 
@@ -103,7 +103,7 @@ ATTEST alone suffices when correlation need only last for the current
 key or stay within one system.
 
 Assigning each instance its own `client_id` with a shared `software_id`
-({{RFC7591, Section 2}}) is an alternative. This profile instead
+({{Section 2 of RFC7591}}) is an alternative. This profile instead
 targets deployments that share one Logical Client, one metadata URL
 when using {{CIMD}}, and authorization server policy keyed by that
 client. `software_id` correlates registrations but defines no
@@ -135,10 +135,10 @@ workloads and managed desktop or mobile applications. It is not a
 general-purpose device or wallet identifier and defines no enrollment,
 key-rotation, or status-distribution protocol. ATTEST supplies the
 authentication and proof methods, including direct resource-server
-presentation ({{ATTEST, Section 7}}). When selected under
+presentation ({{Section 7 of ATTEST}}). When selected under
 {{configuration}}, the profile applies whether the Client Attestation
 is the client authentication method or an additional security signal
-({{ATTEST, Section 7.6}}). It does not replace the deployment's
+({{Section 7.6 of ATTEST}}). It does not replace the deployment's
 required client authentication.
 
 # Conventions and Definitions
@@ -238,8 +238,8 @@ That document governs authorization server endpoints only; a resource
 server validating attestations directly uses configured associations. A
 credential's `iss`, proof of possession, or client-published metadata
 ({{RFC7591}}, {{CIMD}}) alone does not establish attester authority. Key
-resolution follows {{ATTEST, Section 10.8}}. Local trust withdrawal MUST
-take effect on subsequent authentication.
+resolution follows {{Section 10.8 of ATTEST}}. Local trust withdrawal
+MUST take effect on subsequent authentication.
 
 ## Conformance {#conformance}
 
@@ -260,7 +260,7 @@ the rest of the profile.
 # Client Attestation Claims {#claims}
 
 This profile uses the additional claims permitted by
-{{ATTEST, Section 4}}; all ATTEST requirements apply, including
+{{Section 4 of ATTEST}}; all ATTEST requirements apply, including
 `typ=oauth-client-attestation+jwt`, `sub=client_id`, required `exp`
 and `cnf`, and optional `iat`.
 
@@ -287,7 +287,7 @@ within a named set of Receivers. A shared client or trust domain does
 not by itself authorize sharing. The client MUST request and use the
 attestation for that configured scope. A Receiver cannot detect an
 attestation presented outside its scope; the resulting correlation
-exposes the end user of that instance ({{ATTEST, Section 11.1}}).
+exposes the end user of that instance ({{Section 11.1 of ATTEST}}).
 
 Scoping to a Receiver means the attester learns that Receiver. That
 gives up a property {{ATTEST}} states in its abstract: the client proves
@@ -300,7 +300,7 @@ them. The attester then learns only that scope, those Receivers can
 correlate the instance, and one identifier and key suffice.
 
 The client MUST also use distinct Client Instance Keys across scopes.
-{{ATTEST, Section 11.1}} recommends this across authorization and
+{{Section 11.1 of ATTEST}} recommends this across authorization and
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
 attestations regardless of their identifiers. Token-binding key
@@ -308,7 +308,7 @@ separation between Context Consumers is addressed in {{privacy}}.
 
 In combined mode, the Client Instance Key is also the DPoP key. In
 normal mode, the DPoP key is independent of the attestation
-({{ATTEST, Section 5.2}}). A token issued in combined mode is bound to
+({{Section 5.2 of ATTEST}}). A token issued in combined mode is bound to
 the authorization server's scoped key. A separately scoped resource
 server's attestation carries a different key. No single proof can
 match both, so combined mode cannot also be used at that resource
@@ -350,7 +350,7 @@ The Receiver MUST:
 2. Validate the claims in {{claims}} and attester authority under
    {{configuration}}, including that the key that verified the
    attestation is bound to the asserted `iss`. Key resolution
-   under {{ATTEST, Section 10.8}} selects a key from JOSE header
+   under {{Section 10.8 of ATTEST}} selects a key from JOSE header
    parameters, not from `iss`, so a trust anchor covering several
    attesters does not by itself establish that association.
 3. Associate the Source Instance Identity with the Logical Client and
@@ -375,9 +375,9 @@ with the Client Instance Key.
 
 ## Grant Continuity {#grant-continuity}
 
-{{ATTEST, Section 10.3}} binds a refresh token to the Client Instance,
+{{Section 10.3 of ATTEST}} binds a refresh token to the Client Instance,
 by default through the Client Instance Key. The refresh token stays
-bound to that key; only a profile acting under {{ATTEST, Section 13}}
+bound to that key; only a profile acting under {{Section 13 of ATTEST}}
 can rebind it. This profile records an identity for the binding that
 survives a verified key change, so later grants correlate with the same
 instance. It adds no instance-bound grants. Under the default binding, a
@@ -391,14 +391,14 @@ profile, the authorization server MUST record the Source Instance
 Identity when issuing a refresh token. On refresh of such a grant, the
 authorization server MUST require a validated attestation whether it is
 the client authentication method or an additional security signal. This
-extends {{ATTEST, Section 10.3}}, which requires the attestation
+extends {{Section 10.3 of ATTEST}}, which requires the attestation
 mechanism when refreshing. The authorization server MUST also enforce
 two independent invariants:
 
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one; and
 * the proof and key binding MUST satisfy ATTEST, or a profile that has
-  redefined refresh-token binding under {{ATTEST, Section 13}}.
+  redefined refresh-token binding under {{Section 13 of ATTEST}}.
 
 Instance continuity and key-binding continuity are independent. A
 conflict with the recorded identity MUST produce `invalid_grant`
@@ -407,11 +407,11 @@ conflict with the recorded identity MUST produce `invalid_grant`
 If authorization-time policy bound a code or other artifact to an
 instance, the authorization server MUST enforce that binding at
 redemption, whether the attestation is the client authentication method
-or an additional security signal ({{ATTEST, Section 7.6}}). Presenting
+or an additional security signal ({{Section 7.6 of ATTEST}}). Presenting
 the attestation is optional in that second mode, so an authorization
 server that binds artifacts to instances MUST require it at their
 redemption; otherwise a conforming client cannot supply what the
-authorization server must check. {{ATTEST, Section 10.4}} recommends
+authorization server must check. {{Section 10.4 of ATTEST}} recommends
 establishing such bindings where attestation is the client
 authentication method.
 
@@ -419,16 +419,16 @@ authentication method.
 
 Missing or invalid required instance claims and rejection by the
 Receiver's local policy for the instance ({{processing}}) MUST produce
-`invalid_client_attestation`. {{ATTEST, Section 7.4}} defines that code
-for failures to verify the attestation or its proof. This profile
+`invalid_client_attestation`. {{Section 7.4 of ATTEST}} defines that
+code for failures to verify the attestation or its proof. This profile
 deliberately extends it to instance claims and policy, so responses do
 not disclose whether an instance is unknown, suspended, or retired.
 Receivers SHOULD also avoid distinguishable response timing. The cost is
 that a client cannot tell a transient failure from a durable policy
 decision, or whether retrying with a fresh attestation will help.
 Responses use the format ATTEST specifies for the code
-({{RFC6749, Section 5.2}} at the authorization server,
-{{RFC6750, Section 3}} at a resource server). Unknown instances are
+({{Section 5.2 of RFC6749}} at the authorization server,
+{{Section 3 of RFC6750}} at a resource server). Unknown instances are
 rejected only when local policy requires prior enrollment. A failed
 profile check MUST NOT fall back to authentication without the required
 evidence. Grant-binding errors follow {{grant-continuity}}; other errors
@@ -645,7 +645,7 @@ also use it.
 
 All validation requirements of the token-binding mechanism apply
 whether or not context is used for attribution, including rejection of
-a bound token presented without its proof ({{RFC9449, Section 7.2}}).
+a bound token presented without its proof ({{Section 7.2 of RFC9449}}).
 The binding authenticates the presenter; it does not establish that the
 presenter is the instance named in context derived from an upstream
 token. Any
@@ -754,15 +754,15 @@ change the meaning of `iss` or `id`.
 
 Rejection for missing or invalid required context, or for required
 attribution that cannot be established, MUST use `invalid_token` at a
-resource server ({{RFC6750, Section 3.1}}) or `invalid_request` for a
+resource server ({{Section 3.1 of RFC6750}}) or `invalid_request` for a
 rejected subject or actor token in an exchange
-({{RFC8693, Section 2.2.2}}).
+({{Section 2.2.2 of RFC8693}}).
 
-Retrying with a new access token ({{RFC6750, Section 3.1}}) does not
+Retrying with a new access token ({{Section 3.1 of RFC6750}}) does not
 help a client rejected for a missing sender constraint. A resource
 server rejecting for that reason SHOULD include the challenge for the
 binding mechanism it requires, such as the `DPoP` scheme in
-{{RFC9449, Section 7.1}}, so the client learns what to change.
+{{Section 7.1 of RFC9449}}, so the client learns what to change.
 
 Other consuming profiles define their own error mapping. Direct Client
 Attestation failures follow {{errors}}.
@@ -836,12 +836,12 @@ evaluated evidence.
   binds the HTTP request.
 * **Correlation:** separate identifiers and keys per Receiver Scope
   ({{receiver-scope}}) limit correlation, strengthening
-  {{ATTEST, Section 11.1}}. Receivers MUST NOT assume identifiers
+  {{Section 11.1 of ATTEST}}. Receivers MUST NOT assume identifiers
   across scopes are comparable; explicitly shared scopes permit
   correlation.
 * **Token-binding keys:** per-consumer Instance Context Identifiers do
   not prevent correlation through a shared binding key. In DPoP
-  combined mode ({{ATTEST, Section 5.2}}) the Client Instance Key is
+  combined mode ({{Section 5.2 of ATTEST}}) the Client Instance Key is
   the DPoP key, so tokens for different consumers can carry different
   `id` values but the same `cnf.jkt`. Where unlinkability between
   Context Consumers is required, the client MUST use distinct
