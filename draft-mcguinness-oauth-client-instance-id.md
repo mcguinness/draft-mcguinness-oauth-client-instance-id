@@ -207,6 +207,15 @@ Instance Context Identifier:
   one Source Instance Identity within a Consumer Scope; its `id` need
   not equal `client_instance_id`.
 
+Consuming profile:
+: A specification or deployment profile that defines how a Context
+  Consumer, or an issuer conveying Instance Context through token
+  exchange, establishes the association between Instance Context and the
+  token's subject, actor, or presenter, and how the provenance of
+  preserved context is authenticated ({{context-exchange}},
+  {{context-consumer}}). This specification acts as the consuming
+  profile only in the case described in {{context-consumer}}.
+
 enrollment:
 : An attester-maintained record binding one instance, at the configured
   granularity, to its verified keys and assigned identifiers, separate
