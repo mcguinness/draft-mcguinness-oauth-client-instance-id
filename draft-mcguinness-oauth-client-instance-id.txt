@@ -16,12 +16,12 @@ Abstract
 
    This specification defines an optional claims profile of OAuth 2.0
    Attestation-Based Client Authentication.  When selected, the profile
-   requires an attester-qualified client instance identifier that
-   remains stable across verified key changes, and adds continuity and
-   privacy rules for that identifier.  Conveying instance context in
-   tokens and introspection responses remains optional within the
-   profile.  Authentication and proof methods follow the base
-   specification.
+   requires an attester-assigned client instance identifier, scoped by
+   default to the server that validates it, that remains stable across
+   verified key changes, and adds continuity and privacy rules for that
+   identifier.  Conveying instance context in tokens and introspection
+   responses remains optional within the profile.  Authentication and
+   proof methods follow the base specification.
 
 About This Document
 
@@ -105,7 +105,8 @@ Table of Contents
      8.2.  Workload and Agent Credentials
    9.  Security Considerations
      9.1.  Attester Compromise and Assurance
-     9.2.  Forwarding
+     9.2.  Suspension and Re-enrollment
+     9.3.  Forwarding
    10. Privacy Considerations
      10.1.  Correlation Across Receivers
      10.2.  Token-Binding Keys
@@ -169,8 +170,8 @@ Table of Contents
    can use validated instance identity or Instance Context as a policy
    input, subject to the prohibitions in Section 5.
 
-   ATTEST alone suffices when correlation is needed only for the current
-   key or within one system.
+   [ATTEST] alone suffices when correlation is needed only for the
+   current key.
 
    Assigning each instance its own client_id with a shared software_id
    client metadata value (Section 2 of [RFC7591]) is an alternative.
@@ -213,12 +214,12 @@ Table of Contents
    such as workloads and managed desktop or mobile applications.  Its
    identifiers are not general-purpose device or wallet identifiers, and
    it does not define an enrollment, key-rotation, or status-
-   distribution protocol.  ATTEST supplies the authentication and proof
-   methods, including direct resource-server presentation (Section 7 of
-   [ATTEST]).  When selected under Section 3, this profile applies
-   whether the Client Attestation is the client authentication method or
-   an additional security signal (Section 7.6 of [ATTEST]).  It does not
-   replace the deployment's required client authentication.
+   distribution protocol.  [ATTEST] supplies the authentication and
+   proof methods, including direct resource-server presentation
+   (Section 7 of [ATTEST]).  When selected under Section 3, this profile
+   applies whether the Client Attestation is the client authentication
+   method or an additional security signal (Section 7.6 of [ATTEST]).
+   It does not replace the deployment's required client authentication.
 
 2.  Conventions and Definitions
 
@@ -266,7 +267,8 @@ Table of Contents
 
    Consumer Scope:  The Context Consumer, or explicitly configured set
       of Context Consumers, to which one mapping of Instance Context is
-      scoped (Section 7.1).
+      scoped.  A Consumer Scope is identified by a configured set of
+      audience values (Section 7.1).
 
    Instance Context Authority:  The token issuer identified by the iss
       member of Instance Context.  It assigned the current id value and
@@ -278,6 +280,15 @@ Table of Contents
       Like a pairwise subject identifier, it is the Instance Context
       Authority's own correlator for one Source Instance Identity within
       a Consumer Scope; its id need not equal client_instance_id.
+
+   Consuming profile:  A specification or deployment profile that
+      defines how a Context Consumer, or an issuer conveying Instance
+      Context through token exchange, establishes the association
+      between Instance Context and the token's subject, actor, or
+      presenter, and how the provenance of preserved context is
+      authenticated (Section 7.4, Section 7.5).  This specification acts
+      as the consuming profile only in the case described in
+      Section 7.5.
 
    enrollment:  An attester-maintained record binding one instance, at
       the configured granularity, to its verified keys and assigned
@@ -361,8 +372,8 @@ Table of Contents
 4.  Client Attestation Claims
 
    This profile uses the additional claims permitted by Section 4 of
-   [ATTEST].  All ATTEST requirements apply, including a typ JOSE header
-   parameter value of oauth-client-attestation+jwt, sub equal to
+   [ATTEST].  All [ATTEST] requirements apply, including a typ JOSE
+   header parameter value of oauth-client-attestation+jwt, sub equal to
    client_id, the required exp and cnf claims, and the optional iat
    claim.
 
@@ -422,7 +433,7 @@ Table of Contents
    {
      "iss": "https://attester.example/tenant/acme",
      "sub": "https://platform.example/oauth-client",
-     "client_instance_id": "i-7f3d9a2e6c8145b0a923d47e18f602cd",
+     "client_instance_id": "i-844a2aa37074eed77f3b3e950432f597",
      "iat": 1789128000,
      "exp": 1789128300,
      "cnf": {
@@ -439,7 +450,7 @@ Table of Contents
 
    The Receiver MUST:
 
-   1.  Validate the attestation and proof under the configured ATTEST
+   1.  Validate the attestation and proof under the configured [ATTEST]
        method.
 
    2.  Validate the claims in Section 4 and attester authority under
@@ -467,7 +478,7 @@ Table of Contents
 
    Migration between Attester Issuers requires a procedure that
    establishes trust in both authorities and continuity evidence; this
-   specification does not define one.  Key selection follows ATTEST;
+   specification does not define one.  Key selection follows [ATTEST];
    when a separate token-binding key is used, context identifies the
    instance associated with the Client Instance Key.
 
@@ -501,7 +512,7 @@ Table of Contents
        *  the Source Instance Identity in the current validated
           attestation MUST match the recorded one; and
 
-       *  the proof and key binding MUST satisfy ATTEST, or a profile
+       *  the proof and key binding MUST satisfy [ATTEST], or a profile
           that has redefined refresh-token binding under Section 13 of
           [ATTEST].
 
@@ -515,8 +526,8 @@ Table of Contents
    instance, the authorization server MUST enforce that binding at
    redemption, whether the attestation is the client authentication
    method or an additional security signal (Section 7.6 of [ATTEST]).
-   Because presenting the attestation is optional in that second mode,
-   an authorization server that binds artifacts to instances MUST
+   Because presenting the attestation can be optional in that second
+   mode, an authorization server that binds artifacts to instances MUST
    require it at their redemption; otherwise a conforming client cannot
    supply what the authorization server needs to check.  Section 10.4 of
    [ATTEST] recommends establishing such bindings where attestation is
@@ -534,12 +545,13 @@ Table of Contents
    avoid distinguishable response timing.  Consequently, a client cannot
    distinguish a transient failure from a durable policy decision, or
    whether retrying with a fresh attestation will help.  Responses use
-   the format ATTEST specifies for the code (Section 5.2 of [RFC6749] at
-   the authorization server, Section 3 of [RFC6750] at a resource
+   the format [ATTEST] specifies for the code (Section 5.2 of [RFC6749]
+   at the authorization server, Section 3 of [RFC6750] at a resource
    server).  Unknown instances are rejected only when local policy
    requires prior enrollment.  If a profile check fails, the Receiver
    MUST NOT fall back to authentication without the required evidence.
-   Grant-binding errors follow Section 5.1; other errors follow ATTEST.
+   Grant-binding errors follow Section 5.1; other errors follow
+   [ATTEST].
 
 6.  Attester Requirements
 
@@ -647,15 +659,15 @@ Table of Contents
 6.3.  Suspension and Status
 
    The attester MUST stop issuance for suspended or retired enrollments.
-   A Receiver suspending an instance SHOULD revoke its grants or report
-   their tokens inactive through introspection [RFC7662].  Short
-   attestation lifetimes limit how long a suspended instance remains
-   acceptable.
+   An authorization server that suspends an instance SHOULD revoke the
+   instance's grants or report their tokens inactive through
+   introspection [RFC7662].  Short attestation lifetimes limit how long
+   a suspended instance remains acceptable.
 
    When an authorization server revokes a grant for instance suspension,
-   retirement, or attester trust withdrawal, it MUST invalidate all of
-   that grant's access and refresh tokens and prevent further refresh
-   issuance.
+   retirement, or attester trust withdrawal, it MUST revoke all of that
+   grant's access and refresh tokens, report them inactive in
+   introspection responses, and prevent further refresh issuance.
 
    Without a status channel, parties unaware of the change face three
    limitations: existing attestations may remain acceptable until
@@ -721,14 +733,15 @@ Table of Contents
    *  scope the id value to a Consumer Scope, allowing sharing only
       within an explicitly configured set.
 
-   Each Consumer Scope is a configured set of audience values.  The
-   issuer selects the mapping by the token's audience: its aud claim or,
-   for an opaque token, the audience recorded at issuance.  If a token
-   has no audience, or its audiences span Consumer Scopes, no single id
-   value is correct, and the issuer MUST omit the client_instance
-   object.  An introspection response conveys the id the token would
-   carry.  When the authenticated caller is outside the token's Consumer
-   Scope, the issuer MUST omit the client_instance object.
+   Each Consumer Scope is identified by a configured set of audience
+   values.  The issuer selects the mapping by the token's audience: its
+   aud claim or, for an opaque token, the audience recorded at issuance.
+   If a token has no audience, or its audiences span Consumer Scopes, no
+   single id value is correct, and the issuer MUST omit the
+   client_instance object.  An introspection response conveys the id the
+   token would carry.  When the authenticated introspection caller is
+   outside the token's Consumer Scope, the issuer MUST omit the
+   client_instance object.
 
    For derived mappings, the mapping input supplies the enrollment-
    specific component and the consumer supplies the scope.  Issuers MUST
@@ -752,8 +765,8 @@ Table of Contents
 
    An issuer that changes its derivation inputs or secrets MUST still
    produce the identifiers already assigned for any input and scope for
-   which it continues to include context, as attesters must under
-   Section 6.1.  Storing those values suffices.  Otherwise, rotating one
+   which it continues to include context, as Section 6.1 requires of
+   attesters.  Storing those values suffices.  Otherwise, rotating one
    secret would silently and permanently remove context from every
    instance mapped under it.
 
@@ -810,13 +823,13 @@ Table of Contents
 
    All validation requirements of the token-binding mechanism apply
    whether or not context is used for attribution, including rejection
-   of a bound token presented without its proof (Section 7.2 of
-   [RFC9449]).  The binding authenticates the presenter; it does not
-   establish that the presenter is the instance named in context derived
-   from an upstream token.  Any presenter or key change during exchange
-   requires authorization under the consuming profile.  Unlinkability
-   between Context Consumers also requires distinct token-binding keys
-   (Section 10.2).
+   of a bound token presented without its proof (Section 7.1 of
+   [RFC9449] and Section 7.2 of [RFC9449]).  The binding authenticates
+   the presenter; it does not establish that the presenter is the
+   instance named in context derived from an upstream token.  Any
+   presenter or key change during exchange requires authorization under
+   the consuming profile.  Unlinkability between Context Consumers also
+   requires distinct token-binding keys (Section 10.2).
 
 7.4.  Preservation and Authorization
 
@@ -945,9 +958,8 @@ Table of Contents
 
 8.  Relationship to Other Identity Systems
 
-   This section compares this profile with mechanisms that identify
-   clients or workloads but not individual instances; it adds no
-   requirements.
+   This section compares this profile with client, workload, and agent
+   identity mechanisms; it adds no requirements.
 
 8.1.  Client ID Metadata Documents
 
@@ -1013,9 +1025,27 @@ Table of Contents
    detection.  Instance identity proves no software integrity beyond the
    evaluated evidence.
 
-9.2.  Forwarding
+9.2.  Suspension and Re-enrollment
 
-   Forwarding resistance is provided by ATTEST proof validation,
+   Suspension at a Receiver applies to the Source Instance Identity that
+   Receiver recorded.  An instance can appear under a different identity
+   by re-enrolling, which Section 6.2 requires after events such as a
+   reinstall, or by presenting an attestation scoped to another
+   Receiver, which the Receiver cannot detect (Section 4.1).  Unless the
+   Receiver requires prior enrollment (Section 5.2), such an instance is
+   accepted as a new one.  Suspension at the attester (Section 6.3)
+   stops issuance only for the suspended enrollment: it does not prevent
+   a replacement enrollment unless the attester also controls admission
+   of new enrollments for that installation, and attestations issued
+   before the suspension remain usable until they expire.  A Receiver
+   that relies on suspension for containment therefore requires prior
+   enrollment, or coordinates with the attester both suspension and
+   admission control for replacement enrollments, and accepts the window
+   set by outstanding attestation lifetimes.
+
+9.3.  Forwarding
+
+   Forwarding resistance is provided by [ATTEST] proof validation,
    freshness, and key possession, not by identifier scope.  The Client
    Attestation has no audience; its proof-of-possession JWT identifies
    the Receiver, and combined DPoP binds the HTTP request.
@@ -1040,9 +1070,9 @@ Table of Contents
    same cnf.jkt.  When unlinkability between Context Consumers is
    required, the client MUST use distinct token-binding keys across
    those scopes, for example, DPoP without combined mode or a distinct
-   mutual-TLS certificate per scope.  Other claims and application data
-   can also correlate requests.  Identifier scoping does not permit
-   changing a refresh token's bound key (Section 5.1).
+   mutual-TLS certificate and key pair per scope.  Other claims and
+   application data can also correlate requests.  Identifier scoping
+   does not permit changing a refresh token's bound key (Section 5.1).
 
    The same applies between an authorization server and a resource
    server.  A client that authenticates to the authorization server in
@@ -1175,6 +1205,11 @@ Table of Contents
 
 12.2.  Informative References
 
+   [AAUTH]    Hardt, D., "AAuth Protocol", Work in Progress, Internet-
+              Draft, draft-hardt-oauth-aauth-protocol-11, 25 September
+              2026, <https://datatracker.ietf.org/doc/html/draft-hardt-
+              oauth-aauth-protocol-11>.
+
    [ACTOR-PROFILE]
               McGuinness, K., "OAuth Actor Profile for Delegation", Work
               in Progress, Internet-Draft, draft-mcguinness-oauth-actor-
@@ -1188,21 +1223,16 @@ Table of Contents
               mcguinness-oauth-client-attesters/draft-mcguinness-oauth-
               client-attesters.html>.
 
-   [AAUTH]    Hardt, D., "AAuth Protocol", Work in Progress, Internet-
-              Draft, draft-hardt-oauth-aauth-protocol-11, 25 September
-              2026, <https://datatracker.ietf.org/doc/html/draft-hardt-
-              oauth-aauth-protocol-11>.
-
-   [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
-              Hashing for Message Authentication", RFC 2104,
-              DOI 10.17487/RFC2104, February 1997,
-              <https://www.rfc-editor.org/rfc/rfc2104>.
-
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
               oauth-client-id-metadata-document-02, 6 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               client-id-metadata-document-02>.
+
+   [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
+              Hashing for Message Authentication", RFC 2104,
+              DOI 10.17487/RFC2104, February 1997,
+              <https://www.rfc-editor.org/rfc/rfc2104>.
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
@@ -1217,14 +1247,6 @@ Table of Contents
    [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8252>.
-
-   [SPIFFE-OAUTH]
-              Schwenkschuster, A., Kasselman, P., Rose, S., Thorgersen,
-              S., and N. Cam-Winget, "OAuth SPIFFE Client
-              Authentication", Work in Progress, Internet-Draft, draft-
-              ietf-oauth-spiffe-client-auth-02, 15 June 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              spiffe-client-auth-02>.
 
    [RFC8417]  Hunt, P., Ed., Jones, M., Denniss, W., and M. Ansari,
               "Security Event Token (SET)", RFC 8417,
@@ -1243,6 +1265,14 @@ Table of Contents
    [RFC9421]  Backman, A., Ed., Richer, J., Ed., and M. Sporny, "HTTP
               Message Signatures", RFC 9421, DOI 10.17487/RFC9421,
               February 2024, <https://www.rfc-editor.org/rfc/rfc9421>.
+
+   [SPIFFE-OAUTH]
+              Schwenkschuster, A., Kasselman, P., Rose, S., Thorgersen,
+              S., and N. Cam-Winget, "OAuth SPIFFE Client
+              Authentication", Work in Progress, Internet-Draft, draft-
+              ietf-oauth-spiffe-client-auth-02, 15 June 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              spiffe-client-auth-02>.
 
 Appendix A.  Wire Examples
 
@@ -1272,7 +1302,7 @@ A.1.  Access Token Payload
      },
      "client_instance": {
        "iss": "https://as.example",
-       "id": "m-f61783ea4cb24d098851d34960a274be"
+       "id": "m-95c9f383a07468578c0329a9a660740f"
      }
    }
 
@@ -1302,7 +1332,7 @@ A.2.  Introspection Response
      },
      "client_instance": {
        "iss": "https://as.example",
-       "id": "m-f61783ea4cb24d098851d34960a274be"
+       "id": "m-95c9f383a07468578c0329a9a660740f"
      }
    }
 
@@ -1313,9 +1343,9 @@ A.3.  Governed Actor and Instance Context
    authorizes agent-42 to act for user-17 under [ACTOR-PROFILE] and
    selects the authenticated presenting instance for output context.
    The authorization server validates B's attestation and proof,
-   replaces A's input context with B's resource-scoped mapping, and
-   binds the output token under the consuming profile.  The following
-   example shows the relevant output claims:
+   replaces A's input context with B's mapping for the resource server's
+   Consumer Scope, and binds the output token under the consuming
+   profile.  The following example shows the relevant output claims:
 
    {
      "sub": "user-17",
@@ -1326,7 +1356,7 @@ A.3.  Governed Actor and Instance Context
      },
      "client_instance": {
        "iss": "https://as.example",
-       "id": "m-2b58e0d760954a5a9ce64f3e718d02ac"
+       "id": "m-a524d3cc4ba2df62c17f080e8779794d"
      }
    }
 
@@ -1357,16 +1387,17 @@ Appendix B.  Deployment Examples
    to the authorization server.
 
    1.  The attester verifies enrollment evidence and possession of K1,
-       then issues the attestation in Section 4: sub=C1,
-       client_instance_id=I1, and cnf.jwk holding public key K1.
+       then issues the attestation in Section 4: iss naming the
+       attester, sub=C1, client_instance_id=I1, and cnf.jwk holding
+       public key K1.
 
    2.  The client presents its grant, attestation, and combined DPoP
        proof using K1 at the authorization server token endpoint.
 
    3.  The authorization server validates them and issues a DPoP-bound
        token with mapped context M1, scoped to the resource.  The
-       resource validates the token, proof, and context without seeing
-       the enrollment evidence.
+       resource server validates the token, proof, and context without
+       seeing the enrollment evidence.
 
 B.1.  CIMD Client
 
