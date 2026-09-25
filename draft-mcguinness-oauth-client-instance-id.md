@@ -841,6 +841,19 @@ and enrollment data can be indistinguishable from the original;
 detection. Instance identity proves no software integrity beyond the
 evaluated evidence.
 
+## Suspension and Re-enrollment {#re-enrollment}
+
+Suspension at a Receiver applies to the Source Instance Identity that
+Receiver recorded. An instance can appear under a different identity by
+re-enrolling, which {{continuity}} requires after events such as a
+reinstall, or by presenting an attestation scoped to another Receiver,
+which the Receiver cannot detect ({{receiver-scope}}). Unless the
+Receiver requires prior enrollment ({{errors}}) or the attester also
+suspends the enrollment ({{suspension}}), such an instance is accepted
+as a new one. A Receiver that relies on suspension for containment
+therefore requires prior enrollment or coordinates suspension with the
+attester.
+
 ## Forwarding {#forwarding}
 
 Forwarding resistance is provided by ATTEST proof validation,
