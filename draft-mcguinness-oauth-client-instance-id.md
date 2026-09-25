@@ -105,7 +105,7 @@ key or stay within one system.
 Assigning each instance its own `client_id` with a shared `software_id`
 ({{RFC7591, Section 2}}) is an alternative. This profile instead
 targets deployments that share one Logical Client, one metadata URL
-when using {{CIMD}}, and authorization server (AS) policy keyed by that
+when using {{CIMD}}, and authorization server policy keyed by that
 client. `software_id` correlates registrations but defines no
 shared grants or policy across separate client identities.
 
@@ -173,8 +173,8 @@ Instance Context:
 
 Receiver:
 : A party that validates a Client Attestation under this profile, such
-  as an AS or resource server. A Receiver that issues tokens carrying
-  Instance Context is also a token issuer.
+  as an authorization server or resource server. A Receiver that issues
+  tokens carrying Instance Context is also a token issuer.
 
 Context Consumer:
 : A party that consumes Instance Context from a token or introspection
@@ -231,15 +231,15 @@ The error in {{errors}} reports rejection, not profile discovery.
 ## Attester Trust {#attester-trust}
 
 The Receiver MUST bind each approved Attester Issuer to its validation
-keys and authorized Logical Clients through configured associations.
-An AS can derive those associations from client endorsements it
-accepts, for example under {{ATTESTER-ENDORSEMENT}}. That document
-governs AS endpoints only; a resource server validating attestations
-directly uses configured associations. A credential's `iss`, proof of
-possession, or client-published metadata ({{RFC7591}}, {{CIMD}}) alone
-does not establish attester authority.
-Key resolution follows {{ATTEST, Section 10.8}}. Local trust
-withdrawal MUST take effect on subsequent authentication.
+keys and authorized Logical Clients through configured associations. An
+authorization server can derive those associations from client
+endorsements it accepts, for example under {{ATTESTER-ENDORSEMENT}}.
+That document governs authorization server endpoints only; a resource
+server validating attestations directly uses configured associations. A
+credential's `iss`, proof of possession, or client-published metadata
+({{RFC7591}}, {{CIMD}}) alone does not establish attester authority. Key
+resolution follows {{ATTEST, Section 10.8}}. Local trust withdrawal MUST
+take effect on subsequent authentication.
 
 ## Conformance {#conformance}
 
@@ -387,12 +387,13 @@ key that names a different instance; it governs refresh across key
 changes only under a profile that rebinds refresh tokens.
 
 For a grant established using a Client Attestation validated under this
-profile, the AS MUST record the Source Instance Identity when issuing a
-refresh token. On refresh of such a grant, the AS MUST require a
-validated attestation whether it is the client authentication method or
-an additional security signal. This extends {{ATTEST, Section 10.3}},
-which requires the attestation mechanism when refreshing. The AS MUST
-also enforce two independent invariants:
+profile, the authorization server MUST record the Source Instance
+Identity when issuing a refresh token. On refresh of such a grant, the
+authorization server MUST require a validated attestation whether it is
+the client authentication method or an additional security signal. This
+extends {{ATTEST, Section 10.3}}, which requires the attestation
+mechanism when refreshing. The authorization server MUST also enforce
+two independent invariants:
 
 * the Source Instance Identity in the current validated attestation
   MUST match the recorded one; and
@@ -404,13 +405,14 @@ conflict with the recorded identity MUST produce `invalid_grant`
 {{RFC6749}} without disclosing the expected identity.
 
 If authorization-time policy bound a code or other artifact to an
-instance, the AS MUST enforce that binding at redemption, whether the
-attestation is the client authentication method or an additional
-security signal ({{ATTEST, Section 7.6}}). Presenting the attestation is
-optional in that second mode, so an AS that binds artifacts to instances
-MUST require it at their redemption; otherwise a conforming client
-cannot supply what the AS must check. {{ATTEST, Section 10.4}}
-recommends establishing such bindings where attestation is the client
+instance, the authorization server MUST enforce that binding at
+redemption, whether the attestation is the client authentication method
+or an additional security signal ({{ATTEST, Section 7.6}}). Presenting
+the attestation is optional in that second mode, so an authorization
+server that binds artifacts to instances MUST require it at their
+redemption; otherwise a conforming client cannot supply what the
+authorization server must check. {{ATTEST, Section 10.4}} recommends
+establishing such bindings where attestation is the client
 authentication method.
 
 ## Attestation Errors {#errors}
@@ -425,11 +427,12 @@ Receivers SHOULD also avoid distinguishable response timing. The cost is
 that a client cannot tell a transient failure from a durable policy
 decision, or whether retrying with a fresh attestation will help.
 Responses use the format ATTEST specifies for the code
-({{RFC6749, Section 5.2}} at the AS, {{RFC6750, Section 3}} at a
-resource server). Unknown instances are rejected only when local policy
-requires prior enrollment. A failed profile check MUST NOT fall back to
-authentication without the required evidence. Grant-binding errors
-follow {{grant-continuity}}; other errors follow ATTEST.
+({{RFC6749, Section 5.2}} at the authorization server,
+{{RFC6750, Section 3}} at a resource server). Unknown instances are
+rejected only when local policy requires prior enrollment. A failed
+profile check MUST NOT fall back to authentication without the required
+evidence. Grant-binding errors follow {{grant-continuity}}; other errors
+follow ATTEST.
 
 # Attester Requirements {#attester-requirements}
 
@@ -507,9 +510,9 @@ their tokens inactive through introspection {{RFC7662}}. Short
 attestation lifetimes narrow the window in which a suspended instance
 remains acceptable.
 
-When an AS revokes a grant for instance suspension, retirement, or
-attester trust withdrawal, it MUST invalidate all of that grant's
-access and refresh tokens and prevent further refresh issuance.
+When an authorization server revokes a grant for instance suspension,
+retirement, or attester trust withdrawal, it MUST invalidate all of that
+grant's access and refresh tokens and prevent further refresh issuance.
 
 Without a status channel, parties unaware of the change face three
 gaps: existing attestations may remain acceptable until expiration
@@ -783,14 +786,15 @@ prove a caller is an authorized instance:
 | This profile | Retains instance identity across verified key changes and conveys optional downstream context |
 
 One CIMD URL serves the Logical Client, and Instance Identifiers belong
-in attestations, not per-installation metadata. The attestation's
-`sub` is that URL, and `client_instance_id` distinguishes
-installations ({{cimd-example}}). CIMD removes per-AS registration of
-client metadata but not this profile's trust agreement
+in attestations, not per-installation metadata. The attestation's `sub`
+is that URL, and `client_instance_id` distinguishes installations
+({{cimd-example}}). CIMD removes per-authorization-server registration
+of client metadata but not this profile's trust agreement
 ({{configuration}}). {{ATTESTER-ENDORSEMENT}} lets a client endorse
-attesters through `client_attesters` metadata, subject to AS policy.
-That endorsement establishes the attester-to-client association but
-does not select this profile or its continuity and privacy policy.
+attesters through `client_attesters` metadata, subject to authorization
+server policy. That endorsement establishes the attester-to-client
+association but does not select this profile or its continuity and
+privacy policy.
 
 ## Workload and Agent Credentials
 
@@ -888,8 +892,9 @@ or actor profile values.
 
 These examples are informative. The first two use the managed-device
 flow ({{managed-device-example}}): the user is the authorization
-subject, and the installation appears as Instance Context. The AS maps
-the attester's identifier to a value scoped to `https://api.example`.
+subject, and the installation appears as Instance Context. The
+authorization server maps the attester's identifier to a value scoped to
+`https://api.example`.
 
 ## Access Token Payload
 {:numbered="false"}
@@ -925,7 +930,7 @@ For an opaque access token, an authenticated introspection response
 conveys the same context. The resource has configured this endpoint as
 authoritative for `https://as.example`. The response-level `iss` names
 the token issuer, and the nested `iss` names the Instance Context
-Authority; here they are the same AS.
+Authority; here they are the same authorization server.
 
 ~~~ http-message
 HTTP/1.1 200 OK
@@ -957,9 +962,10 @@ A consuming profile can authorize instance `B` to continue work that
 instance `A` began for the same governed agent. Here that profile
 authorizes `agent-42` to act for `user-17` under {{ACTOR-PROFILE}} and
 selects the authenticated presenting instance for output context. The
-AS validates `B`'s attestation and proof, replaces `A`'s input context
-with `B`'s resource-scoped mapping, and binds the output token under
-the consuming profile. The relevant output claims are:
+authorization server validates `B`'s attestation and proof, replaces
+`A`'s input context with `B`'s resource-scoped mapping, and binds the
+output token under the consuming profile. The relevant output claims
+are:
 
 ~~~ json
 {
@@ -1003,26 +1009,27 @@ Cache-Control: no-store
 
 These informative sketches share three steps. `C1` is the Logical
 Client; `I1` and `K1` are an Instance Identifier and key scoped to the
-AS.
+authorization server.
 
 1. The attester verifies enrollment evidence and possession of `K1`,
    then issues the attestation in {{claims}}: `sub=C1`,
    `client_instance_id=I1`, and `cnf.jwk` holding public key `K1`.
 2. The client presents its grant, attestation, and combined DPoP proof
-   using `K1` at the AS token endpoint.
-3. The AS validates them and issues a DPoP-bound token with mapped
-   context `M1`, scoped to the resource. The resource validates the
-   token, proof, and context without seeing the enrollment evidence.
+   using `K1` at the authorization server token endpoint.
+3. The authorization server validates them and issues a DPoP-bound token
+   with mapped context `M1`, scoped to the resource. The resource
+   validates the token, proof, and context without seeing the enrollment
+   evidence.
 
 ## CIMD Client {#cimd-example}
 {:numbered="false"}
 
-Let `C1` be `https://platform.example/oauth-client`, whose CIMD
-declares `attest_jwt_client_auth_dpop` ({{ATTESTER-ENDORSEMENT}} has a
-metadata example). The AS validates the CIMD and trusts the attester
-through configuration or an accepted `client_attesters` endorsement.
-Key renewal does not change the CIMD. User-authorized access follows
-{{managed-device-example}}.
+Let `C1` be `https://platform.example/oauth-client`, whose CIMD declares
+`attest_jwt_client_auth_dpop` ({{ATTESTER-ENDORSEMENT}} has a metadata
+example). The authorization server validates the CIMD and trusts the
+attester through configuration or an accepted `client_attesters`
+endorsement. Key renewal does not change the CIMD. User-authorized
+access follows {{managed-device-example}}.
 
 ## AAuth Agent Provider {#aauth-example}
 {:numbered="false"}
