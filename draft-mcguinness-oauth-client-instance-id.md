@@ -518,8 +518,9 @@ attestation lifetimes limit how long a suspended instance remains
 acceptable.
 
 When an authorization server revokes a grant for instance suspension,
-retirement, or attester trust withdrawal, it MUST invalidate all of that
-grant's access and refresh tokens and prevent further refresh issuance.
+retirement, or attester trust withdrawal, it MUST revoke all of that
+grant's access and refresh tokens, report them inactive in
+introspection responses, and prevent further refresh issuance.
 
 Without a status channel, parties unaware of the change face three
 limitations: existing attestations may remain acceptable until
