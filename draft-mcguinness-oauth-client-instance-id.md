@@ -792,9 +792,8 @@ Attestation failures follow {{errors}}.
 
 # Relationship to Other Identity Systems
 
-This section compares this profile with mechanisms that identify
-clients or workloads but not individual instances; it adds no
-requirements.
+This section compares this profile with client, workload, and agent
+identity mechanisms; it adds no requirements.
 
 ## Client ID Metadata Documents
 
