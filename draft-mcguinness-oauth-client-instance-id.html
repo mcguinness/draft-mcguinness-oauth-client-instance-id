@@ -3002,9 +3002,16 @@ requires new enrollment.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
 <a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-C-1"><em>RFC EDITOR: Remove this section before publication.</em><a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<p id="appendix-C-2">-00<a href="#appendix-C-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-C-2.1">
-          <p id="appendix-C-2.1.1">Initial draft.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-C-3.1">
+          <p id="appendix-C-3.1.1">Initial version. Replaces
+draft-mcguinness-oauth-client-instance-assertion-01. Instead of a
+separate Client Instance Assertion carried in the
+<code>client_instance_assertion</code> request parameter, instance identity is
+carried in the Client Attestation of <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> as the
+<code>client_instance_id</code> claim, with optional Instance Context conveyed
+downstream as the <code>client_instance</code> claim.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
