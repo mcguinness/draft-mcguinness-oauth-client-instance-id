@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                       25 September 2026
-Expires: 29 March 2027
+Intended status: Standards Track                       28 September 2026
+Expires: 1 April 2027
 
 
       Client Instance Identification for Attestation-Based Client
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 March 2027.
+   This Internet-Draft will expire on 1 April 2027.
 
 Copyright Notice
 
@@ -329,12 +329,13 @@ Table of Contents
    associations.  An authorization server can derive those associations
    from client endorsements it accepts, for example under
    [ATTESTER-ENDORSEMENT].  [ATTESTER-ENDORSEMENT] applies only to
-   authorization server endpoints; a resource server validating
-   attestations directly uses configured associations.  A credential's
-   iss claim, proof of possession, or client-published metadata
-   ([RFC7591], [CIMD]) alone does not establish attester authority.  Key
-   resolution follows Section 10.8 of [ATTEST].  Local trust withdrawal
-   MUST take effect on subsequent authentication.
+   authorization server endpoints (Section 2.3 of
+   [ATTESTER-ENDORSEMENT]); a resource server validating attestations
+   directly uses configured associations.  A credential's iss claim,
+   proof of possession, or client-published metadata ([RFC7591], [CIMD])
+   alone does not establish attester authority.  Key resolution follows
+   Section 10.8 of [ATTEST].  Local trust withdrawal MUST take effect on
+   subsequent authentication.
 
 3.2.  Conformance
 
@@ -988,10 +989,11 @@ Table of Contents
    distinguishes installations (Appendix B.1).  CIMD removes per-
    authorization-server registration of client metadata but not this
    profile's trust agreement (Section 3).  [ATTESTER-ENDORSEMENT] allows
-   a client to endorse attesters through client_attesters metadata,
-   subject to authorization server policy.  That endorsement establishes
-   the attester-to-client association but does not select this profile
-   or its continuity and privacy policy.
+   a client to endorse attesters through client_attesters metadata
+   (Section 3 of [ATTESTER-ENDORSEMENT]), subject to authorization
+   server policy.  That endorsement establishes the attester-to-client
+   association but does not select this profile or its continuity and
+   privacy policy.
 
 8.2.  Workload and Agent Credentials
 
@@ -1219,9 +1221,10 @@ Table of Contents
 
    [ATTESTER-ENDORSEMENT]
               McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
-              14 September 2026, <https://mcguinness.github.io/draft-
-              mcguinness-oauth-client-attesters/draft-mcguinness-oauth-
-              client-attesters.html>.
+              Work in Progress, Internet-Draft, draft-mcguinness-oauth-
+              client-attesters-00, 28 September 2026,
+              <https://datatracker.ietf.org/doc/html/draft-mcguinness-
+              oauth-client-attesters-00>.
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
@@ -1402,11 +1405,11 @@ Appendix B.  Deployment Examples
 B.1.  CIMD Client
 
    Let C1 be https://platform.example/oauth-client, whose CIMD declares
-   attest_jwt_client_auth_dpop ([ATTESTER-ENDORSEMENT] has a metadata
-   example).  The authorization server validates the CIMD and trusts the
-   attester through configuration or an accepted client_attesters
-   endorsement.  Key renewal does not change the CIMD.  User-authorized
-   access follows Appendix B.4.
+   attest_jwt_client_auth_dpop (Appendix A of [ATTESTER-ENDORSEMENT] has
+   a metadata example).  The authorization server validates the CIMD and
+   trusts the attester through configuration or an accepted
+   client_attesters endorsement.  Key renewal does not change the CIMD.
+   User-authorized access follows Appendix B.4.
 
 B.2.  AAuth Agent Provider
 
