@@ -1130,4 +1130,12 @@ requires new enrollment.
 
 *RFC EDITOR: Remove this section before publication.*
 
-* Initial draft.
+-00
+
+* Initial version. Replaces
+  draft-mcguinness-oauth-client-instance-assertion-01. Instead of a
+  separate Client Instance Assertion carried in the
+  `client_instance_assertion` request parameter, instance identity is
+  carried in the Client Attestation of {{ATTEST}} as the
+  `client_instance_id` claim, with optional Instance Context conveyed
+  downstream as the `client_instance` claim.
