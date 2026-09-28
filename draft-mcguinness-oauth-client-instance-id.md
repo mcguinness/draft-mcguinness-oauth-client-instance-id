@@ -36,12 +36,7 @@ normative:
 informative:
   AAUTH: I-D.hardt-oauth-aauth-protocol
   ACTOR-PROFILE: I-D.mcguinness-oauth-actor-profile
-  ATTESTER-ENDORSEMENT:
-    title: "OAuth 2.0 Client Attester Endorsement"
-    target: https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html
-    author:
-      - fullname: Karl McGuinness
-    date: 2026-09-14
+  ATTESTER-ENDORSEMENT: I-D.mcguinness-oauth-client-attesters
   CIMD: I-D.ietf-oauth-client-id-metadata-document
   RFC2104:
   RFC7591:
@@ -250,7 +245,8 @@ The Receiver MUST bind each approved Attester Issuer to its validation
 keys and authorized Logical Clients through configured associations. An
 authorization server can derive those associations from client
 endorsements it accepts, for example under {{ATTESTER-ENDORSEMENT}}.
-{{ATTESTER-ENDORSEMENT}} applies only to authorization server endpoints;
+{{ATTESTER-ENDORSEMENT}} applies only to authorization server endpoints
+({{Section 2.3 of ATTESTER-ENDORSEMENT}});
 a resource server validating attestations directly uses configured
 associations. A credential's `iss` claim, proof of possession, or
 client-published metadata ({{RFC7591}}, {{CIMD}}) alone does not
@@ -809,15 +805,15 @@ prove that a caller is an authorized instance:
 | This profile | Retains instance identity across verified key changes and conveys optional downstream context |
 
 One CIMD URL describes the Logical Client, and Instance Identifiers
-belong in attestations, not per-installation metadata. The
-attestation's `sub` claim is that URL, and the `client_instance_id`
-claim distinguishes installations ({{cimd-example}}). CIMD removes
+belong in attestations, not per-installation metadata. The attestation's
+`sub` claim is that URL, and the `client_instance_id` claim
+distinguishes installations ({{cimd-example}}). CIMD removes
 per-authorization-server registration of client metadata but not this
-profile's trust agreement ({{configuration}}).
-{{ATTESTER-ENDORSEMENT}} allows a client to endorse attesters through
-`client_attesters` metadata, subject to authorization server policy.
-That endorsement establishes the attester-to-client association but
-does not select this profile or its continuity and privacy policy.
+profile's trust agreement ({{configuration}}). {{ATTESTER-ENDORSEMENT}}
+allows a client to endorse attesters through `client_attesters` metadata
+({{Section 3 of ATTESTER-ENDORSEMENT}}), subject to authorization server
+policy. That endorsement establishes the attester-to-client association
+but does not select this profile or its continuity and privacy policy.
 
 ## Workload and Agent Credentials
 
@@ -1093,11 +1089,11 @@ to the authorization server.
 ## CIMD Client {#cimd-example}
 
 Let `C1` be `https://platform.example/oauth-client`, whose CIMD declares
-`attest_jwt_client_auth_dpop` ({{ATTESTER-ENDORSEMENT}} has a metadata
-example). The authorization server validates the CIMD and trusts the
-attester through configuration or an accepted `client_attesters`
-endorsement. Key renewal does not change the CIMD. User-authorized
-access follows {{managed-device-example}}.
+`attest_jwt_client_auth_dpop` ({{Appendix A of ATTESTER-ENDORSEMENT}}
+has a metadata example). The authorization server validates the CIMD and
+trusts the attester through configuration or an accepted
+`client_attesters` endorsement. Key renewal does not change the CIMD.
+User-authorized access follows {{managed-device-example}}.
 
 ## AAuth Agent Provider {#aauth-example}
 
