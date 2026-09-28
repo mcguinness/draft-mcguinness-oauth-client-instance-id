@@ -7,7 +7,7 @@ This is the working area for the individual Internet-Draft, "Client Instance Ide
 * [Editor's Draft (HTML)](https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.html)
 * [Plain text](https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.txt)
 * [Draft source](draft-mcguinness-oauth-client-instance-id.md)
-* [Companion profile](https://github.com/mcguinness/draft-mcguinness-oauth-client-attesters)
+* [Companion profile](https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-attesters/)
 
 This draft has not yet been submitted to the IETF.
 
