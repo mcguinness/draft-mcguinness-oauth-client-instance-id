@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-27T04:59:05.569186+00:00",
+  "timestamp": "2026-09-29T05:25:39.237262+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
   "labels": [
     {
@@ -310,9 +310,9 @@
       "labels": [
         "enhancement"
       ],
-      "body": "Successor to the deferred half of #17. PR #21 fixed what could be fixed without a wire change; this is the structural decision left for the working group.\n\n## The gap\n\n`client_instance` records who the instance is. It records nothing about how the issuer came to know that. A consumer receiving an access token cannot tell whether the issuer validated a Client Attestation directly or preserved the object from an input token in a token exchange.\n\nThose two cases warrant different trust. Direct validation means the issuer authenticated the instance itself. Preservation means the issuer is repeating an upstream claim whose own validation the consumer cannot inspect.\n\n## What PR #21 did instead\n\nA consumer must not attribute a request to an instance named in preserved context unless its consuming profile defines how that provenance is authenticated. The direct-issuance escape hatch is now explicitly a property of the issuer rather than the token, so it does not apply at an issuer that does both.\n\nThat is fail-closed and correct, but it pushes the distinction into out-of-band configuration. An issuer that does both direct issuance and exchange cannot express the difference on the wire at all.\n\n## Why it is not obvious\n\nA provenance member is in tension with the pairwise-privacy default. It tells every consumer something about the issuance path, which is exactly the kind of cross-consumer signal the Consumer Scope design works to suppress. A hop count or an issuance-method label may be more correlatable than it first appears.\n\nOptions worth weighing:\n\n- A member on the object, naming the issuance method.\n- A separate claim outside `client_instance`, so the context object stays purely about identity.\n- Leave it to consuming profiles, accepting that a mixed-mode issuer cannot serve consumers that need the distinction.\n- Forbid mixed-mode issuance, which is clean but likely unenforceable.\n\n## Suggested handling\n\nRaise at the working group rather than resolving in -00. The current text is safe: a consumer that cannot establish provenance refuses attribution.",
+      "body": "Successor to the deferred half of #17. PR #21 fixed what could be fixed without a wire change; this is the structural decision left for the working group.\n\n## The gap\n\n`client_instance` records who the instance is. It records nothing about how the issuer came to know that. A consumer receiving an access token cannot tell whether the issuer validated a Client Attestation directly or preserved the object from an input token in a token exchange.\n\nThose two cases warrant different trust. Direct validation means the issuer authenticated the instance itself. Preservation means the issuer is repeating an upstream claim whose own validation the consumer cannot inspect.\n\n## What PR #21 did instead\n\nA consumer must not attribute a request to an instance named in preserved context unless its consuming profile defines how that provenance is authenticated. The direct-issuance escape hatch is now explicitly a property of the issuer rather than the token, so it does not apply at an issuer that does both.\n\nThat is fail-closed and correct, but it pushes the distinction into out-of-band configuration. An issuer that does both direct issuance and exchange cannot express the difference on the wire at all.\n\n## Why it is not obvious\n\nA provenance member is in tension with the pairwise-privacy default. It tells every consumer something about the issuance path, which is exactly the kind of cross-consumer signal the Consumer Scope design works to suppress. A hop count or an issuance-method label may be more correlatable than it first appears.\n\nOptions worth weighing:\n\n- A member on the object, naming the issuance method.\n- A separate claim outside `client_instance`, so the context object stays purely about identity.\n- Leave it to consuming profiles, accepting that a mixed-mode issuer cannot serve consumers that need the distinction.\n- Forbid mixed-mode issuance, which is clean but likely unenforceable.\n\n## Concrete use case: upstream participation through a token-exchanging gateway\n\nAgent instances A and C access a data API through gateway B. Each supplies a token issued after its instance was authenticated. B exchanges that token for a data-API token and presents the resulting token using B's own proof key.\n\nThe authorization server also issues tokens directly to agent instances. Consequently, the API receives both direct and exchanged tokens from the same issuer.\n\nDuring incident response, the API needs to identify\u2014and, under configured policy, refuse\u2014requests derived from tokens associated with compromised instance A. It must distinguish those requests from traffic associated with C, even though B presents both. The API operates across an administrative boundary and cannot depend on access to the gateway's internal logs. This is a proposed deployment use case to validate, not a claim of existing implementation demand.\n\n### Required distinction\n\nA is an authenticated upstream participant recorded at source issuance; B is the current presenter. Preserving A's identifier must not cause the API to attribute B's proof of possession to A.\n\n### Required behavior\n\n- Authenticate the source of preserved or remapped instance context and its association with the exchanged input.\n- Preserve a consumer-scoped reference suitable for the API's correlation policy, including a way to match the affected instance within that scope without requiring a globally correlatable identifier.\n- Distinguish upstream participation from current presentation, including when one issuer supports both direct issuance and exchange.\n- Refuse an operation requiring upstream attribution when that association cannot be established.\n- Continue to apply the ordinary grant, scope, actor, and resource authorization checks. Provenance supplies a policy input; it grants no authority and defines no automatic revocation propagation.\n\n### Trust question and specification boundary\n\nThe design must state whose assertion the API trusts: the exchanging authorization server's validated assertion, or independently verifiable upstream evidence. An issuance-method label alone does not authenticate the original association; a signed label also requires an explicit trust relationship for its meaning and preservation guarantees.\n\nThe client-instance-id specification should own the instance-context origin, preservation/remapping, and consumer-validation rules needed for this association. Complete delegation-history proofs belong with actor-evidence mechanisms. This use case does not require a full delegation history and does not prove that A initiated this particular API request.\n\n### Acceptance cases\n\n- Exchanges involving A and C remain distinguishable at the API under its configured Consumer Scope, while B is correctly identified as the presenter of both requests.\n- A direct request from A and an exchanged request presented by B cannot be confused merely because both tokens name A in instance context and have the same token issuer.\n- Context naming A plus proof of B's key never establishes A as the current presenter.\n- Missing or unverifiable upstream association fails a policy requiring upstream attribution, even when B authenticates successfully.\n- A correlation reference for a different Consumer Scope cannot be reused to satisfy this API's instance policy without an authenticated, authorized mapping.\n\n## Suggested handling\n\nRaise at the working group rather than resolving in -00. The current text is safe: a consumer that cannot establish provenance refuses attribution.",
       "createdAt": "2026-09-22T04:55:09Z",
-      "updatedAt": "2026-09-22T04:56:39Z",
+      "updatedAt": "2026-09-29T04:14:04Z",
       "closedAt": null,
       "comments": []
     }
@@ -874,6 +874,90 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "bde831e56b80f83d4fe9f56af39c3a07061aa48c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 32,
+      "id": "PR_kwDOUbZuvs8AAAABFi0xiA",
+      "title": "Cite the attester endorsement draft from the datatracker",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/32",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "`draft-mcguinness-oauth-client-attesters` is now on the datatracker, so this draft cites it as an Internet-Draft instead of by its GitHub Pages URL.\n\n- **Reference (`ecc4004`).** `ATTESTER-ENDORSEMENT` is now `I-D.mcguinness-oauth-client-attesters`. It renders as \"Work in Progress, Internet-Draft, draft-mcguinness-oauth-client-attesters-00, 28 September 2026\" with the datatracker link.\n- **Section citations.** The published -00 was checked against each use, and every citation now points to the part that supports it:\n  - \u00a73.1, \"applies only to authorization server endpoints\", now cites Section 2.3 of [ATTESTER-ENDORSEMENT].\n  - \u00a78.1, the `client_attesters` metadata, now cites Section 3.\n  - The CIMD example in Appendix B.1 now cites Appendix A for the metadata example, which uses `attest_jwt_client_auth_dpop`.\n- **README (`bb91c2a`).** The \"Companion profile\" link now points to the datatracker page.\n\nVerification:\n- The ordered BCP 14 keyword sequence is identical to `main`.\n- No unresolved or uncited references.\n- Both idnits `UNDEFINED_STATE` warnings about the previously unfetchable draft are gone.\n",
+      "createdAt": "2026-09-28T17:20:16Z",
+      "updatedAt": "2026-09-28T17:21:12Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "bde831e56b80f83d4fe9f56af39c3a07061aa48c",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "cite-attesters-draft",
+      "headRefOid": "bb91c2a8fa72044ef7708782557cf5a057e3be69",
+      "closedAt": "2026-09-28T17:21:08Z",
+      "mergedAt": "2026-09-28T17:21:08Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "846b11b84bd70788956318eeb822aad50940e0d6"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 33,
+      "id": "PR_kwDOUbZuvs8AAAABFi2-Bw",
+      "title": "Record that this draft replaces draft-mcguinness-oauth-client-instance-assertion",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/33",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Records in the Document History that this draft replaces `draft-mcguinness-oauth-client-instance-assertion-01`. The bullet also states the design change: instance identity is now a claim in the ATTEST Client Attestation, instead of a separate Client Instance Assertion carried in the `client_instance_assertion` request parameter.\n\n## Datatracker \"Replaces\" still has to be set at submission\n\nThe draft XML has no field that carries \"Replaces\", and i-d-template sets it automatically only in one case: the draft file was renamed within this repository's git history from a name that has a release tag. That did not happen here, so the tag-triggered `make upload` would submit the -00 without it. Either of these records it:\n\n- Push the `draft-mcguinness-oauth-client-instance-id-00` tag as usual. Then, on the datatracker submission status page (linked from the confirmation email), enter `draft-mcguinness-oauth-client-instance-assertion` in the Replaces field before confirming.\n- Or upload directly to the datatracker API with the field set:\n  ```\n  curl -F \"user=public@karlmcguinness.com\" \\\n       -F \"xml=@versioned/draft-mcguinness-oauth-client-instance-id-00.xml\" \\\n       -F \"replaces=draft-mcguinness-oauth-client-instance-assertion\" \\\n       https://datatracker.ietf.org/api/submission\n  ```\n\nVerification: the ordered BCP 14 keyword sequence is unchanged, there are no BCP 14 words in the history block, and the draft builds clean.\n",
+      "createdAt": "2026-09-28T17:23:39Z",
+      "updatedAt": "2026-09-28T17:24:28Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "846b11b84bd70788956318eeb822aad50940e0d6",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "note-replaces",
+      "headRefOid": "2e088796c90fec360b8bd9134cded9396e5b84c3",
+      "closedAt": "2026-09-28T17:24:24Z",
+      "mergedAt": "2026-09-28T17:24:24Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "3dbb76bf3464389828f384bee6032d22a8869b80"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 34,
+      "id": "PR_kwDOUbZuvs8AAAABFjDLPA",
+      "title": "Link the README to the posted draft",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/34",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "The -00 is posted on the datatracker and records that it replaces draft-mcguinness-oauth-client-instance-assertion, whose state is now Replaced. This removes the README's \"not yet submitted\" line and adds links to the Datatracker page, the Individual Draft, and the replaced draft. Each link returns 200. The README has `regenerate: off`, so this is a hand edit.",
+      "createdAt": "2026-09-28T17:42:41Z",
+      "updatedAt": "2026-09-28T17:48:25Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "3dbb76bf3464389828f384bee6032d22a8869b80",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "readme-datatracker",
+      "headRefOid": "0feead528232ec462452505840859678069c0f63",
+      "closedAt": "2026-09-28T17:48:22Z",
+      "mergedAt": "2026-09-28T17:48:22Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "70a339b945b2aedb7e2a61ba291bebc87c9577cc"
       },
       "comments": [],
       "reviews": []
