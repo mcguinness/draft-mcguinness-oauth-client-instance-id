@@ -275,8 +275,8 @@ the rest of this specification.
 This profile uses the additional claims permitted by
 {{Section 4 of ATTEST}}. All {{ATTEST}} requirements apply, including a
 `typ` JOSE header parameter value of `oauth-client-attestation+jwt`,
-`sub` equal to `client_id`, the required `exp` and `cnf` claims, and the
-optional `iat` claim.
+`sub` equal to `client_id`, and the required `exp`, `cnf`, and `iat`
+claims.
 
 `iss`:
 : REQUIRED. Exactly matches an approved Attester Issuer
@@ -330,8 +330,7 @@ described in {{token-binding-keys}}.
 
 ## Example {#attestation-example}
 
-The following example shows a decoded Client Attestation payload with
-the optional `iat` claim:
+The following example shows a decoded Client Attestation payload:
 
 ~~~ json
 {
@@ -440,8 +439,9 @@ policy, so responses do not disclose whether an instance is unknown,
 suspended, or retired. Receivers SHOULD also avoid distinguishable
 response timing. Consequently, a client cannot distinguish a transient
 failure from a durable policy decision, or whether retrying with a fresh
-attestation will help. Responses use the format {{ATTEST}} specifies for
-the code ({{Section 5.2 of RFC6749}} at the authorization server,
+attestation will help. Responses use the format and HTTP status codes
+that {{Section 7.4 of ATTEST}} specifies for the code
+({{Section 5.2 of RFC6749}} at the authorization server,
 {{Section 3 of RFC6750}} at a resource server). Unknown instances are
 rejected only when local policy requires prior enrollment. If a profile
 check fails, the Receiver MUST NOT fall back to authentication without
@@ -837,16 +837,18 @@ apply.
 
 ## Attester Compromise and Assurance {#assurance}
 
-A compromised attester can impersonate instances within its approved
-client associations. Receivers limit those associations and configure
-acceptable evidence assurance. An attester that overstates the
-assurance of its evidence defeats that configuration. Self-reported,
-platform-verified, and hardware-rooted evidence are not
-interchangeable. Without independent platform evidence, copied keys
-and enrollment data can be indistinguishable from the original;
-{{continuity}} governs detected forks and does not guarantee clone
-detection. Instance identity proves no software integrity beyond the
-evaluated evidence.
+Instance identifiers and continuity evidence are the attester's
+assertions, which Receivers rely on only as far as they trust that
+attester ({{Section 12.3 of ATTEST}}). A compromised attester can
+impersonate instances within its approved client associations. Receivers
+limit those associations and configure acceptable evidence assurance. An
+attester that overstates the assurance of its evidence defeats that
+configuration. Self-reported, platform-verified, and hardware-rooted
+evidence are not interchangeable. Without independent platform evidence,
+copied keys and enrollment data can be indistinguishable from the
+original; {{continuity}} governs detected forks and does not guarantee
+clone detection. Instance identity proves no software integrity beyond
+the evaluated evidence.
 
 ## Suspension and Re-enrollment {#re-enrollment}
 
@@ -884,6 +886,12 @@ limit correlation, strengthening the protections of
 {{Section 11.1 of ATTEST}}. Receivers MUST NOT assume that identifiers
 are comparable across scopes; explicitly shared scopes permit
 correlation.
+
+Attestations that an attester issues together for different Receiver
+Scopes can also be correlated through matching `iat` and `exp` values.
+{{Section 11.1 of ATTEST}} recommends that the attester randomize or
+round those values, which matters most here because this profile
+issues a separate attestation for each Receiver Scope.
 
 ## Token-Binding Keys {#token-binding-keys}
 
@@ -1130,12 +1138,15 @@ requires new enrollment.
 
 *RFC EDITOR: Remove this section before publication.*
 
+-01
+
+* Aligned with draft-ietf-oauth-attestation-based-client-auth-12:
+  `iat` is required, errors use its HTTP status codes, and per-scope
+  attestations can correlate through `iat` and `exp`. Updated
+  references.
+
 -00
 
-* Initial version. Replaces
-  draft-mcguinness-oauth-client-instance-assertion-01. Instead of a
-  separate Client Instance Assertion carried in the
-  `client_instance_assertion` request parameter, instance identity is
-  carried in the Client Attestation of {{ATTEST}} as the
-  `client_instance_id` claim, with optional Instance Context conveyed
-  downstream as the `client_instance` claim.
+* Initial version, replacing
+  draft-mcguinness-oauth-client-instance-assertion-01. Instance identity
+  moves into the Client Attestation as the `client_instance_id` claim.
