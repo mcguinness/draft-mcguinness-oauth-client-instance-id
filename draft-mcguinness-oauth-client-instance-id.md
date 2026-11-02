@@ -1140,20 +1140,13 @@ requires new enrollment.
 
 -01
 
-* Updated for draft-ietf-oauth-attestation-based-client-auth-12: `iat`
-  is now a required attestation claim, attestation errors use the HTTP
-  status codes of its Section 7.4, attestations issued together for
-  different Receiver Scopes can correlate through `iat` and `exp`, and
-  instance claims are trusted only as far as the attester is.
-* Updated references to draft-ietf-oauth-spiffe-client-auth-03 and
-  draft-mcguinness-oauth-actor-profile-01.
+* Aligned with draft-ietf-oauth-attestation-based-client-auth-12:
+  `iat` is required, errors use its HTTP status codes, and per-scope
+  attestations can correlate through `iat` and `exp`. Updated
+  references.
 
 -00
 
-* Initial version. Replaces
-  draft-mcguinness-oauth-client-instance-assertion-01. Instead of a
-  separate Client Instance Assertion carried in the
-  `client_instance_assertion` request parameter, instance identity is
-  carried in the Client Attestation of {{ATTEST}} as the
-  `client_instance_id` claim, with optional Instance Context conveyed
-  downstream as the `client_instance` claim.
+* Initial version, replacing
+  draft-mcguinness-oauth-client-instance-assertion-01. Instance identity
+  moves into the Client Attestation as the `client_instance_id` claim.
