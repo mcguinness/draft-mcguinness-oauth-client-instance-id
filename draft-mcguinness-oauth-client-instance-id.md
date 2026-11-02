@@ -275,8 +275,8 @@ the rest of this specification.
 This profile uses the additional claims permitted by
 {{Section 4 of ATTEST}}. All {{ATTEST}} requirements apply, including a
 `typ` JOSE header parameter value of `oauth-client-attestation+jwt`,
-`sub` equal to `client_id`, the required `exp` and `cnf` claims, and the
-optional `iat` claim.
+`sub` equal to `client_id`, and the required `exp`, `cnf`, and `iat`
+claims.
 
 `iss`:
 : REQUIRED. Exactly matches an approved Attester Issuer
@@ -330,8 +330,7 @@ described in {{token-binding-keys}}.
 
 ## Example {#attestation-example}
 
-The following example shows a decoded Client Attestation payload with
-the optional `iat` claim:
+The following example shows a decoded Client Attestation payload:
 
 ~~~ json
 {
