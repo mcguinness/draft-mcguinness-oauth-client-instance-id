@@ -885,6 +885,12 @@ limit correlation, strengthening the protections of
 are comparable across scopes; explicitly shared scopes permit
 correlation.
 
+Attestations that an attester issues together for different Receiver
+Scopes can also be correlated through matching `iat` and `exp` values.
+{{Section 11.1 of ATTEST}} recommends that the attester randomize or
+round those values, which matters most here because this profile
+issues a separate attestation for each Receiver Scope.
+
 ## Token-Binding Keys {#token-binding-keys}
 
 Per-consumer Instance Context Identifiers do not prevent correlation
