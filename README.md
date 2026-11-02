@@ -1,8 +1,8 @@
 <!-- regenerate: off -->
 
-# Client Instance Identification for Attestation-Based Client Authentication
+# OAuth 2.0 Client Instance Identifiers
 
-This is the working area for the individual Internet-Draft, "Client Instance Identification for Attestation-Based Client Authentication".
+This is the working area for the individual Internet-Draft, "OAuth 2.0 Client Instance Identifiers".
 
 * [Editor's Draft (HTML)](https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.html)
 * [Plain text](https://mcguinness.github.io/draft-mcguinness-oauth-client-instance-id/draft-mcguinness-oauth-client-instance-id.txt)

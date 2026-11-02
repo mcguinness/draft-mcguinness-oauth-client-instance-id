@@ -1,6 +1,6 @@
 ---
-title: "Client Instance Identification for Attestation-Based Client Authentication"
-abbrev: "Client Instance Identification"
+title: "OAuth 2.0 Client Instance Identifiers"
+abbrev: "Client Instance Identifiers"
 category: std
 docname: draft-mcguinness-oauth-client-instance-id-latest
 submissiontype: IETF
@@ -1140,10 +1140,11 @@ requires new enrollment.
 
 -01
 
-* Aligned with draft-ietf-oauth-attestation-based-client-auth-12:
-  `iat` is required, errors use its HTTP status codes, and per-scope
-  attestations can correlate through `iat` and `exp`. Updated
-  references.
+* Retitled "OAuth 2.0 Client Instance Identifiers".
+* Aligned with draft-ietf-oauth-attestation-based-client-auth-12 and
+  updated other references: `iat` is required, errors use its HTTP
+  status codes, and per-scope attestations can correlate through `iat`
+  and `exp`.
 
 -00
 
