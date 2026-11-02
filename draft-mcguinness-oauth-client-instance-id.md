@@ -439,8 +439,9 @@ policy, so responses do not disclose whether an instance is unknown,
 suspended, or retired. Receivers SHOULD also avoid distinguishable
 response timing. Consequently, a client cannot distinguish a transient
 failure from a durable policy decision, or whether retrying with a fresh
-attestation will help. Responses use the format {{ATTEST}} specifies for
-the code ({{Section 5.2 of RFC6749}} at the authorization server,
+attestation will help. Responses use the format and HTTP status codes
+that {{Section 7.4 of ATTEST}} specifies for the code
+({{Section 5.2 of RFC6749}} at the authorization server,
 {{Section 3 of RFC6750}} at a resource server). Unknown instances are
 rejected only when local policy requires prior enrollment. If a profile
 check fails, the Receiver MUST NOT fall back to authentication without
