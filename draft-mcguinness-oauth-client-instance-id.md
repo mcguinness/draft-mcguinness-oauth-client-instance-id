@@ -837,16 +837,18 @@ apply.
 
 ## Attester Compromise and Assurance {#assurance}
 
-A compromised attester can impersonate instances within its approved
-client associations. Receivers limit those associations and configure
-acceptable evidence assurance. An attester that overstates the
-assurance of its evidence defeats that configuration. Self-reported,
-platform-verified, and hardware-rooted evidence are not
-interchangeable. Without independent platform evidence, copied keys
-and enrollment data can be indistinguishable from the original;
-{{continuity}} governs detected forks and does not guarantee clone
-detection. Instance identity proves no software integrity beyond the
-evaluated evidence.
+Instance identifiers and continuity evidence are the attester's
+assertions, which Receivers rely on only as far as they trust that
+attester ({{Section 12.3 of ATTEST}}). A compromised attester can
+impersonate instances within its approved client associations. Receivers
+limit those associations and configure acceptable evidence assurance. An
+attester that overstates the assurance of its evidence defeats that
+configuration. Self-reported, platform-verified, and hardware-rooted
+evidence are not interchangeable. Without independent platform evidence,
+copied keys and enrollment data can be indistinguishable from the
+original; {{continuity}} governs detected forks and does not guarantee
+clone detection. Instance identity proves no software integrity beyond
+the evaluated evidence.
 
 ## Suspension and Re-enrollment {#re-enrollment}
 
