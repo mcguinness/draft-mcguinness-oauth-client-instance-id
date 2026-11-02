@@ -8,8 +8,7 @@ Intended status: Standards Track                         2 November 2026
 Expires: 6 May 2027
 
 
-      Client Instance Identification for Attestation-Based Client
-                             Authentication
+                 OAuth 2.0 Client Instance Identifiers
             draft-mcguinness-oauth-client-instance-id-latest
 
 Abstract
@@ -1453,10 +1452,12 @@ Document History
 
    -01
 
-   *  Aligned with draft-ietf-oauth-attestation-based-client-auth-12:
-      iat is required, errors use its HTTP status codes, and per-scope
-      attestations can correlate through iat and exp.  Updated
-      references.
+   *  Retitled "OAuth 2.0 Client Instance Identifiers".
+
+   *  Aligned with draft-ietf-oauth-attestation-based-client-auth-12 and
+      updated other references: iat is required, errors use its HTTP
+      status codes, and per-scope attestations can correlate through iat
+      and exp.
 
    -00
 
