@@ -9,8 +9,8 @@
 <meta content="
        This specification defines an optional claims profile of OAuth 2.0
 Attestation-Based Client Authentication. When selected, the profile
-requires an attester-qualified client instance identifier that remains
-stable across verified key changes, and adds continuity and privacy
+requires an attester-assigned client instance identifier, scoped by default to the server that validates it, that remains stable across verified key
+changes, and adds continuity and privacy
 rules for that identifier. Conveying instance context in tokens and
 introspection responses remains optional within the profile.
 Authentication and proof methods follow the base specification. 
@@ -22,18 +22,18 @@ Authentication and proof methods follow the base specification.
 <meta content="draft-mcguinness-oauth-client-instance-id-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.1
-    Python 3.14.7
-    ConfigArgParse 1.7.7
+    Python 3.14.8
+    ConfigArgParse 1.8.0
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.10
+    platformdirs 4.13.4
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.4
+    wcwidth 0.9.2
 -->
 <link href="draft-mcguinness-oauth-client-instance-id.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1049,11 +1049,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Client Instance Identification</td>
-<td class="right">September 2026</td>
+<td class="right">November 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness</td>
-<td class="center">Expires 29 March 2027</td>
+<td class="center">Expires 6 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1066,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-client-instance-id-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-25" class="published">25 September 2026</time>
+<time datetime="2026-11-02" class="published">2 November 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-03-29">29 March 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-06">6 May 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1086,8 +1086,8 @@ svg {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This specification defines an optional claims profile of OAuth 2.0
 Attestation-Based Client Authentication. When selected, the profile
-requires an attester-qualified client instance identifier that remains
-stable across verified key changes, and adds continuity and privacy
+requires an attester-assigned client instance identifier, scoped by default to the server that validates it, that remains stable across verified key
+changes, and adds continuity and privacy
 rules for that identifier. Conveying instance context in tokens and
 introspection responses remains optional within the profile.
 Authentication and proof methods follow the base specification.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
@@ -1127,7 +1127,7 @@ Authentication and proof methods follow the base specification.<a href="#section
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 6 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1258,7 +1258,10 @@ Authentication and proof methods follow the base specification.<a href="#section
                 <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-attester-compromise-and-ass" class="internal xref">Attester Compromise and Assurance</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-forwarding" class="internal xref">Forwarding</a></p>
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-suspension-and-re-enrollmen" class="internal xref">Suspension and Re-enrollment</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-forwarding" class="internal xref">Forwarding</a></p>
 </li>
             </ul>
 </li>
@@ -1354,7 +1357,7 @@ Authentication and proof methods follow the base specification.<a href="#section
 question: is this an authorized Client Instance in possession of this
 key? This profile adds a second: is this the same Client Instance the
 Receiver previously encountered? A new attestation alone cannot answer
-it: <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.6" class="relref">Section 10.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> requires one for every new key, and after
+it: <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.6" class="relref">Section 10.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> requires one for every new key, and after
 a key change a continuing installation is indistinguishable from a new
 one.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This question arises in deployments where one Logical Client has many
@@ -1386,8 +1389,8 @@ in a token or introspection response.<a href="#section-1-4.2.1" class="pilcrow">
 not authority; instance evidence grants none. Authorization profiles
 can use validated instance identity or Instance Context as a policy
 input, subject to the prohibitions in <a href="#processing" class="auto internal xref">Section 5</a>.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">ATTEST alone suffices when correlation is needed only for the current
-key or within one system.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-6"><span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> alone suffices when correlation is needed only for the
+current key.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">Assigning each instance its own <code>client_id</code> with a shared <code>software_id</code>
 client metadata value (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) is an alternative.
 This specification instead targets deployments that share one Logical
@@ -1442,12 +1445,12 @@ unit's lifetime.<a href="#section-1.1-3.2.1" class="pilcrow">¶</a></p>
 such as workloads and managed desktop or mobile applications. Its
 identifiers are not general-purpose device or wallet identifiers, and
 it does not define an enrollment, key-rotation, or status-distribution
-protocol. ATTEST
+protocol. <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
 supplies the authentication and proof methods, including direct
-resource-server presentation (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7" class="relref">Section 7</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). When selected
+resource-server presentation (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-7" class="relref">Section 7</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). When selected
 under <a href="#configuration" class="auto internal xref">Section 3</a>, this profile applies whether the Client
 Attestation is the client authentication method or an additional
-security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). It does not replace the
+security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). It does not replace the
 deployment's required client authentication.<a href="#section-1.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1521,7 +1524,8 @@ assignment of <code>client_instance_id</code> is scoped (<a href="#receiver-scop
 <dt id="section-2-3.17">Consumer Scope:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.18">
           <p id="section-2-3.18.1">The Context Consumer, or explicitly configured set of Context
-Consumers, to which one mapping of Instance Context is scoped
+Consumers, to which one mapping of Instance Context is scoped. A
+Consumer Scope is identified by a configured set of audience values
 (<a href="#format-and-mapping" class="auto internal xref">Section 7.1</a>).<a href="#section-2-3.18.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
@@ -1542,11 +1546,22 @@ one Source Instance Identity within a Consumer Scope; its <code>id</code> need
 not equal <code>client_instance_id</code>.<a href="#section-2-3.22.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-2-3.23">enrollment:</dt>
+<dt id="section-2-3.23">Consuming profile:</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.24">
-          <p id="section-2-3.24.1">An attester-maintained record binding one instance, at the configured
+          <p id="section-2-3.24.1">A specification or deployment profile that defines how a Context
+Consumer, or an issuer conveying Instance Context through token
+exchange, establishes the association between Instance Context and the
+token's subject, actor, or presenter, and how the provenance of
+preserved context is authenticated (<a href="#context-exchange" class="auto internal xref">Section 7.4</a>,
+<a href="#context-consumer" class="auto internal xref">Section 7.5</a>). This specification acts as the consuming
+profile only in the case described in <a href="#context-consumer" class="auto internal xref">Section 7.5</a>.<a href="#section-2-3.24.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-3.25">enrollment:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-3.26">
+          <p id="section-2-3.26.1">An attester-maintained record binding one instance, at the configured
 granularity, to its verified keys and assigned identifiers, separate
-from any user account, device registration, or Logical Client.<a href="#section-2-3.24.1" class="pilcrow">¶</a></p>
+from any user account, device registration, or Logical Client.<a href="#section-2-3.26.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1590,12 +1605,13 @@ The error in <a href="#errors" class="auto internal xref">Section 5.2</a> report
 keys and authorized Logical Clients through configured associations. An
 authorization server can derive those associations from client
 endorsements it accepts, for example under <span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>.
-<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> applies only to authorization server endpoints;
+<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> applies only to authorization server endpoints
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00#section-2.3" class="relref">Section 2.3</a> of [<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>);
 a resource server validating attestations directly uses configured
 associations. A credential's <code>iss</code> claim, proof of possession, or
 client-published metadata (<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>) alone does not
 establish attester authority. Key resolution follows
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Local trust withdrawal <span class="bcp14">MUST</span> take effect on
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Local trust withdrawal <span class="bcp14">MUST</span> take effect on
 subsequent authentication.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1665,10 +1681,10 @@ the rest of this specification.<a href="#section-3.2-3" class="pilcrow">¶</a></
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-client-attestation-claims" class="section-name selfRef">Client Attestation Claims</a>
       </h2>
 <p id="section-4-1">This profile uses the additional claims permitted by
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-4" class="relref">Section 4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. All ATTEST requirements apply, including a
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-4" class="relref">Section 4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. All <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> requirements apply, including a
 <code>typ</code> JOSE header parameter value of <code>oauth-client-attestation+jwt</code>,
-<code>sub</code> equal to <code>client_id</code>, the required <code>exp</code> and <code>cnf</code> claims, and the
-optional <code>iat</code> claim.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<code>sub</code> equal to <code>client_id</code>, and the required <code>exp</code>, <code>cnf</code>, and <code>iat</code>
+claims.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-4-2">
         <dt id="section-4-2.1">
 <code>iss</code>:</dt>
@@ -1702,14 +1718,14 @@ within a named set of Receivers. A shared client or trust domain does
 not by itself authorize sharing. The client <span class="bcp14">MUST</span> request and use the
 attestation for that configured scope. A Receiver cannot detect an
 attestation presented outside its scope; the resulting correlation
-exposes the end user of that instance (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>).<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+exposes the end user of that instance (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>).<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">Scoping an identifier to a Receiver reveals that Receiver to the
 attester (<a href="#attester-visibility" class="auto internal xref">Section 10.3</a>). A deployment that needs the attester
 not to learn individual Receivers, or that intends correlation across
 them, configures one Receiver Scope spanning them; one identifier and
 key then suffice.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <p id="section-4.1-4">The client <span class="bcp14">MUST</span> also use distinct Client Instance Keys across scopes.
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends this across authorization and
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends this across authorization and
 resource servers; this profile requires it across the scopes a
 deployment chooses to separate, because a shared key links
 attestations regardless of their identifiers. Token-binding key
@@ -1717,7 +1733,7 @@ separation between Context Consumers is addressed in
 <a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.1-5">In combined mode, the Client Instance Key is also the DPoP key. In
 normal mode, the DPoP key is independent of the attestation
-(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). A token issued in combined mode is bound to
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). A token issued in combined mode is bound to
 the authorization server's scoped key. A separately scoped resource
 server's attestation carries a different key. No single proof can
 match both, so combined mode cannot also be used at that resource
@@ -1732,14 +1748,13 @@ described in <a href="#token-binding-keys" class="auto internal xref">Section 10
         <h3 id="name-example">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-example" class="section-name selfRef">Example</a>
         </h3>
-<p id="section-4.2-1">The following example shows a decoded Client Attestation payload with
-the optional <code>iat</code> claim:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">The following example shows a decoded Client Attestation payload:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-4.2-2">
 <pre>
 {
   "iss": "https://attester.example/tenant/acme",
   "sub": "https://platform.example/oauth-client",
-  "client_instance_id": "i-7f3d9a2e6c8145b0a923d47e18f602cd",
+  "client_instance_id": "i-844a2aa37074eed77f3b3e950432f597",
   "iat": 1789128000,
   "exp": 1789128300,
   "cnf": {
@@ -1765,14 +1780,14 @@ the optional <code>iat</code> claim:<a href="#section-4.2-1" class="pilcrow">¶<
 <p id="section-5-1">The Receiver <span class="bcp14">MUST</span>:<a href="#section-5-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5-2">
 <li id="section-5-2.1">
-          <p id="section-5-2.1.1">Validate the attestation and proof under the configured ATTEST
+          <p id="section-5-2.1.1">Validate the attestation and proof under the configured <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
 method.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-5-2.2">
           <p id="section-5-2.2.1">Validate the claims in <a href="#claims" class="auto internal xref">Section 4</a> and attester authority under
 <a href="#configuration" class="auto internal xref">Section 3</a>, including that the key that verified the
 attestation is bound to the asserted <code>iss</code> claim. Key resolution
-under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> selects a key from JOSE header
+under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.8" class="relref">Section 10.8</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> selects a key from JOSE header
 parameters, not from <code>iss</code>, so a trust anchor covering several
 attesters does not by itself establish that association.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
 </li>
@@ -1798,19 +1813,19 @@ Issuers; or<a href="#section-5-4.2.1" class="pilcrow">¶</a></p>
 actor chain solely from instance evidence.<a href="#section-5-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-5">Migration between Attester Issuers requires a procedure that
-establishes trust in both authorities and continuity evidence; this
-specification does not define one. Key selection follows ATTEST; when a
-separate token-binding key is used, context identifies the instance
-associated with the Client Instance Key.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-5">Migration between Attester Issuers requires a procedure that establishes
+trust in both authorities and continuity evidence; this specification
+does not define one. Key selection follows <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>; when a separate
+token-binding key is used, context identifies the instance associated
+with the Client Instance Key.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <div id="grant-continuity">
 <section id="section-5.1">
         <h3 id="name-grant-continuity">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-grant-continuity" class="section-name selfRef">Grant Continuity</a>
         </h3>
-<p id="section-5.1-1"><span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> binds a refresh token to the Client Instance,
+<p id="section-5.1-1"><span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> binds a refresh token to the Client Instance,
 by default through the Client Instance Key. The refresh token remains
-bound to that key; only a profile acting under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
+bound to that key; only a profile acting under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>
 can rebind it. This profile records an identity for the binding that
 persists across a verified key change, so later grants correlate with
 the same instance. It adds no instance-bound grants. Under the default
@@ -1826,7 +1841,7 @@ Identity when issuing a refresh token.<a href="#section-5.1-2" class="pilcrow">�
 <li id="section-5.1-4.1">
             <p id="section-5.1-4.1.1"><span class="bcp14">MUST</span> require a validated attestation, whether the attestation is the
 client authentication method or an additional security signal. This
-extends <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, which requires the attestation
+extends <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.3" class="relref">Section 10.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, which requires the attestation
 mechanism when refreshing.<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-5.1-4.2">
@@ -1837,8 +1852,9 @@ mechanism when refreshing.<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p
 <span class="bcp14">MUST</span> match the recorded one; and<a href="#section-5.1-4.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.1-4.2.2.2">
-                <p id="section-5.1-4.2.2.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy ATTEST, or a profile that
-has redefined refresh-token binding under <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-5.1-4.2.2.2.1">the proof and key binding <span class="bcp14">MUST</span> satisfy <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>, or a profile
+that has redefined refresh-token binding under
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-13" class="relref">Section 13</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1852,12 +1868,12 @@ identity, without disclosing the expected identity.<a href="#section-5.1-4.3.1" 
 <p id="section-5.1-6">If authorization-time policy bound a code or other artifact to an
 instance, the authorization server <span class="bcp14">MUST</span> enforce that binding at
 redemption, whether the attestation is the client authentication method
-or an additional security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). Because
-presenting the attestation is optional in that second mode, an
+or an additional security signal (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-7.6" class="relref">Section 7.6</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). Because
+presenting the attestation can be optional in that second mode, an
 authorization server that binds artifacts to instances <span class="bcp14">MUST</span> require it
 at their redemption; otherwise a conforming client cannot supply what
 the authorization server needs to check.
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-10.4" class="relref">Section 10.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends establishing such bindings where
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-10.4" class="relref">Section 10.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends establishing such bindings where
 attestation is the client authentication method.<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1869,19 +1885,20 @@ attestation is the client authentication method.<a href="#section-5.1-6" class="
 <p id="section-5.2-1">If required instance claims are missing or invalid, or if the Receiver's
 local policy for the instance (<a href="#processing" class="auto internal xref">Section 5</a>) rejects the instance, the
 Receiver <span class="bcp14">MUST</span> produce the <code>invalid_client_attestation</code> error code.
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-7.4" class="relref">Section 7.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> defines that code for failures to verify the
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-7.4" class="relref">Section 7.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> defines that code for failures to verify the
 attestation or its proof. This profile extends it to instance claims and
 policy, so responses do not disclose whether an instance is unknown,
 suspended, or retired. Receivers <span class="bcp14">SHOULD</span> also avoid distinguishable
 response timing. Consequently, a client cannot distinguish a transient
 failure from a durable policy decision, or whether retrying with a fresh
-attestation will help. Responses use the format ATTEST specifies for the
-code (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization server,
+attestation will help. Responses use the format and HTTP status codes
+that <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-7.4" class="relref">Section 7.4</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> specifies for the code
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> at the authorization server,
 <span><a href="https://rfc-editor.org/rfc/rfc6750#section-3" class="relref">Section 3</a> of [<a href="#RFC6750" class="cite xref">RFC6750</a>]</span> at a resource server). Unknown instances are
 rejected only when local policy requires prior enrollment. If a profile
 check fails, the Receiver <span class="bcp14">MUST NOT</span> fall back to authentication without
 the required evidence. Grant-binding errors follow <a href="#grant-continuity" class="auto internal xref">Section 5.1</a>;
-other errors follow ATTEST.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+other errors follow <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2009,13 +2026,15 @@ attestation, or former public key alone does not establish continuity.<a href="#
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-suspension-and-status" class="section-name selfRef">Suspension and Status</a>
         </h3>
 <p id="section-6.3-1">The attester <span class="bcp14">MUST</span> stop issuance for suspended or retired enrollments.
-A Receiver suspending an instance <span class="bcp14">SHOULD</span> revoke its grants or report
-their tokens inactive through introspection <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Short
+An authorization server that suspends an instance <span class="bcp14">SHOULD</span> revoke the
+instance's grants or report their tokens inactive through introspection
+<span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>. Short
 attestation lifetimes limit how long a suspended instance remains
 acceptable.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 <p id="section-6.3-2">When an authorization server revokes a grant for instance suspension,
-retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span> invalidate all of that
-grant's access and refresh tokens and prevent further refresh issuance.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+retirement, or attester trust withdrawal, it <span class="bcp14">MUST</span> revoke all of that
+grant's access and refresh tokens, report them inactive in
+introspection responses, and prevent further refresh issuance.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 <p id="section-6.3-3">Without a status channel, parties unaware of the change face three
 limitations: existing attestations may remain acceptable until
 expiration plus clock skew; issued tokens may still be accepted for
@@ -2107,14 +2126,15 @@ retain it across attestation renewal and verified key changes; and<a href="#sect
 an explicitly configured set.<a href="#section-7.1-5.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.1-6">Each Consumer Scope is a configured set of audience values. The issuer
-selects the mapping by the token's audience: its <code>aud</code> claim or, for an
-opaque token, the audience recorded at issuance. If a token has no
-audience, or its audiences span Consumer Scopes, no single <code>id</code> value is
-correct, and the issuer <span class="bcp14">MUST</span> omit the <code>client_instance</code> object. An
-introspection response conveys the <code>id</code> the token would carry. When the
-authenticated caller is outside the token's Consumer Scope, the issuer
-<span class="bcp14">MUST</span> omit the <code>client_instance</code> object.<a href="#section-7.1-6" class="pilcrow">¶</a></p>
+<p id="section-7.1-6">Each Consumer Scope is identified by a configured set of audience
+values. The issuer selects the mapping by the token's audience: its
+<code>aud</code> claim or, for an opaque token, the audience recorded at issuance.
+If a token has no audience, or its audiences span Consumer Scopes, no
+single <code>id</code> value is correct, and the issuer <span class="bcp14">MUST</span> omit the
+<code>client_instance</code> object. An introspection response conveys the <code>id</code> the
+token would carry. When the authenticated introspection caller is
+outside the token's Consumer Scope, the issuer <span class="bcp14">MUST</span> omit the
+<code>client_instance</code> object.<a href="#section-7.1-6" class="pilcrow">¶</a></p>
 <p id="section-7.1-7">For derived mappings, the mapping input supplies the enrollment-specific
 component and the consumer supplies the scope. Issuers <span class="bcp14">MUST</span> separate
 this derivation from attester identifiers, for example by a distinct
@@ -2145,8 +2165,8 @@ specified in <a href="#context-errors" class="auto internal xref">Section 7.6</a
         </ul>
 <p id="section-7.2-3">An issuer that changes its derivation inputs or secrets <span class="bcp14">MUST</span> still
 produce the identifiers already assigned for any input and scope for
-which it continues to include context, as attesters must under
-<a href="#identifier-generation" class="auto internal xref">Section 6.1</a>. Storing those values suffices. Otherwise,
+which it continues to include context, as <a href="#identifier-generation" class="auto internal xref">Section 6.1</a>
+requires of attesters. Storing those values suffices. Otherwise,
 rotating one secret would silently and permanently remove context from
 every instance mapped under it.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 <p id="section-7.2-4">Attester identifiers are never reassigned, so a new enrollment presents
@@ -2206,15 +2226,15 @@ and a Context Consumer requiring attribution rejects the request as
 specified in <a href="#context-errors" class="auto internal xref">Section 7.6</a>. The HTTP <code>Bearer</code> scheme does
 not indicate an unbound token; certificate-bound tokens <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>
 also use it.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
-<p id="section-7.3-6">All validation requirements of the token-binding mechanism apply
-whether or not context is used for attribution, including rejection of
-a bound token presented without its proof (<span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>).
-The binding authenticates the presenter; it does not establish that the
-presenter is the instance named in context derived from an upstream
-token. Any
-presenter or key change during exchange requires authorization under
-the consuming profile. Unlinkability between Context Consumers also
-requires distinct token-binding keys (<a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>).<a href="#section-7.3-6" class="pilcrow">¶</a></p>
+<p id="section-7.3-6">All validation requirements of the token-binding mechanism apply whether
+or not context is used for attribution, including rejection of a bound
+token presented without its proof (<span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.1" class="relref">Section 7.1</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> and
+<span><a href="https://rfc-editor.org/rfc/rfc9449#section-7.2" class="relref">Section 7.2</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). The binding authenticates the presenter; it
+does not establish that the presenter is the instance named in context
+derived from an upstream token. Any presenter or key change during
+exchange requires authorization under the consuming profile.
+Unlinkability between Context Consumers also requires distinct
+token-binding keys (<a href="#token-binding-keys" class="auto internal xref">Section 10.2</a>).<a href="#section-7.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="context-exchange">
@@ -2363,9 +2383,8 @@ Attestation failures follow <a href="#errors" class="auto internal xref">Section
       <h2 id="name-relationship-to-other-ident">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-relationship-to-other-ident" class="section-name selfRef">Relationship to Other Identity Systems</a>
       </h2>
-<p id="section-8-1">This section compares this profile with mechanisms that identify
-clients or workloads but not individual instances; it adds no
-requirements.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-1">This section compares this profile with client, workload, and agent
+identity mechanisms; it adds no requirements.<a href="#section-8-1" class="pilcrow">¶</a></p>
 <div id="client-id-metadata-documents">
 <section id="section-8.1">
         <h3 id="name-client-id-metadata-document">
@@ -2398,15 +2417,15 @@ prove that a caller is an authorized instance:<a href="#section-8.1-1" class="pi
           </tbody>
         </table>
 <p id="section-8.1-3">One CIMD URL describes the Logical Client, and Instance Identifiers
-belong in attestations, not per-installation metadata. The
-attestation's <code>sub</code> claim is that URL, and the <code>client_instance_id</code>
-claim distinguishes installations (<a href="#cimd-example" class="auto internal xref">Appendix B.1</a>). CIMD removes
+belong in attestations, not per-installation metadata. The attestation's
+<code>sub</code> claim is that URL, and the <code>client_instance_id</code> claim
+distinguishes installations (<a href="#cimd-example" class="auto internal xref">Appendix B.1</a>). CIMD removes
 per-authorization-server registration of client metadata but not this
-profile's trust agreement (<a href="#configuration" class="auto internal xref">Section 3</a>).
-<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> allows a client to endorse attesters through
-<code>client_attesters</code> metadata, subject to authorization server policy.
-That endorsement establishes the attester-to-client association but
-does not select this profile or its continuity and privacy policy.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+profile's trust agreement (<a href="#configuration" class="auto internal xref">Section 3</a>). <span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>
+allows a client to endorse attesters through <code>client_attesters</code> metadata
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00#section-3" class="relref">Section 3</a> of [<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>), subject to authorization server
+policy. That endorsement establishes the attester-to-client association
+but does not select this profile or its continuity and privacy policy.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="workload-and-agent-credentials">
@@ -2435,34 +2454,58 @@ context only from a validated Client Attestation
       <h2 id="name-security-considerations">
 <a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-9-1">The security considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-12" class="relref">Section 12</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> and <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>
+<p id="section-9-1">The security considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-12" class="relref">Section 12</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> and <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>
 apply.<a href="#section-9-1" class="pilcrow">¶</a></p>
 <div id="assurance">
 <section id="section-9.1">
         <h3 id="name-attester-compromise-and-ass">
 <a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-attester-compromise-and-ass" class="section-name selfRef">Attester Compromise and Assurance</a>
         </h3>
-<p id="section-9.1-1">A compromised attester can impersonate instances within its approved
-client associations. Receivers limit those associations and configure
-acceptable evidence assurance. An attester that overstates the
-assurance of its evidence defeats that configuration. Self-reported,
-platform-verified, and hardware-rooted evidence are not
-interchangeable. Without independent platform evidence, copied keys
-and enrollment data can be indistinguishable from the original;
-<a href="#continuity" class="auto internal xref">Section 6.2</a> governs detected forks and does not guarantee clone
-detection. Instance identity proves no software integrity beyond the
-evaluated evidence.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.1-1">Instance identifiers and continuity evidence are the attester's
+assertions, which Receivers rely on only as far as they trust that
+attester (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-12.3" class="relref">Section 12.3</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>). A compromised attester can
+impersonate instances within its approved client associations. Receivers
+limit those associations and configure acceptable evidence assurance. An
+attester that overstates the assurance of its evidence defeats that
+configuration. Self-reported, platform-verified, and hardware-rooted
+evidence are not interchangeable. Without independent platform evidence,
+copied keys and enrollment data can be indistinguishable from the
+original; <a href="#continuity" class="auto internal xref">Section 6.2</a> governs detected forks and does not guarantee
+clone detection. Instance identity proves no software integrity beyond
+the evaluated evidence.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="re-enrollment">
+<section id="section-9.2">
+        <h3 id="name-suspension-and-re-enrollmen">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-suspension-and-re-enrollmen" class="section-name selfRef">Suspension and Re-enrollment</a>
+        </h3>
+<p id="section-9.2-1">Suspension at a Receiver applies to the Source Instance Identity that
+Receiver recorded. An instance can appear under a different identity by
+re-enrolling, which <a href="#continuity" class="auto internal xref">Section 6.2</a> requires after events such as a
+reinstall, or by presenting an attestation scoped to another Receiver,
+which the Receiver cannot detect (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>). Unless the
+Receiver requires prior enrollment (<a href="#errors" class="auto internal xref">Section 5.2</a>), such an instance is
+accepted as a new one. Suspension at the attester (<a href="#suspension" class="auto internal xref">Section 6.3</a>) stops
+issuance only for the suspended enrollment: it does not prevent a
+replacement enrollment unless the attester also controls admission of
+new enrollments for that installation, and attestations issued before
+the suspension remain usable until they expire. A Receiver that relies
+on suspension for containment therefore requires prior enrollment, or
+coordinates with the attester both suspension and admission control for
+replacement enrollments, and accepts the window set by outstanding
+attestation lifetimes.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="forwarding">
-<section id="section-9.2">
+<section id="section-9.3">
         <h3 id="name-forwarding">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-forwarding" class="section-name selfRef">Forwarding</a>
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-forwarding" class="section-name selfRef">Forwarding</a>
         </h3>
-<p id="section-9.2-1">Forwarding resistance is provided by ATTEST proof validation,
+<p id="section-9.3-1">Forwarding resistance is provided by <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> proof validation,
 freshness, and key possession, not by identifier scope. The Client
 Attestation has no audience; its proof-of-possession JWT identifies
-the Receiver, and combined DPoP binds the HTTP request.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+the Receiver, and combined DPoP binds the HTTP request.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2472,7 +2515,7 @@ the Receiver, and combined DPoP binds the HTTP request.<a href="#section-9.2-1" 
       <h2 id="name-privacy-considerations">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-10-1">The privacy considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11" class="relref">Section 11</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> apply.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-1">The privacy considerations of <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-11" class="relref">Section 11</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> apply.<a href="#section-10-1" class="pilcrow">¶</a></p>
 <div id="correlation">
 <section id="section-10.1">
         <h3 id="name-correlation-across-receiver">
@@ -2480,9 +2523,14 @@ the Receiver, and combined DPoP binds the HTTP request.<a href="#section-9.2-1" 
         </h3>
 <p id="section-10.1-1">Separate identifiers and keys per Receiver Scope (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>)
 limit correlation, strengthening the protections of
-<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Receivers <span class="bcp14">MUST NOT</span> assume that identifiers
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>. Receivers <span class="bcp14">MUST NOT</span> assume that identifiers
 are comparable across scopes; explicitly shared scopes permit
 correlation.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">Attestations that an attester issues together for different Receiver
+Scopes can also be correlated through matching <code>iat</code> and <code>exp</code> values.
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-11.1" class="relref">Section 11.1</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> recommends that the attester randomize or
+round those values, which matters most here because this profile
+issues a separate attestation for each Receiver Scope.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="token-binding-keys">
@@ -2492,12 +2540,12 @@ correlation.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-10.2-1">Per-consumer Instance Context Identifiers do not prevent correlation
 through a shared binding key. In DPoP combined mode
-(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>), the Client Instance Key is the DPoP key,
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12#section-5.2" class="relref">Section 5.2</a> of [<a href="#ATTEST" class="cite xref">ATTEST</a>]</span>), the Client Instance Key is the DPoP key,
 so tokens for different Context Consumers can carry different <code>id</code>
 values but the same <code>cnf.jkt</code>. When unlinkability between Context
 Consumers is required, the client <span class="bcp14">MUST</span> use distinct token-binding keys
 across those scopes, for example, DPoP without combined mode or a
-distinct mutual-TLS certificate per scope. Other claims and
+distinct mutual-TLS certificate and key pair per scope. Other claims and
 application data can also correlate requests. Identifier scoping does
 not permit changing a refresh token's bound key (<a href="#grant-continuity" class="auto internal xref">Section 5.1</a>).<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 <p id="section-10.2-2">The same applies between an authorization server and a resource server.
@@ -2624,7 +2672,7 @@ or actor profile values.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 <dl class="references">
 <dt id="ATTEST">[ATTEST]</dt>
         <dd>
-<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-11</span>, <time datetime="2026-09-03" class="refDate">3 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11</a>&gt;</span>. </dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-12</span>, <time datetime="2026-10-12" class="refDate">12 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC6749">[RFC6749]</dt>
         <dd>
@@ -2677,25 +2725,25 @@ or actor profile values.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 <a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="ACTOR-PROFILE">[ACTOR-PROFILE]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth Actor Profile for Delegation"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-actor-profile-00</span>, <time datetime="2026-04-30" class="refDate">30 April 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-00</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="ATTESTER-ENDORSEMENT">[ATTESTER-ENDORSEMENT]</dt>
-        <dd>
-<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <time datetime="2026-09-14" class="refDate">14 September 2026</time>, <span>&lt;<a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-attesters/draft-mcguinness-oauth-client-attesters.html</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="AAUTH">[AAUTH]</dt>
         <dd>
 <span class="refAuthor">Hardt, D.</span>, <span class="refTitle">"AAuth Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-hardt-oauth-aauth-protocol-11</span>, <time datetime="2026-09-25" class="refDate">25 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-11">https://datatracker.ietf.org/doc/html/draft-hardt-oauth-aauth-protocol-11</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC2104">[RFC2104]</dt>
+<dt id="ACTOR-PROFILE">[ACTOR-PROFILE]</dt>
         <dd>
-<span class="refAuthor">Krawczyk, H.</span>, <span class="refAuthor">Bellare, M.</span>, and <span class="refAuthor">R. Canetti</span>, <span class="refTitle">"HMAC: Keyed-Hashing for Message Authentication"</span>, <span class="seriesInfo">RFC 2104</span>, <span class="seriesInfo">DOI 10.17487/RFC2104</span>, <time datetime="1997-02" class="refDate">February 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2104">https://www.rfc-editor.org/rfc/rfc2104</a>&gt;</span>. </dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth Actor Profile for Delegation"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-actor-profile-01</span>, <time datetime="2026-10-08" class="refDate">8 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-01">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-actor-profile-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ATTESTER-ENDORSEMENT">[ATTESTER-ENDORSEMENT]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"OAuth 2.0 Client Attester Endorsement"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mcguinness-oauth-client-attesters-00</span>, <time datetime="2026-09-28" class="refDate">28 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00">https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="CIMD">[CIMD]</dt>
         <dd>
 <span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2104">[RFC2104]</dt>
+        <dd>
+<span class="refAuthor">Krawczyk, H.</span>, <span class="refAuthor">Bellare, M.</span>, and <span class="refAuthor">R. Canetti</span>, <span class="refTitle">"HMAC: Keyed-Hashing for Message Authentication"</span>, <span class="seriesInfo">RFC 2104</span>, <span class="seriesInfo">DOI 10.17487/RFC2104</span>, <time datetime="1997-02" class="refDate">February 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2104">https://www.rfc-editor.org/rfc/rfc2104</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7591">[RFC7591]</dt>
         <dd>
@@ -2708,10 +2756,6 @@ or actor profile values.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 <dt id="RFC8252">[RFC8252]</dt>
         <dd>
 <span class="refAuthor">Denniss, W.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 for Native Apps"</span>, <span class="seriesInfo">BCP 212</span>, <span class="seriesInfo">RFC 8252</span>, <span class="seriesInfo">DOI 10.17487/RFC8252</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8252">https://www.rfc-editor.org/rfc/rfc8252</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="SPIFFE-OAUTH">[SPIFFE-OAUTH]</dt>
-        <dd>
-<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Rose, S.</span>, <span class="refAuthor">Thorgersen, S.</span>, and <span class="refAuthor">N. Cam-Winget</span>, <span class="refTitle">"OAuth SPIFFE Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-spiffe-client-auth-02</span>, <time datetime="2026-06-15" class="refDate">15 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8417">[RFC8417]</dt>
         <dd>
@@ -2726,8 +2770,12 @@ or actor profile values.<a href="#section-11.2-3" class="pilcrow">¶</a></p>
 <span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9421">[RFC9421]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Backman, A., Ed.</span>, <span class="refAuthor">Richer, J., Ed.</span>, and <span class="refAuthor">M. Sporny</span>, <span class="refTitle">"HTTP Message Signatures"</span>, <span class="seriesInfo">RFC 9421</span>, <span class="seriesInfo">DOI 10.17487/RFC9421</span>, <time datetime="2024-02" class="refDate">February 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9421">https://www.rfc-editor.org/rfc/rfc9421</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SPIFFE-OAUTH">[SPIFFE-OAUTH]</dt>
+      <dd>
+<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Rose, S.</span>, <span class="refAuthor">Thorgersen, S.</span>, and <span class="refAuthor">N. Cam-Winget</span>, <span class="refTitle">"OAuth SPIFFE Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-spiffe-client-auth-03</span>, <time datetime="2026-11-02" class="refDate">2 November 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-03">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-03</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2769,7 +2817,7 @@ member of the <code>cnf</code> claim identifies the public key in
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-f61783ea4cb24d098851d34960a274be"
+    "id": "m-95c9f383a07468578c0329a9a660740f"
   }
 }
 </pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
@@ -2806,7 +2854,7 @@ Cache-Control: no-store
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-f61783ea4cb24d098851d34960a274be"
+    "id": "m-95c9f383a07468578c0329a9a660740f"
   }
 }
 </pre><a href="#appendix-A.2-2" class="pilcrow">¶</a>
@@ -2823,9 +2871,9 @@ instance <code>A</code> began for the same governed agent. Here that profile
 authorizes <code>agent-42</code> to act for <code>user-17</code> under <span>[<a href="#ACTOR-PROFILE" class="cite xref">ACTOR-PROFILE</a>]</span> and
 selects the authenticated presenting instance for output context. The
 authorization server validates <code>B</code>'s attestation and proof, replaces
-<code>A</code>'s input context with <code>B</code>'s resource-scoped mapping, and binds the
-output token under the consuming profile. The following example shows
-the relevant output claims:<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+<code>A</code>'s input context with <code>B</code>'s mapping for the resource server's
+Consumer Scope, and binds the output token under the consuming profile.
+The following example shows the relevant output claims:<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="appendix-A.3-2">
 <pre>
 {
@@ -2837,7 +2885,7 @@ the relevant output claims:<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
   },
   "client_instance": {
     "iss": "https://as.example",
-    "id": "m-2b58e0d760954a5a9ce64f3e718d02ac"
+    "id": "m-a524d3cc4ba2df62c17f080e8779794d"
   }
 }
 </pre><a href="#appendix-A.3-2" class="pilcrow">¶</a>
@@ -2883,8 +2931,9 @@ to the authorization server.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="appendix-B-2">
 <li id="appendix-B-2.1">
           <p id="appendix-B-2.1.1">The attester verifies enrollment evidence and possession of <code>K1</code>,
-then issues the attestation in <a href="#claims" class="auto internal xref">Section 4</a>: <code>sub=C1</code>,
-<code>client_instance_id=I1</code>, and <code>cnf.jwk</code> holding public key <code>K1</code>.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+then issues the attestation in <a href="#claims" class="auto internal xref">Section 4</a>: <code>iss</code> naming the attester,
+<code>sub=C1</code>, <code>client_instance_id=I1</code>, and <code>cnf.jwk</code> holding public key
+<code>K1</code>.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-B-2.2">
           <p id="appendix-B-2.2.1">The client presents its grant, attestation, and combined DPoP proof
@@ -2892,7 +2941,7 @@ using <code>K1</code> at the authorization server token endpoint.<a href="#appen
 </li>
         <li id="appendix-B-2.3">
           <p id="appendix-B-2.3.1">The authorization server validates them and issues a DPoP-bound token
-with mapped context <code>M1</code>, scoped to the resource. The resource
+with mapped context <code>M1</code>, scoped to the resource. The resource server
 validates the token, proof, and context without seeing the enrollment
 evidence.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
 </li>
@@ -2903,11 +2952,11 @@ evidence.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
 <a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-cimd-client" class="section-name selfRef">CIMD Client</a>
         </h3>
 <p id="appendix-B.1-1">Let <code>C1</code> be <code>https://platform.example/oauth-client</code>, whose CIMD declares
-<code>attest_jwt_client_auth_dpop</code> (<span>[<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span> has a metadata
-example). The authorization server validates the CIMD and trusts the
-attester through configuration or an accepted <code>client_attesters</code>
-endorsement. Key renewal does not change the CIMD. User-authorized
-access follows <a href="#managed-device-example" class="auto internal xref">Appendix B.4</a>.<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
+<code>attest_jwt_client_auth_dpop</code> (<span><a href="https://datatracker.ietf.org/doc/html/draft-mcguinness-oauth-client-attesters-00#appendix-A" class="relref">Appendix A</a> of [<a href="#ATTESTER-ENDORSEMENT" class="cite xref">ATTESTER-ENDORSEMENT</a>]</span>
+has a metadata example). The authorization server validates the CIMD and
+trusts the attester through configuration or an accepted
+<code>client_attesters</code> endorsement. Key renewal does not change the CIMD.
+User-authorized access follows <a href="#managed-device-example" class="auto internal xref">Appendix B.4</a>.<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="aauth-example">
@@ -2960,9 +3009,30 @@ requires new enrollment.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
 <a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-C-1"><em>RFC EDITOR: Remove this section before publication.</em><a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<p id="appendix-C-2">-01<a href="#appendix-C-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-C-2.1">
-          <p id="appendix-C-2.1.1">Initial draft.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-C-3.1">
+          <p id="appendix-C-3.1.1">Updated for draft-ietf-oauth-attestation-based-client-auth-12: <code>iat</code>
+is now a required attestation claim, attestation errors use the HTTP
+status codes of its Section 7.4, attestations issued together for
+different Receiver Scopes can correlate through <code>iat</code> and <code>exp</code>, and
+instance claims are trusted only as far as the attester is.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.2">
+          <p id="appendix-C-3.2.1">Updated references to draft-ietf-oauth-spiffe-client-auth-03 and
+draft-mcguinness-oauth-actor-profile-01.<a href="#appendix-C-3.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="appendix-C-4">-00<a href="#appendix-C-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-C-5.1">
+          <p id="appendix-C-5.1.1">Initial version. Replaces
+draft-mcguinness-oauth-client-instance-assertion-01. Instead of a
+separate Client Instance Assertion carried in the
+<code>client_instance_assertion</code> request parameter, instance identity is
+carried in the Client Attestation of <span>[<a href="#ATTEST" class="cite xref">ATTEST</a>]</span> as the
+<code>client_instance_id</code> claim, with optional Instance Context conveyed
+downstream as the <code>client_instance</code> claim.<a href="#appendix-C-5.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
