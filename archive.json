@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-29T05:25:39.237262+00:00",
+  "timestamp": "2026-11-03T06:19:24.094539+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
   "labels": [
     {
@@ -958,6 +958,62 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "70a339b945b2aedb7e2a61ba291bebc87c9577cc"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 35,
+      "id": "PR_kwDOUbZuvs8AAAABMYRIOQ",
+      "title": "Update for ATTEST -12, SPIFFE client auth -03, and actor profile -01",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/35",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Updates the draft for new revisions of its dependencies. These changes go into -01.\n\n## What changed upstream\n\n- **draft-ietf-oauth-spiffe-client-auth-03.** Sections are renumbered, and there is a new \u00a73.1 on client identification and a new token endpoint authentication method registration. This draft cites SPIFFE-OAUTH only as a whole, for SVID authentication and client mappings, and -03 still defines both. The mutual TLS with an X.509-SVID in Appendix B.3 happens at the attester, which SPIFFE-OAUTH's authorization-server rules do not govern. Only the reference changes.\n- **draft-ietf-oauth-attestation-based-client-auth-12** (ATTEST, normative). Every section this draft cites keeps its number, and the abstract sentence quoted in \u00a74.1 and \u00a710.3 is unchanged. Four content changes matter here:\n  - \u00a74: `iat` moved from OPTIONAL to REQUIRED.\n  - \u00a77.4: HTTP status codes are now defined. Authorization servers SHOULD use 400 and MAY use 401 for `invalid_client_attestation`. Resource servers SHOULD use 401 with the error in `WWW-Authenticate`.\n  - \u00a711.1: attestations issued together can be correlated through `iat` and `exp`, and the attester SHOULD randomize or round those values.\n  - New \u00a712.3: all claims in a Client Attestation are the attester's assertions.\n- **draft-mcguinness-oauth-actor-profile-01.** The `act` object still requires `iss` and `sub`, so Appendix A.3 still conforms. Only the reference changes.\n\n## Commits\n\n1. **`c84d8f6`:** \u00a74 lists `exp`, `cnf`, and `iat` as required, and the \u00a74.2 example no longer calls `iat` optional. The previous text contradicted ATTEST -12.\n2. **`eb5da67`:** \u00a75.2 now says attestation errors use the format and HTTP status codes of Section 7.4 of [ATTEST]. This closes the \"no HTTP status\" gap noted in the pre-publication review. The 400 in Appendix A.4 matches ATTEST's SHOULD.\n3. **`c175957`:** \u00a710.1 notes the `iat`/`exp` correlation and points to Section 11.1 of [ATTEST]. It matters most for this profile, which issues a separate attestation for each Receiver Scope.\n4. **`62df84f`:** \u00a79.1 cites Section 12.3 of [ATTEST]. Instance identifiers and continuity evidence are the attester's assertions, and Receivers rely on them only as far as they trust that attester.\n5. **`cded13f`:** the Document History gets a -01 entry for these changes and the updated references.\n6. **`1b1aca2`:** the Document History is consolidated to one short bullet per revision. The -00 entry keeps the replacement of draft-mcguinness-oauth-client-instance-assertion-01 and the central design change.\n\n## Verification\n\n- **Keywords:** the ordered BCP 14 keyword sequence is identical to `main` (74 \u2192 74). No keyword sentence was added, removed, or reworded, and no keyword sentence newly opens a paragraph.\n- **References:** none unresolved or uncited. The rendered references now cite ATTEST -12, SPIFFE-OAUTH -03, and ACTOR-PROFILE -01. Stale local reference-cache entries were replaced; the cache is not tracked.\n- **idnits:** unchanged. The history block contains no BCP 14 words.\n\n",
+      "createdAt": "2026-11-02T18:55:12Z",
+      "updatedAt": "2026-11-02T18:59:58Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "70a339b945b2aedb7e2a61ba291bebc87c9577cc",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "dep-refresh",
+      "headRefOid": "1b1aca2255efdb4f65bdab913ea549f352d679a8",
+      "closedAt": "2026-11-02T18:59:54Z",
+      "mergedAt": "2026-11-02T18:59:54Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "48827e7a8ae5e017a84a8f11410742804665f591"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 36,
+      "id": "PR_kwDOUbZuvs8AAAABMYW4Iw",
+      "title": "Retitle the draft OAuth 2.0 Client Instance Identifiers",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/36",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Retitles the draft from \"Client Instance Identification for Attestation-Based Client Authentication\" to **\"OAuth 2.0 Client Instance Identifiers\"**. The new title names what the draft defines, in the \"OAuth 2.0 X\" form used by RFC 9449, RFC 8705, and the companion draft-mcguinness-oauth-client-attesters. The abstract still says the draft is a profile of ATTEST.\n\n- **Front matter:** `title` is now \"OAuth 2.0 Client Instance Identifiers\". `abbrev` is now \"Client Instance Identifiers\", which is what appears in the running page header.\n- **README:** the heading and the working-area sentence carry the new title. The README has `regenerate: off`, so it was edited by hand.\n- **Document History:** the -01 entry now records the retitle. The bullet's wording also changed, because the version on `main` wrapped \"references.\" onto its own line, and idnits3 read that line as an indented \"References\" section title. That added a third `SECTION_TITLE_HAS_UNEXPECTED_INDENTATION` warning, now gone.\n\nThe docname `draft-mcguinness-oauth-client-instance-id` does not change, so the datatracker record and the replacement link stay as they are. The new title takes effect with the -01 upload.\n\nVerification: the ordered BCP 14 keyword sequence is unchanged, the draft builds clean, and idnits3 reports only the two known table-of-contents warnings and the possible downref.\n",
+      "createdAt": "2026-11-02T19:02:19Z",
+      "updatedAt": "2026-11-02T19:07:59Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "48827e7a8ae5e017a84a8f11410742804665f591",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "retitle",
+      "headRefOid": "15609a7c8d29661d3b5f31d0e81818009f23b991",
+      "closedAt": "2026-11-02T19:07:55Z",
+      "mergedAt": "2026-11-02T19:07:55Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "a5365887c59de2c3a0ec549a037733cb1ff822bd"
       },
       "comments": [],
       "reviews": []
