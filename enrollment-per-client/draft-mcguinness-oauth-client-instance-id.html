@@ -1441,13 +1441,11 @@ unit's lifetime.<a href="#section-1.1-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-1.1-4">Enrollment records that choice.<a href="#section-1.1-4" class="pilcrow">¶</a></p>
-<p id="section-1.1-5">Installations and units relate to Logical Clients many to many: one
-Logical Client has many installations or units, and one installation or
-unit can act as several Logical Clients. Each enrollment covers one
-Logical Client, so an installation or unit acting as several has a
-separate enrollment, with its own Instance Identifiers, for each. Their
-distinct identifiers do not link those enrollments, but a Client
-Instance Key they share does (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-1.1-5" class="pilcrow">¶</a></p>
+<p id="section-1.1-5">A Logical Client can have multiple installations or execution units. An
+installation or execution unit can act as multiple Logical Clients, with
+a separate enrollment and distinct Instance Identifiers for each Logical
+Client. A shared Client Instance Key allows those enrollments to be
+correlated even when their identifiers differ (<a href="#receiver-scope" class="auto internal xref">Section 4.1</a>).<a href="#section-1.1-5" class="pilcrow">¶</a></p>
 <p id="section-1.1-6">This specification addresses administratively configured deployments
 such as workloads and managed desktop or mobile applications. Its
 identifiers are not general-purpose device or wallet identifiers, and
@@ -3020,8 +3018,8 @@ requires new enrollment.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
 <p id="appendix-C-2">-02<a href="#appendix-C-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-C-3.1">
-          <p id="appendix-C-3.1.1">Stated that installations and units relate to Logical Clients many
-to many, with one enrollment per Logical Client.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-3.1.1">Stated that an installation or execution unit acting as multiple
+Logical Clients has a separate enrollment for each.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-4">-01<a href="#appendix-C-4" class="pilcrow">¶</a></p>
