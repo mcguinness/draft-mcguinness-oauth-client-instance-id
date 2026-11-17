@@ -128,6 +128,14 @@ The deployment chooses the instance granularity:
 
 Enrollment records that choice.
 
+Installations and units relate to Logical Clients many to many: one
+Logical Client has many installations or units, and one installation or
+unit can act as several Logical Clients. Each enrollment covers one
+Logical Client, so an installation or unit acting as several has a
+separate enrollment, with its own Instance Identifiers, for each. Their
+distinct identifiers do not link those enrollments, but a Client
+Instance Key they share does ({{receiver-scope}}).
+
 This specification addresses administratively configured deployments
 such as workloads and managed desktop or mobile applications. Its
 identifiers are not general-purpose device or wallet identifiers, and
@@ -213,9 +221,10 @@ Consuming profile:
   profile only in the case described in {{context-consumer}}.
 
 enrollment:
-: An attester-maintained record binding one instance, at the configured
-  granularity, to its verified keys and assigned identifiers, separate
-  from any user account, device registration, or Logical Client.
+: An attester-maintained record binding one instance of one Logical
+  Client, at the configured granularity, to its verified keys and
+  assigned identifiers. It is distinct from any user account, device
+  registration, or client registration.
 
 Identifier values in this specification are opaque. Implementations MUST
 compare `iss`, `client_instance_id`, `client_instance.iss`, and
@@ -1137,6 +1146,11 @@ requires new enrollment.
 {:numbered="false"}
 
 *RFC EDITOR: Remove this section before publication.*
+
+-02
+
+* Stated that installations and units relate to Logical Clients many
+  to many, with one enrollment per Logical Client.
 
 -01
 
