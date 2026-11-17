@@ -128,13 +128,11 @@ The deployment chooses the instance granularity:
 
 Enrollment records that choice.
 
-Installations and units relate to Logical Clients many to many: one
-Logical Client has many installations or units, and one installation or
-unit can act as several Logical Clients. Each enrollment covers one
-Logical Client, so an installation or unit acting as several has a
-separate enrollment, with its own Instance Identifiers, for each. Their
-distinct identifiers do not link those enrollments, but a Client
-Instance Key they share does ({{receiver-scope}}).
+A Logical Client can have multiple installations or execution units. An
+installation or execution unit can act as multiple Logical Clients, with
+a separate enrollment and distinct Instance Identifiers for each Logical
+Client. A shared Client Instance Key allows those enrollments to be
+correlated even when their identifiers differ ({{receiver-scope}}).
 
 This specification addresses administratively configured deployments
 such as workloads and managed desktop or mobile applications. Its
@@ -1149,8 +1147,8 @@ requires new enrollment.
 
 -02
 
-* Stated that installations and units relate to Logical Clients many
-  to many, with one enrollment per Logical Client.
+* Stated that an installation or execution unit acting as multiple
+  Logical Clients has a separate enrollment for each.
 
 -01
 
