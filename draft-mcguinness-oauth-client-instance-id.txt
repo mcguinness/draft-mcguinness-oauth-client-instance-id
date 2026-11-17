@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         2 November 2026
-Expires: 6 May 2027
+Intended status: Standards Track                        17 November 2026
+Expires: 21 May 2027
 
 
                  OAuth 2.0 Client Instance Identifiers
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 May 2027.
+   This Internet-Draft will expire on 21 May 2027.
 
 Copyright Notice
 
@@ -209,6 +209,13 @@ Table of Contents
 
    Enrollment records that choice.
 
+   A Logical Client can have multiple installations or execution units.
+   An installation or execution unit can act as multiple Logical
+   Clients, with a separate enrollment and distinct Instance Identifiers
+   for each Logical Client.  A shared Client Instance Key allows those
+   enrollments to be correlated even when their identifiers differ
+   (Section 4.1).
+
    This specification addresses administratively configured deployments
    such as workloads and managed desktop or mobile applications.  Its
    identifiers are not general-purpose device or wallet identifiers, and
@@ -289,10 +296,10 @@ Table of Contents
       as the consuming profile only in the case described in
       Section 7.5.
 
-   enrollment:  An attester-maintained record binding one instance, at
-      the configured granularity, to its verified keys and assigned
-      identifiers, separate from any user account, device registration,
-      or Logical Client.
+   enrollment:  An attester-maintained record binding one instance of
+      one Logical Client, at the configured granularity, to its verified
+      keys and assigned identifiers.  It is distinct from any user
+      account, device registration, or client registration.
 
    Identifier values in this specification are opaque.  Implementations
    MUST compare iss, client_instance_id, client_instance.iss, and
@@ -1227,15 +1234,15 @@ Table of Contents
    [ATTESTER-ENDORSEMENT]
               McGuinness, K., "OAuth 2.0 Client Attester Endorsement",
               Work in Progress, Internet-Draft, draft-mcguinness-oauth-
-              client-attesters-00, 28 September 2026,
+              client-attesters-01, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-mcguinness-
-              oauth-client-attesters-00>.
+              oauth-client-attesters-01>.
 
    [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
               Document", Work in Progress, Internet-Draft, draft-ietf-
-              oauth-client-id-metadata-document-02, 6 July 2026,
+              oauth-client-id-metadata-document-03, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              client-id-metadata-document-02>.
+              client-id-metadata-document-03>.
 
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
               Hashing for Message Authentication", RFC 2104,
@@ -1449,6 +1456,11 @@ B.4.  Managed Device
 Document History
 
    _RFC EDITOR: Remove this section before publication._
+
+   -02
+
+   *  Stated that an installation or execution unit acting as multiple
+      Logical Clients has a separate enrollment for each.
 
    -01
 
