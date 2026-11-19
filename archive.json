@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-05T06:16:04.411273+00:00",
+  "timestamp": "2026-11-19T06:59:42.903239+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-instance-id",
   "labels": [
     {
@@ -1046,6 +1046,34 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "a5365887c59de2c3a0ec549a037733cb1ff822bd"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 39,
+      "id": "PR_kwDOUbZuvs8AAAABP5Vv3Q",
+      "title": "Scope each enrollment to one Logical Client",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-instance-id/pull/39",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "## Problem\n\nThe text implied, but did not state, that an installation or execution unit acting as multiple Logical Clients gets separate Instance Identifiers for each:\n\n- Continuity and Lifecycle item 1 says an enrollment binds \"the instance, Logical Client, Receiver Scope, granularity, and previously verified keys\".\n- Identifier Generation's keyed derivation encodes the Logical Client.\n- The enrollment definition said an enrollment is \"separate from any user account, device registration, or Logical Client\", which invites the opposite reading.\n\n## Change\n\n- **Enrollment definition:** an enrollment binds \"one instance of one Logical Client\" and \"is distinct from any user account, device registration, or client registration\".\n- **Identity and Scope:** a new paragraph states the relationships directly. A Logical Client can have multiple installations or execution units. An installation or execution unit can act as multiple Logical Clients, with a separate enrollment and distinct Instance Identifiers for each. A shared Client Instance Key allows those enrollments to be correlated even when their identifiers differ (Section 4.1, which already makes the same point across Receiver Scopes).\n- **Document History:** -02 entry.\n\n## Normative impact\n\nNo BCP 14 keywords added or removed (74 \u2192 74), and `normative_diff` reports no keyword-sentence changes. The definition change removes a reading the rest of the text already contradicted.\n\nDistinct keys across Logical Clients are not required; the new text states only that a shared key allows correlation.",
+      "createdAt": "2026-11-17T17:26:50Z",
+      "updatedAt": "2026-11-17T22:07:57Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "baseRefName": "main",
+      "baseRefOid": "a5365887c59de2c3a0ec549a037733cb1ff822bd",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-instance-id",
+      "headRefName": "enrollment-per-client",
+      "headRefOid": "fa709212fa4b07ee5a7df49637568d1a41d97840",
+      "closedAt": "2026-11-17T22:07:54Z",
+      "mergedAt": "2026-11-17T22:07:54Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "080c467e554e036159d46b11e2cb5ebcf5ec391f"
       },
       "comments": [],
       "reviews": []
